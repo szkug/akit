@@ -41,7 +41,8 @@ import com.bumptech.glide.request.RequestListener
  * )
  * ```
  *
- * @param model Support Url string, Uri, Drawable ResId, or [Painter]
+ * @param model Support Url string, Uri, Drawable ResId, or [Painter],
+ * but not recommend use painter directly
  * @param tag Log tag used to locate problems
  * @param requestBuilder return custom requestBuilder. The model is automatically loaded at the right time,
  * so don't load model directly in requestBuilder. and use [listener] param if need set RequestListener.

@@ -161,7 +161,7 @@ internal class GlidePainterNode(
         } ?: loadingPainter ?: EmptyPainter
 
     private var painter = placeablePainter
-        set(value) {
+        set(value) = trace("GlidePainterNode.painter.setter") {
             if (field == value) return
             stopAnimation(field)
             field = value
@@ -317,56 +317,57 @@ internal class GlidePainterNode(
         }
     }
 
-    private fun modifyConstraints(constraints: Constraints): Constraints {
+    private fun modifyConstraints(constraints: Constraints): Constraints =
+        trace("GlidePainterNode.modifyConstraints") {
 
-        // If we have fixed constraints, use the original constraints
-        if (constraints.hasFixedWidth && constraints.hasFixedHeight) return constraints
+            // If we have fixed constraints, use the original constraints
+            if (constraints.hasFixedWidth && constraints.hasFixedHeight) return constraints
 
-        val hasBoundedDimens = constraints.hasBoundedWidth && constraints.hasBoundedHeight
+            val hasBoundedDimens = constraints.hasBoundedWidth && constraints.hasBoundedHeight
 
-        // If we are not attempting to size the composable based on the size of the Painter,
-        // do not attempt to modify them.
-        if (!painterIntrinsicSizeSpecified && hasBoundedDimens) {
-            log("modifyConstraints") { "use bounded dimens" }
-            return constraints
+            // If we are not attempting to size the composable based on the size of the Painter,
+            // do not attempt to modify them.
+            if (!painterIntrinsicSizeSpecified && hasBoundedDimens) {
+                log("modifyConstraints") { "use bounded dimens" }
+                return constraints
+            }
+
+            // Otherwise rely on Alignment and ContentScale to determine
+            // how to position the drawing contents of the Painter within the provided bounds
+
+            val intrinsicSize = painter.intrinsicSize
+            val intrinsicWidth =
+                if (intrinsicSize.hasSpecifiedAndFiniteWidth()) {
+                    intrinsicSize.width.roundToInt()
+                } else {
+                    constraints.minWidth
+                }
+
+            val intrinsicHeight =
+                if (intrinsicSize.hasSpecifiedAndFiniteHeight()) {
+                    intrinsicSize.height.roundToInt()
+                } else {
+                    constraints.minHeight
+                }
+
+            // Scale the width and height appropriately based on the given constraints
+            // and ContentScale
+            val constrainedWidth = constraints.constrainWidth(intrinsicWidth)
+            val constrainedHeight = constraints.constrainHeight(intrinsicHeight)
+            val scaledSize = calculateScaledSize(
+                Size(constrainedWidth.toFloat(), constrainedHeight.toFloat())
+            )
+
+            // For both width and height constraints, consume the minimum of the scaled width
+            // and the maximum constraint as some scale types can scale larger than the maximum
+            // available size (ex ContentScale.Crop)
+            // In this case the larger of the 2 dimensions is used and the aspect ratio is
+            // maintained. Even if the size of the composable is smaller, the painter will
+            // draw its content clipped
+            val minWidth = constraints.constrainWidth(scaledSize.width.roundToInt())
+            val minHeight = constraints.constrainHeight(scaledSize.height.roundToInt())
+            return constraints.copy(minWidth = minWidth, minHeight = minHeight)
         }
-
-        // Otherwise rely on Alignment and ContentScale to determine
-        // how to position the drawing contents of the Painter within the provided bounds
-
-        val intrinsicSize = painter.intrinsicSize
-        val intrinsicWidth =
-            if (intrinsicSize.hasSpecifiedAndFiniteWidth()) {
-                intrinsicSize.width.roundToInt()
-            } else {
-                constraints.minWidth
-            }
-
-        val intrinsicHeight =
-            if (intrinsicSize.hasSpecifiedAndFiniteHeight()) {
-                intrinsicSize.height.roundToInt()
-            } else {
-                constraints.minHeight
-            }
-
-        // Scale the width and height appropriately based on the given constraints
-        // and ContentScale
-        val constrainedWidth = constraints.constrainWidth(intrinsicWidth)
-        val constrainedHeight = constraints.constrainHeight(intrinsicHeight)
-        val scaledSize = calculateScaledSize(
-            Size(constrainedWidth.toFloat(), constrainedHeight.toFloat())
-        )
-
-        // For both width and height constraints, consume the minimum of the scaled width
-        // and the maximum constraint as some scale types can scale larger than the maximum
-        // available size (ex ContentScale.Crop)
-        // In this case the larger of the 2 dimensions is used and the aspect ratio is
-        // maintained. Even if the size of the composable is smaller, the painter will
-        // draw its content clipped
-        val minWidth = constraints.constrainWidth(scaledSize.width.roundToInt())
-        val minHeight = constraints.constrainHeight(scaledSize.height.roundToInt())
-        return constraints.copy(minWidth = minWidth, minHeight = minHeight)
-    }
 
     override fun ContentDrawScope.draw() {
         val intrinsicSize = painter.intrinsicSize
@@ -467,35 +468,34 @@ internal class GlidePainterNode(
 
             if (rememberJob != null || requestModel !is GlideRequestModel) return@sideEffect
 
-            rememberJob = (coroutineScope + Dispatchers.Main.immediate).launch(
-                Dispatchers.IO
-            ) {
+            rememberJob = (coroutineScope + Dispatchers.Main.immediate).launch {
                 flowRequest(requestModel)
             }
         }
 
-    private suspend fun flowRequest(requestModel: GlideRequestModel) = trace("GlidePainterNode.flowRequest") {
-        requestModel.requestBuilder
-            .setupScaleTransform()
-            .load(requestModel.model)
-            .flow(glideSize, requestModel.listener)
-            .collectLatest {
-                log("startRequest") { "$it" }
+    private suspend fun flowRequest(requestModel: GlideRequestModel) =
+        trace("GlidePainterNode.flowRequest") {
+            requestModel.requestBuilder
+                .setupScaleTransform()
+                .load(requestModel.model)
+                .flow(glideSize, requestModel.listener)
+                .collectLatest {
+                    log("startRequest") { "$it" }
 
-                painter = when (it) {
-                    is GlideLoadResult.Error -> failurePainter ?: placeablePainter
-                    is GlideLoadResult.Success -> it.painter
-                    is GlideLoadResult.Cleared -> placeablePainter
+                    painter = when (it) {
+                        is GlideLoadResult.Error -> failurePainter ?: placeablePainter
+                        is GlideLoadResult.Success -> it.painter
+                        is GlideLoadResult.Cleared -> placeablePainter
+                    }
+
+                    startAnimation()
+
+                    if (!hasFixedSize) {
+                        invalidateMeasurement()
+                    }
+                    invalidateDraw()
                 }
-
-                startAnimation()
-
-                if (!hasFixedSize) {
-                    invalidateMeasurement()
-                }
-                invalidateDraw()
-            }
-    }
+        }
 
     private fun stopRequest() {
         rememberJob?.cancel()
