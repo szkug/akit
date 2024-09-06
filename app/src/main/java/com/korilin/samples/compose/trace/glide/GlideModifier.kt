@@ -473,29 +473,28 @@ internal class GlidePainterNode(
             }
         }
 
-    private suspend fun flowRequest(requestModel: GlideRequestModel) =
-        trace("GlidePainterNode.flowRequest") {
-            requestModel.requestBuilder
-                .setupScaleTransform()
-                .load(requestModel.model)
-                .flow(glideSize, requestModel.listener)
-                .collectLatest {
-                    log("startRequest") { "$it" }
+    private suspend fun flowRequest(requestModel: GlideRequestModel) {
+        requestModel.requestBuilder
+            .setupScaleTransform()
+            .load(requestModel.model)
+            .flow(glideSize, requestModel.listener)
+            .collectLatest {
+                log("startRequest") { "$it" }
 
-                    painter = when (it) {
-                        is GlideLoadResult.Error -> failurePainter ?: placeablePainter
-                        is GlideLoadResult.Success -> it.painter
-                        is GlideLoadResult.Cleared -> placeablePainter
-                    }
-
-                    startAnimation()
-
-                    if (!hasFixedSize) {
-                        invalidateMeasurement()
-                    }
-                    invalidateDraw()
+                painter = when (it) {
+                    is GlideLoadResult.Error -> failurePainter ?: placeablePainter
+                    is GlideLoadResult.Success -> it.painter
+                    is GlideLoadResult.Cleared -> placeablePainter
                 }
-        }
+
+                startAnimation()
+
+                if (!hasFixedSize) {
+                    invalidateMeasurement()
+                }
+                invalidateDraw()
+            }
+    }
 
     private fun stopRequest() {
         rememberJob?.cancel()
