@@ -64,7 +64,7 @@ class DrawablePainter(
     private val callback: Drawable.Callback by lazy {
         object : Drawable.Callback {
             override fun invalidateDrawable(d: Drawable) {
-                Logger.log("DrawablePainter") { "${hashCode()} invalidateDrawable" }
+                GlidePainterLogger.log("DrawablePainter") { "${hashCode()} invalidateDrawable" }
                 // Update the tick so that we get re-drawn
                 drawInvalidateTick++
                 // Update our intrinsic size too
@@ -72,12 +72,12 @@ class DrawablePainter(
             }
 
             override fun scheduleDrawable(d: Drawable, what: Runnable, time: Long) {
-                Logger.log("DrawablePainter") { "${hashCode()} scheduleDrawable" }
+                GlidePainterLogger.log("DrawablePainter") { "${hashCode()} scheduleDrawable" }
                 MAIN_HANDLER.postAtTime(what, time)
             }
 
             override fun unscheduleDrawable(d: Drawable, what: Runnable) {
-                Logger.log("DrawablePainter") { "${hashCode()} unscheduleDrawable" }
+                GlidePainterLogger.log("DrawablePainter") { "${hashCode()} unscheduleDrawable" }
                 MAIN_HANDLER.removeCallbacks(what)
             }
         }

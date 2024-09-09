@@ -1,6 +1,7 @@
 package com.korilin.samples.compose.trace.glide
 
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
@@ -11,7 +12,6 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
-import com.korilin.samples.compose.trace.glide.GlideLoadResult
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -48,7 +48,7 @@ private class FlowTarget(
         target: Target<Drawable>,
         isFirstResource: Boolean
     ): Boolean {
-        Logger.error("FlowTarget", e)
+        GlidePainterLogger.error("FlowTarget", e)
         listener?.onLoadFailed(e, model, target, isFirstResource)
         return false
     }
@@ -60,9 +60,16 @@ private class FlowTarget(
         dataSource: DataSource,
         isFirstResource: Boolean
     ): Boolean {
-        Logger.log("FlowTarget") {
+        GlidePainterLogger.log("FlowTarget") {
             "onResourceReady first:$isFirstResource source:$dataSource Size(${resource.width}, ${resource.height}) model:$model"
         }
+        val unBoundMemorySize = when (resource) {
+            is ColorDrawable -> 0
+            is BitmapDrawable -> resource.bitmap.byteCount
+            else -> resource.width * resource.height
+        }
+
+        listener?.onPainterMemorySize("FlowTarget", model, unBoundMemorySize)
         listener?.onResourceReady(resource, model, target, dataSource, isFirstResource)
         return false
     }
@@ -70,7 +77,7 @@ private class FlowTarget(
     override fun getSize(cb: SizeReadyCallback) {
         scope.launch {
             val complete = size.getSize()
-            Logger.log("FlowTarget") { "getSize $complete" }
+            GlidePainterLogger.log("FlowTarget") { "getSize $complete" }
             cb.onSizeReady(complete.width, complete.height)
         }
     }
@@ -95,7 +102,6 @@ private class FlowTarget(
 
     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
         val painter = resource.toPainter()
-        listener?.onPainterReady(painter)
         scope.trySend(GlideLoadResult.Success(painter))
     }
 

@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.RequestBuilder
-import com.korilin.samples.compose.trace.glide.GlideLoadResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -192,7 +191,7 @@ internal class GlidePainterNode(
         get() = false
 
     private inline fun log(subtag: String? = null, message: () -> String) {
-        Logger.log("GlidePainterNode[$tag]") {
+        GlidePainterLogger.log("GlidePainterNode[$tag]") {
             if (subtag == null) message()
             else "[$subtag] ${message()}"
         }
