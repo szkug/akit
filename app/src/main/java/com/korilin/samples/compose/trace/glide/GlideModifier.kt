@@ -193,10 +193,12 @@ internal class GlidePainterNode(
         get() = false
 
     private inline fun log(subtag: String? = null, message: () -> String) {
-        GlidePainterLogger.log("GlidePainterNode[$tag]") {
-            if (subtag == null) message()
-            else "[$subtag] ${message()}"
-        }
+        // skip redundant string concatenation
+        if (GlidePainterLogger.LOGGER_ENABLE)
+            GlidePainterLogger.log("GlidePainterNode[$tag]") {
+                if (subtag == null) message()
+                else "[$subtag] ${message()}"
+            }
     }
 
     private var hasFixedSize: Boolean = false
@@ -479,7 +481,7 @@ internal class GlidePainterNode(
             .setupScaleTransform()
             .let {
                 when (val model = requestModel.model) {
-                    is Int -> it.load(model)
+                    is Int -> it.fallback(model).load(null as Any?)
                     is File -> it.load(model)
                     is Uri -> it.load(model)
                     is String -> it.load(model)
@@ -491,7 +493,7 @@ internal class GlidePainterNode(
                 log("startRequest") { "$it" }
 
                 painter = when (it) {
-                    is GlideLoadResult.Error -> failurePainter ?: placeablePainter
+                    is GlideLoadResult.Error -> it.painter ?: failurePainter ?: placeablePainter
                     is GlideLoadResult.Success -> it.painter
                     is GlideLoadResult.Cleared -> placeablePainter
                 }
