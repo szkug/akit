@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
@@ -60,12 +62,15 @@ fun GlideAsyncImage(
     listener: PainterRequestListener? = null,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ) = trace("GlideAsyncImage") {
+
+    val preview = LocalInspectionMode.current
+    val context = LocalContext.current
+
     val painter = when (model) {
         is Painter -> model
+        is Int -> if (preview) painterResource(id = model) else null
         else -> null
     }
-
-    val context = LocalContext.current
 
     val nodeModel = remember(model) {
         if (painter != null) PainterModel(painter)
