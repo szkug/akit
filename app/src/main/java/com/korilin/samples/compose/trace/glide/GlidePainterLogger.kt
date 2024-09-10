@@ -35,18 +35,18 @@ object GlidePainterLogger {
     }
 
     inline fun log(tag: String, message: () -> String) {
-        if (GlidePainterLogger.LOGGER_ENABLE) logger.log(tag, message())
+        if (LOGGER_ENABLE) logger.log(tag, message())
     }
 
     inline fun warn(tag: String, message: () -> String) {
-        if (GlidePainterLogger.LOGGER_ENABLE) logger.warn(tag, message())
+        if (LOGGER_ENABLE) logger.warn(tag, message())
     }
 
     fun error(tag: String, exception: GlideException?) {
-        if (GlidePainterLogger.LOGGER_ENABLE) logger.error(tag, exception)
+        if (LOGGER_ENABLE) logger.error(tag, exception)
     }
 
     inline fun error(tag: String, message: () -> String) {
-        if (GlidePainterLogger.LOGGER_ENABLE) logger.error(tag, message())
+        if (LOGGER_ENABLE) logger.error(tag, message())
     }
 }
