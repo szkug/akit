@@ -1,6 +1,7 @@
 package com.korilin.samples.compose.trace.glide
 
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import java.io.File
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -476,9 +478,13 @@ internal class GlidePainterNode(
         requestModel.requestBuilder
             .setupScaleTransform()
             .let {
-                val model = requestModel.model
-                if (model is Int) it.load(model)
-                else it.load(model)
+                when (val model = requestModel.model) {
+                    is Int -> it.load(model)
+                    is File -> it.load(model)
+                    is Uri -> it.load(model)
+                    is String -> it.load(model)
+                    else -> it.load(model)
+                }
             }
             .flow(glideSize, requestModel.listener)
             .collectLatest {
