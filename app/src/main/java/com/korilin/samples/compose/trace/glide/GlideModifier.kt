@@ -475,7 +475,11 @@ internal class GlidePainterNode(
     private suspend fun flowRequest(requestModel: GlideRequestModel) {
         requestModel.requestBuilder
             .setupScaleTransform()
-            .load(requestModel.model)
+            .let {
+                val model = requestModel.model
+                if (model is Int) it.load(model)
+                else it.load(model)
+            }
             .flow(glideSize, requestModel.listener)
             .collectLatest {
                 log("startRequest") { "$it" }
