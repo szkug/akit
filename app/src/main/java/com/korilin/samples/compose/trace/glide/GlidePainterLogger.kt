@@ -13,7 +13,7 @@ interface IGlidePainterLogger {
 
 object GlidePainterLogger {
 
-    var loggerEnable = BuildConfig.DEBUG
+    const val LOGGER_ENABLE = BuildConfig.DEBUG
 
     // Custom Logger
     var logger = object : IGlidePainterLogger {
@@ -35,18 +35,18 @@ object GlidePainterLogger {
     }
 
     inline fun log(tag: String, message: () -> String) {
-        if (GlidePainterLogger.loggerEnable) logger.log(tag, message())
+        if (GlidePainterLogger.LOGGER_ENABLE) logger.log(tag, message())
     }
 
     inline fun warn(tag: String, message: () -> String) {
-        if (GlidePainterLogger.loggerEnable) logger.warn(tag, message())
+        if (GlidePainterLogger.LOGGER_ENABLE) logger.warn(tag, message())
     }
 
     fun error(tag: String, exception: GlideException?) {
-        if (GlidePainterLogger.loggerEnable) logger.error(tag, exception)
+        if (GlidePainterLogger.LOGGER_ENABLE) logger.error(tag, exception)
     }
 
     inline fun error(tag: String, message: () -> String) {
-        if (GlidePainterLogger.loggerEnable) logger.error(tag, message())
+        if (GlidePainterLogger.LOGGER_ENABLE) logger.error(tag, message())
     }
 }
