@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
@@ -17,6 +16,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
+
+const val DefaultAlpha = androidx.compose.ui.graphics.DefaultAlpha
+val DefaultContentScale = ContentScale.Fit
+val DefaultAlignment = Alignment.Center
 
 /**
  * Async image load node base on glide.
@@ -53,8 +56,8 @@ fun GlideAsyncImage(
     tag: String? = null,
     contentDescription: String?,
     modifier: Modifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = DefaultContentScale,
+    alignment: Alignment = DefaultAlignment,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     loadingModel: GlidePlaceholderModel? = null,
@@ -107,8 +110,8 @@ inline fun GlideAsyncImage(
     tag: String? = null,
     contentDescription: String?,
     modifier: Modifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = DefaultContentScale,
+    alignment: Alignment = DefaultAlignment,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     loadingId: Int? = null,
@@ -137,8 +140,8 @@ inline fun GlideAsyncImage(
     tag: String? = null,
     contentDescription: String?,
     modifier: Modifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    alignment: Alignment = Alignment.Center,
+    contentScale: ContentScale = DefaultContentScale,
+    alignment: Alignment = DefaultAlignment,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     loadingPainter: Painter? = null,
