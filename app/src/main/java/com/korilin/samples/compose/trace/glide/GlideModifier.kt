@@ -2,6 +2,7 @@ package com.korilin.samples.compose.trace.glide
 
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -44,7 +45,9 @@ import java.io.File
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-internal sealed interface GlideNodeModel
+sealed interface GlideNodeModel
+sealed interface GlidePlaceholderModel
+
 internal class GlideRequestModel(
     val model: Any?,
     val requestBuilder: RequestBuilder<Drawable>,
@@ -66,13 +69,16 @@ internal class GlideRequestModel(
 }
 
 @JvmInline
-value class PainterModel(val painter: Painter) : GlideNodeModel
+value class PainterModel(val painter: Painter) : GlideNodeModel, GlidePlaceholderModel
+
+@JvmInline
+value class ResModel(@DrawableRes val id: Int) : GlidePlaceholderModel
 
 internal fun Modifier.glidePainterNode(
     tag: String? = null,
     nodeModel: GlideNodeModel,
-    loadingPainter: Painter? = null,
-    failurePainter: Painter? = null,
+    loadingModel: GlidePlaceholderModel? = null,
+    failureModel: GlidePlaceholderModel? = null,
     contentDescription: String? = null,
     alignment: Alignment,
     contentScale: ContentScale,
@@ -87,8 +93,8 @@ internal fun Modifier.glidePainterNode(
     } then GlidePainterElement(
     tag = tag,
     nodeModel = nodeModel,
-    loadingPainter = loadingPainter,
-    failurePainter = failurePainter,
+    loadingModel = loadingModel,
+    failureModel = failureModel,
     alignment = alignment,
     contentScale = contentScale,
     alpha = alpha,
@@ -98,8 +104,8 @@ internal fun Modifier.glidePainterNode(
 internal data class GlidePainterElement(
     val tag: String? = null,
     val nodeModel: GlideNodeModel,
-    val loadingPainter: Painter?,
-    val failurePainter: Painter?,
+    val loadingModel: GlidePlaceholderModel?,
+    val failureModel: GlidePlaceholderModel?,
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
@@ -110,8 +116,8 @@ internal data class GlidePainterElement(
         return GlidePainterNode(
             tag = tag,
             nodeModel = nodeModel,
-            loadingPainter = loadingPainter,
-            failurePainter = failurePainter,
+            loadingModel = loadingModel,
+            failureModel = failureModel,
             alignment = alignment,
             contentScale = contentScale,
             alpha = alpha,
@@ -125,8 +131,8 @@ internal data class GlidePainterElement(
         node.contentScale = contentScale
         node.alpha = alpha
         node.colorFilter = colorFilter
-        node.loadingPainter = loadingPainter
-        node.failurePainter = failurePainter
+        node.loadingModel = loadingModel
+        node.failureModel = failureModel
 
         node.update(nodeModel)
 
@@ -147,13 +153,16 @@ internal data class GlidePainterElement(
 internal class GlidePainterNode(
     var tag: String?,
     var nodeModel: GlideNodeModel,
-    var loadingPainter: Painter?,
-    var failurePainter: Painter?,
+    var loadingModel: GlidePlaceholderModel?,
+    var failureModel: GlidePlaceholderModel?,
     var alignment: Alignment,
     var contentScale: ContentScale,
     var alpha: Float,
     var colorFilter: ColorFilter?,
 ) : Modifier.Node(), DrawModifierNode, LayoutModifierNode {
+
+    private val loadingPainter get() = (loadingModel as? PainterModel)?.painter
+    private val errorPainter get() = (failureModel as? PainterModel)?.painter
 
     private val placeablePainter
         get() = when (val model = nodeModel) {
@@ -427,26 +436,6 @@ internal class GlidePainterNode(
             field = value
         }
 
-    private fun RequestBuilder<Drawable>.setupScaleTransform(): RequestBuilder<Drawable> {
-        return when (contentScale) {
-            ContentScale.Crop -> optionalCenterCrop()
-
-            // Outside compose, glide would use fitCenter() for FIT. But that's probably not a good
-            // decision given how unimportant Bitmap re-use is relative to minimizing texture sizes now.
-            // So instead we'll do something different and prefer not to upscale, which means using
-            // centerInside(). The UI can still scale the view even if the Bitmap is smaller.
-            ContentScale.Fit,
-            ContentScale.FillHeight,
-            ContentScale.FillWidth,
-            ContentScale.FillBounds -> optionalCenterInside()
-
-            ContentScale.Inside -> optionalCenterInside()
-
-            // NONE
-            else -> this
-        }
-    }
-
     /**
      * Launch via [sideEffect] because [onAttach] is called before [update],
      * and [update] is not always called.
@@ -476,24 +465,62 @@ internal class GlidePainterNode(
             }
         }
 
+    private fun RequestBuilder<Drawable>.setupScaleTransform(): RequestBuilder<Drawable> {
+        return when (contentScale) {
+            ContentScale.Crop -> optionalCenterCrop()
+
+            // Outside compose, glide would use fitCenter() for FIT. But that's probably not a good
+            // decision given how unimportant Bitmap re-use is relative to minimizing texture sizes now.
+            // So instead we'll do something different and prefer not to upscale, which means using
+            // centerInside(). The UI can still scale the view even if the Bitmap is smaller.
+            ContentScale.Fit,
+            ContentScale.FillHeight,
+            ContentScale.FillWidth,
+            ContentScale.FillBounds -> optionalCenterInside()
+
+            ContentScale.Inside -> optionalCenterInside()
+
+            // NONE
+            else -> this
+        }
+    }
+
+    private fun RequestBuilder<Drawable>.loadRequestModel(requestModel: GlideRequestModel): RequestBuilder<Drawable> {
+        return when (val model = requestModel.model) {
+            is Int -> fallback(model).load(null as Any?)
+            is File -> load(model)
+            is Uri -> load(model)
+            is String -> load(model)
+            else -> load(model)
+        }
+    }
+
+    private fun RequestBuilder<Drawable>.setupPlaceholder(): RequestBuilder<Drawable> {
+        return when (val model = loadingModel) {
+            is ResModel -> placeholder(model.id)
+            else -> this
+        }
+    }
+
+    private fun RequestBuilder<Drawable>.setupFailure(): RequestBuilder<Drawable> {
+        return when (val model = failureModel) {
+            is ResModel -> error(model.id)
+            else -> this
+        }
+    }
+
     private suspend fun flowRequest(requestModel: GlideRequestModel) {
         requestModel.requestBuilder
             .setupScaleTransform()
-            .let {
-                when (val model = requestModel.model) {
-                    is Int -> it.fallback(model).load(null as Any?)
-                    is File -> it.load(model)
-                    is Uri -> it.load(model)
-                    is String -> it.load(model)
-                    else -> it.load(model)
-                }
-            }
+            .setupPlaceholder()
+            .setupFailure()
+            .loadRequestModel(requestModel)
             .flow(glideSize, requestModel.listener)
             .collectLatest {
                 log("startRequest") { "$it" }
 
                 painter = when (it) {
-                    is GlideLoadResult.Error -> it.painter ?: failurePainter ?: placeablePainter
+                    is GlideLoadResult.Error -> it.painter ?: errorPainter ?: placeablePainter
                     is GlideLoadResult.Success -> it.painter
                     is GlideLoadResult.Cleared -> placeablePainter
                 }

@@ -57,8 +57,8 @@ fun GlideAsyncImage(
     alignment: Alignment = Alignment.Center,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-    loading: Painter? = null,
-    failure: Painter? = null,
+    loadingModel: GlidePlaceholderModel? = null,
+    failureModel: GlidePlaceholderModel? = null,
     listener: PainterRequestListener? = null,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ) = trace("GlideAsyncImage") {
@@ -86,8 +86,8 @@ fun GlideAsyncImage(
             .glidePainterNode(
                 tag = tag,
                 nodeModel = nodeModel,
-                loadingPainter = loading,
-                failurePainter = failure,
+                loadingModel = loadingModel,
+                failureModel = failureModel,
                 contentDescription,
                 alignment,
                 contentScale,
