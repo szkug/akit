@@ -99,3 +99,63 @@ fun GlideAsyncImage(
         },
     )
 }
+
+@Composable
+@Suppress("NOTHING_TO_INLINE")
+inline fun GlideAsyncImage(
+    model: Any?,
+    tag: String? = null,
+    contentDescription: String?,
+    modifier: Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    loadingId: Int? = null,
+    failureId: Int? = null,
+    listener: PainterRequestListener? = null,
+    noinline requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
+) = GlideAsyncImage(
+    model = model,
+    tag = tag,
+    contentDescription = contentDescription,
+    modifier = modifier,
+    contentScale = contentScale,
+    alignment = alignment,
+    alpha = alpha,
+    colorFilter = colorFilter,
+    loadingModel = loadingId?.let { ResModel(it) },
+    failureModel = failureId?.let { ResModel(it)},
+    listener = listener,
+    requestBuilder = requestBuilder
+)
+
+@Composable
+@Suppress("NOTHING_TO_INLINE")
+inline fun GlideAsyncImage(
+    model: Any?,
+    tag: String? = null,
+    contentDescription: String?,
+    modifier: Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
+    alpha: Float = DefaultAlpha,
+    colorFilter: ColorFilter? = null,
+    loadingPainter: Painter? = null,
+    failurePainter: Painter? = null,
+    listener: PainterRequestListener? = null,
+    noinline requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
+) = GlideAsyncImage(
+    model = model,
+    tag = tag,
+    contentDescription = contentDescription,
+    modifier = modifier,
+    contentScale = contentScale,
+    alignment = alignment,
+    alpha = alpha,
+    colorFilter = colorFilter,
+    loadingModel = loadingPainter?.let { PainterModel(it) },
+    failureModel = failurePainter?.let { PainterModel(it) },
+    listener = listener,
+    requestBuilder = requestBuilder
+)
