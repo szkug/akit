@@ -60,8 +60,8 @@ fun GlideAsyncImage(
     alignment: Alignment = DefaultAlignment,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-    loadingModel: GlidePlaceholderModel? = null,
-    failureModel: GlidePlaceholderModel? = null,
+    loadingModel: Any? = null,
+    failureModel: Any? = null,
     listener: PainterRequestListener? = null,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ) = trace("GlideAsyncImage") {
@@ -89,8 +89,8 @@ fun GlideAsyncImage(
             .glidePainterNode(
                 tag = tag,
                 nodeModel = nodeModel,
-                loadingModel = loadingModel,
-                failureModel = failureModel,
+                loadingModel = loadingModel.castPlaceholderModel(),
+                failureModel = failureModel.castPlaceholderModel(),
                 contentDescription,
                 alignment,
                 contentScale,
@@ -103,62 +103,8 @@ fun GlideAsyncImage(
     )
 }
 
-@Composable
-@Suppress("NOTHING_TO_INLINE")
-inline fun GlideAsyncImage(
-    model: Any?,
-    tag: String? = null,
-    contentDescription: String?,
-    modifier: Modifier,
-    contentScale: ContentScale = DefaultContentScale,
-    alignment: Alignment = DefaultAlignment,
-    alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
-    loadingId: Int? = null,
-    failureId: Int? = null,
-    listener: PainterRequestListener? = null,
-    noinline requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
-) = GlideAsyncImage(
-    model = model,
-    tag = tag,
-    contentDescription = contentDescription,
-    modifier = modifier,
-    contentScale = contentScale,
-    alignment = alignment,
-    alpha = alpha,
-    colorFilter = colorFilter,
-    loadingModel = loadingId?.let { ResModel(it) },
-    failureModel = failureId?.let { ResModel(it)},
-    listener = listener,
-    requestBuilder = requestBuilder
-)
-
-@Composable
-@Suppress("NOTHING_TO_INLINE")
-inline fun GlideAsyncImage(
-    model: Any?,
-    tag: String? = null,
-    contentDescription: String?,
-    modifier: Modifier,
-    contentScale: ContentScale = DefaultContentScale,
-    alignment: Alignment = DefaultAlignment,
-    alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
-    loadingPainter: Painter? = null,
-    failurePainter: Painter? = null,
-    listener: PainterRequestListener? = null,
-    noinline requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
-) = GlideAsyncImage(
-    model = model,
-    tag = tag,
-    contentDescription = contentDescription,
-    modifier = modifier,
-    contentScale = contentScale,
-    alignment = alignment,
-    alpha = alpha,
-    colorFilter = colorFilter,
-    loadingModel = loadingPainter?.let { PainterModel(it) },
-    failureModel = failurePainter?.let { PainterModel(it) },
-    listener = listener,
-    requestBuilder = requestBuilder
-)
+private fun Any?.castPlaceholderModel() = when (this) {
+    is Int -> ResModel(this)
+    is Painter -> PainterModel(this)
+    else -> null
+}
