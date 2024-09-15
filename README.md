@@ -1,2 +1,2 @@
 # compose-trace
- Compose performace trace
+ Compose performance trace
