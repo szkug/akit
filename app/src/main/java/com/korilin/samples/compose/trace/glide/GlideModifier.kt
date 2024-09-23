@@ -50,7 +50,7 @@ sealed interface GlidePlaceholderModel
 
 internal class GlideRequestModel(
     val model: Any?,
-    val requestBuilder: RequestBuilder<Drawable>,
+    val requestBuilder: () -> RequestBuilder<Drawable>,
     val listener: PainterRequestListener?,
 ) : GlideNodeModel {
 
@@ -460,8 +460,10 @@ internal class GlidePainterNode(
 
             if (rememberJob != null || requestModel !is GlideRequestModel) return@sideEffect
 
-            rememberJob = (coroutineScope + Dispatchers.Main.immediate).launch {
-                flowRequest(requestModel)
+            trace("GlidePainterNode.launch") {
+                rememberJob = coroutineScope.launch(Dispatchers.Default) {
+                    flowRequest(requestModel)
+                }
             }
         }
 
@@ -510,7 +512,7 @@ internal class GlidePainterNode(
     }
 
     private suspend fun flowRequest(requestModel: GlideRequestModel) {
-        requestModel.requestBuilder
+        requestModel.requestBuilder()
             .setupScaleTransform()
             .setupPlaceholder()
             .setupFailure()

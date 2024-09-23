@@ -68,10 +68,9 @@ class RoomGridListActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            ComposetraceTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    RoomGridList(list, Modifier.padding(innerPadding))
-                }
+            Column {
+                RoomTagsRow_OptCompare()
+                RoomGridList(list, Modifier.padding())
             }
         }
     }
@@ -130,6 +129,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
                 )
                 .padding(10.dp)
         ) {
+
             RoomTagsRow_Opt1()
 
             Text(
@@ -163,6 +163,16 @@ private fun RoomTagsRow_Opt1() = trace("Compose:RoomTagsRow") {
         RoomTag_Opt1(R.drawable.kotlin)
     }
 }
+
+
+@Composable
+private fun RoomTagsRow_OptCompare() = trace("Compose:RoomTagsRow_OptCompare") {
+    Row {
+        RoomTag_Opt1(R.drawable.compose)
+        RoomTag(R.drawable.compose)
+    }
+}
+
 
 
 @Composable

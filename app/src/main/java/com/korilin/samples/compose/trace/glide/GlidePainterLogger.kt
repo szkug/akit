@@ -13,7 +13,7 @@ interface IGlidePainterLogger {
 
 object GlidePainterLogger {
 
-    const val LOGGER_ENABLE = BuildConfig.DEBUG
+    val LOGGER_ENABLE = BuildConfig.DEBUG
 
     // Custom Logger
     var logger = object : IGlidePainterLogger {

@@ -79,7 +79,7 @@ fun GlideAsyncImage(
         if (painter != null) PainterModel(painter)
         else GlideRequestModel(
             model = model,
-            requestBuilder = requestBuilder(context),
+            requestBuilder = { requestBuilder(context) },
             listener = listener
         )
     }
