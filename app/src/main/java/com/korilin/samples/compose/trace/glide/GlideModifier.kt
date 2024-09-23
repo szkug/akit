@@ -160,6 +160,9 @@ internal class GlidePainterNode(
     var alpha: Float,
     var colorFilter: ColorFilter?,
 ) : Modifier.Node(), DrawModifierNode, LayoutModifierNode {
+    companion object {
+        private const val TRACE_SECTION_NAME = "GlidePainterNode"
+    }
 
     private val loadingPainter get() = (loadingModel as? PainterModel)?.painter
     private val errorPainter get() = (failureModel as? PainterModel)?.painter
@@ -171,7 +174,7 @@ internal class GlidePainterNode(
         } ?: loadingPainter ?: EmptyPainter
 
     private var painter = placeablePainter
-        set(value) = trace("GlidePainterNode.painter.setter") {
+        set(value) = trace("$TRACE_SECTION_NAME.painter.setter") {
             if (field == value) return
             stopAnimation(field)
             field = value
@@ -204,7 +207,7 @@ internal class GlidePainterNode(
     private inline fun log(subtag: String? = null, message: () -> String) {
         // skip redundant string concatenation
         if (GlidePainterLogger.LOGGER_ENABLE)
-            GlidePainterLogger.log("GlidePainterNode[$tag]") {
+            GlidePainterLogger.log("$TRACE_SECTION_NAME[$tag]") {
                 if (subtag == null) message()
                 else "[$subtag] ${message()}"
             }
@@ -232,7 +235,7 @@ internal class GlidePainterNode(
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
-    ): MeasureResult {
+    ): MeasureResult = trace("$TRACE_SECTION_NAME.measure") {
         val modified = modifyConstraints(constraints)
         hasFixedSize = modified.hasFixedSize()
         val inferredGlideSize = modified.inferredGlideSize()
@@ -330,7 +333,7 @@ internal class GlidePainterNode(
     }
 
     private fun modifyConstraints(constraints: Constraints): Constraints =
-        trace("GlidePainterNode.modifyConstraints") {
+        trace("$TRACE_SECTION_NAME.modifyConstraints") {
 
             // If we have fixed constraints, use the original constraints
             if (constraints.hasFixedWidth && constraints.hasFixedHeight) return constraints
@@ -381,7 +384,7 @@ internal class GlidePainterNode(
             return constraints.copy(minWidth = minWidth, minHeight = minHeight)
         }
 
-    override fun ContentDrawScope.draw() {
+    override fun ContentDrawScope.draw() = trace("$TRACE_SECTION_NAME.draw"){
         val intrinsicSize = painter.intrinsicSize
         val srcWidth = if (intrinsicSize.hasSpecifiedAndFiniteWidth()) {
             intrinsicSize.width
