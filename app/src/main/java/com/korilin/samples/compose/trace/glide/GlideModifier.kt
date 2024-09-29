@@ -41,6 +41,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -384,7 +385,7 @@ internal class GlidePainterNode(
             return constraints.copy(minWidth = minWidth, minHeight = minHeight)
         }
 
-    override fun ContentDrawScope.draw() = trace("$TRACE_SECTION_NAME.draw"){
+    override fun ContentDrawScope.draw() = trace("$TRACE_SECTION_NAME.draw") {
         val intrinsicSize = painter.intrinsicSize
         val srcWidth = if (intrinsicSize.hasSpecifiedAndFiniteWidth()) {
             intrinsicSize.width
@@ -464,7 +465,7 @@ internal class GlidePainterNode(
             if (rememberJob != null || requestModel !is GlideRequestModel) return@sideEffect
 
             trace("GlidePainterNode.launch") {
-                rememberJob = coroutineScope.launch(Dispatchers.Default) {
+                rememberJob = coroutineScope.launch {
                     flowRequest(requestModel)
                 }
             }
@@ -515,28 +516,31 @@ internal class GlidePainterNode(
     }
 
     private suspend fun flowRequest(requestModel: GlideRequestModel) {
-        requestModel.requestBuilder()
-            .setupScaleTransform()
-            .setupPlaceholder()
-            .setupFailure()
-            .loadRequestModel(requestModel)
-            .flow(glideSize, requestModel.listener)
-            .collectLatest {
-                log("startRequest") { "$it" }
+        val flow = withContext(Dispatchers.Default) {
+            requestModel.requestBuilder()
+                .setupScaleTransform()
+                .setupPlaceholder()
+                .setupFailure()
+                .loadRequestModel(requestModel)
+                .flow(glideSize, requestModel.listener)
+        }
 
-                painter = when (it) {
-                    is GlideLoadResult.Error -> it.painter ?: errorPainter ?: placeablePainter
-                    is GlideLoadResult.Success -> it.painter
-                    is GlideLoadResult.Cleared -> placeablePainter
-                }
+        flow.collectLatest {
+            log("startRequest") { "$it" }
 
-                startAnimation()
-
-                if (!hasFixedSize) {
-                    invalidateMeasurement()
-                }
-                invalidateDraw()
+            painter = when (it) {
+                is GlideLoadResult.Error -> it.painter ?: errorPainter ?: placeablePainter
+                is GlideLoadResult.Success -> it.painter
+                is GlideLoadResult.Cleared -> placeablePainter
             }
+
+            startAnimation()
+
+            if (!hasFixedSize) {
+                invalidateMeasurement()
+            }
+            invalidateDraw()
+        }
     }
 
     private fun stopRequest() {
