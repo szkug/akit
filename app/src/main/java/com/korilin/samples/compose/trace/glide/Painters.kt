@@ -101,7 +101,7 @@ class DrawablePainter(
     fun stopAnimation() {
         // Don't stop animation if drawable reload in memory.
         // https://github.com/bumptech/glide/issues/5176
-        // if (drawable is Animatable) drawable.stop()
+        if (drawable is Animatable) drawable.stop()
         drawable.setVisible(false, false)
         drawable.callback = null
     }
