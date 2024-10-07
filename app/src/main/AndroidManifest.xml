@@ -28,7 +28,7 @@
         </receiver>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".acts.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Composetrace">
@@ -39,8 +39,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".RoomGridListActivity"
+            android:name=".acts.RoomGridListActivity"
             android:exported="true" />
+        <activity
+            android:name=".acts.CompareActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>

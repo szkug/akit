@@ -40,13 +40,14 @@ android {
 }
 
 dependencies {
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation(libs.androidx.profileinstaller)
     implementation(libs.androidx.test.espresso.core)
     implementation(libs.androidx.test.junit)
     implementation(libs.androidx.test.uiautomator)
     implementation(libs.androidx.benchmark.macro.junit4)
     implementation(libs.androidx.tracing.perfetto)
     implementation(libs.androidx.tracing.perfetto.binary)
+
 }
 
 androidComponents {

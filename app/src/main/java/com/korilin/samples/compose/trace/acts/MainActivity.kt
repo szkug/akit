@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace
+package com.korilin.samples.compose.trace.acts
 
 import android.content.Intent
 import android.os.Bundle
@@ -58,6 +58,17 @@ class MainActivity : ComponentActivity() {
                                 }
                             ) {
                                 Text(text = "RoomGridList")
+                            }
+                        }
+                        spacerItem {
+                            Button(
+                                onClick = {
+                                    val intent =
+                                        Intent(this@MainActivity, CompareActivity::class.java)
+                                    startActivity(intent)
+                                }
+                            ) {
+                                Text(text = "Compare Glide and Coil")
                             }
                         }
 
