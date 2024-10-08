@@ -17,10 +17,6 @@ import androidx.compose.ui.util.trace
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 
-const val DefaultAlpha = androidx.compose.ui.graphics.DefaultAlpha
-val DefaultContentScale = ContentScale.Fit
-val DefaultAlignment = Alignment.Center
-
 /**
  * Async image load node base on glide.
  *
@@ -56,10 +52,10 @@ fun GlideAsyncImage(
     tag: String? = null,
     contentDescription: String?,
     modifier: Modifier,
-    contentScale: ContentScale = DefaultContentScale,
-    alignment: Alignment = DefaultAlignment,
-    alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null,
+    contentScale: ContentScale = GlideDefaults.DefaultContentScale,
+    alignment: Alignment = GlideDefaults.DefaultAlignment,
+    alpha: Float = GlideDefaults.DefaultAlpha,
+    colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
     loadingModel: Any? = null,
     failureModel: Any? = null,
     listener: PainterRequestListener? = null,
@@ -89,8 +85,8 @@ fun GlideAsyncImage(
             .glidePainterNode(
                 tag = tag,
                 nodeModel = nodeModel,
-                loadingModel = loadingModel.castPlaceholderModel(),
-                failureModel = failureModel.castPlaceholderModel(),
+                loadingModel = loadingModel?.castPlaceholderModel(),
+                failureModel = failureModel?.castPlaceholderModel(),
                 contentDescription,
                 alignment,
                 contentScale,
@@ -103,7 +99,8 @@ fun GlideAsyncImage(
     )
 }
 
-private fun Any?.castPlaceholderModel() = when (this) {
+
+private fun Any.castPlaceholderModel() = when (this) {
     is Int -> ResModel(this)
     is Painter -> PainterModel(this)
     else -> null
