@@ -100,8 +100,12 @@ fun GlideAsyncImage(
 }
 
 
-private fun Any.castPlaceholderModel() = when (this) {
-    is Int -> ResModel(this)
-    is Painter -> PainterModel(this)
-    else -> null
+@Composable
+private fun Any?.castPlaceholderModel(): GlidePlaceholderModel? {
+    val preview = LocalInspectionMode.current
+    return when (this) {
+        is Int -> if (preview) PainterModel(painterResource(this)) else ResModel(this)
+        is Painter -> PainterModel(this)
+        else -> null
+    }
 }
