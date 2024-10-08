@@ -1,8 +1,11 @@
 package com.korilin.samples.compose.trace.glide
 
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,6 +37,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.RequestBuilder
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +53,7 @@ import kotlin.math.roundToInt
 sealed interface GlideNodeModel
 sealed interface GlidePlaceholderModel
 
+@Stable
 internal class GlideRequestModel(
     val model: Any?,
     val requestBuilder: () -> RequestBuilder<Drawable>,
@@ -184,12 +189,12 @@ internal class GlidePainterNode(
 
     private fun startAnimation() {
         val cur = painter
-        if (cur is DrawablePainter) cur.startAnimation()
+        if (cur is AnimatablePainter) cur.startAnimation()
         log("startAnimation") { "$painter" }
     }
 
     private fun stopAnimation(painter: Painter) {
-        if (painter is DrawablePainter) painter.stopAnimation()
+        if (painter is AnimatablePainter) painter.stopAnimation()
         log("stopAnimation") { "$painter" }
     }
 
@@ -238,13 +243,27 @@ internal class GlidePainterNode(
         constraints: Constraints
     ): MeasureResult = trace("$TRACE_SECTION_NAME.measure") {
         val modified = modifyConstraints(constraints)
-        hasFixedSize = modified.hasFixedSize()
+
         val inferredGlideSize = modified.inferredGlideSize()
-        log("measure") { "$constraints -> $modified, $inferredGlideSize" }
-        val placeable = measurable.measure(modified)
-        coroutineScope.launch { glideSize.emit(inferredGlideSize) }
-        return layout(placeable.width, placeable.height) {
-            placeable.placeRelative(0, 0)
+        glideSize.tryEmit(inferredGlideSize)
+
+        hasFixedSize = modified.hasFixedSize()
+
+        // measure with padding
+        val padding = (painter as? NinePatchPainter)?.padding ?: Rect()
+
+        val horizontal = padding.left + padding.right
+        val vertical = padding.top + padding.bottom
+
+        val placeable = measurable.measure(modified.offset(-horizontal, -vertical))
+        val width = constraints.constrainWidth(placeable.width + horizontal)
+        val height = constraints.constrainHeight(placeable.height + vertical)
+
+        return layout(width, height) {
+            placeable.placeRelative(
+                padding.left,
+                padding.top
+            )
         }
     }
 
@@ -253,9 +272,7 @@ internal class GlidePainterNode(
         height: Int
     ): Int {
         val layoutWidth = measurable.minIntrinsicWidth(height)
-        return modifyIntrinsicWidth(height, layoutWidth).also {
-            log("minIntrinsicWidth") { "$layoutWidth -> $it" }
-        }
+        return modifyIntrinsicWidth(height, layoutWidth)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
@@ -263,9 +280,7 @@ internal class GlidePainterNode(
         height: Int
     ): Int {
         val layoutWidth = measurable.maxIntrinsicWidth(height)
-        return modifyIntrinsicWidth(height, layoutWidth).also {
-            log("maxIntrinsicWidth") { "$layoutWidth -> $it" }
-        }
+        return modifyIntrinsicWidth(height, layoutWidth)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
@@ -273,9 +288,7 @@ internal class GlidePainterNode(
         width: Int
     ): Int {
         val layoutHeight = measurable.minIntrinsicHeight(width)
-        return modifyIntrinsicHeight(width, layoutHeight).also {
-            log("minIntrinsicHeight") { "$layoutHeight -> $it" }
-        }
+        return modifyIntrinsicHeight(width, layoutHeight)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
@@ -283,9 +296,7 @@ internal class GlidePainterNode(
         width: Int
     ): Int {
         val layoutHeight = measurable.maxIntrinsicHeight(width)
-        return modifyIntrinsicHeight(width, layoutHeight).also {
-            log("maxIntrinsicHeight") { "$layoutHeight -> $it" }
-        }
+        return modifyIntrinsicHeight(width, layoutHeight)
     }
 
 
@@ -344,7 +355,6 @@ internal class GlidePainterNode(
             // If we are not attempting to size the composable based on the size of the Painter,
             // do not attempt to modify them.
             if (!painterIntrinsicSizeSpecified && hasBoundedDimens) {
-                log("modifyConstraints") { "use bounded dimens" }
                 return constraints
             }
 
@@ -409,8 +419,6 @@ internal class GlidePainterNode(
             size
         }
 
-        log("draw") { "$size -> $scaledSize" }
-
         val alignedPosition = alignment.align(
             IntSize(scaledSize.width.roundToInt(), scaledSize.height.roundToInt()),
             IntSize(size.width.roundToInt(), size.height.roundToInt()),
@@ -424,9 +432,16 @@ internal class GlidePainterNode(
         // with scaled size.
         // Individual Painter implementations should be responsible for scaling their drawing
         // content accordingly to fit within the drawing area.
-        translate(dx, dy) {
+
+        // plus draw padding
+        val padding = (painter as? NinePatchPainter)?.padding ?: Rect()
+        val horizontal = padding.left + padding.right
+        val vertical = padding.top + padding.bottom
+        val drawSize = Size(scaledSize.width + horizontal, scaledSize.height + vertical)
+
+        translate(dx - padding.left, dy - padding.top) {
             with(painter) {
-                draw(size = scaledSize, alpha = alpha, colorFilter = colorFilter)
+                draw(size = drawSize, alpha = alpha, colorFilter = colorFilter)
             }
         }
 
@@ -516,7 +531,7 @@ internal class GlidePainterNode(
     }
 
     private suspend fun flowRequest(requestModel: GlideRequestModel) {
-        val flow = withContext(Dispatchers.Default) {
+        val flow = withContext(Dispatchers.IO) {
             requestModel.requestBuilder()
                 .setupScaleTransform()
                 .setupPlaceholder()

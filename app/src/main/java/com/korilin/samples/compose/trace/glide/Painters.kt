@@ -1,12 +1,15 @@
 package com.korilin.samples.compose.trace.glide
 
+import android.graphics.Rect
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.NinePatchDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,6 +28,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.withSave
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 private val MAIN_HANDLER by lazy(LazyThreadSafetyMode.NONE) {
@@ -51,13 +55,70 @@ internal fun Drawable?.toPainter(): Painter =
     when (this) {
         is BitmapDrawable -> BitmapPainter(bitmap.asImageBitmap())
         is ColorDrawable -> ColorPainter(Color(color))
+        is NinePatchDrawable -> NinePatchPainter(mutate())
         null -> ColorPainter(Color.Transparent)
         else -> DrawablePainter(mutate())
     }
 
-class DrawablePainter(
+internal interface AnimatablePainter {
+    fun startAnimation()
+    fun stopAnimation()
+}
+
+internal class NinePatchPainter(
     val drawable: Drawable
-) : Painter(), RememberObserver {
+) : Painter() {
+
+    val padding = Rect()
+
+    init {
+        if (drawable.intrinsicWidth >= 0 && drawable.intrinsicHeight >= 0) {
+            // Update the drawable's bounds to match the intrinsic size
+            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        }
+        drawable.getPadding(padding)
+    }
+
+    override fun applyAlpha(alpha: Float): Boolean {
+        drawable.alpha = (alpha * 255).roundToInt().coerceIn(0, 255)
+        return true
+    }
+
+    override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
+        drawable.colorFilter = colorFilter?.asAndroidColorFilter()
+        return true
+    }
+
+    override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
+        return drawable.setLayoutDirection(
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> View.LAYOUT_DIRECTION_LTR
+                LayoutDirection.Rtl -> View.LAYOUT_DIRECTION_RTL
+            }
+        )
+    }
+
+    override val intrinsicSize: Size get() = Size.Unspecified
+
+    override fun DrawScope.onDraw() {
+        drawIntoCanvas { canvas ->
+            // Update the Drawable's bounds
+            drawable.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
+
+            canvas.withSave {
+                drawable.draw(canvas.nativeCanvas)
+            }
+        }
+    }
+
+    override fun toString(): String {
+        return "DrawablePainter@${hashCode()}(drawable=$drawable, size=$intrinsicSize)"
+    }
+}
+
+internal class DrawablePainter(
+    val drawable: Drawable
+) : Painter(), RememberObserver, AnimatablePainter {
     private var drawInvalidateTick by mutableIntStateOf(0)
     private var drawableIntrinsicSize by mutableStateOf(drawable.intrinsicSize)
 
@@ -90,7 +151,7 @@ class DrawablePainter(
         }
     }
 
-    fun startAnimation() {
+    override fun startAnimation() {
         drawable.callback = callback
         drawable.setVisible(true, true)
         if (drawable is Animatable) {
@@ -98,8 +159,8 @@ class DrawablePainter(
         }
     }
 
-    fun stopAnimation() {
-        // Don't stop animation if drawable reload in memory.
+    override fun stopAnimation() {
+        // Don't re-use memory instance if drawable is Webp animation
         // https://github.com/bumptech/glide/issues/5176
         if (drawable is Animatable) drawable.stop()
         drawable.setVisible(false, false)

@@ -2,7 +2,6 @@ package com.korilin.samples.compose.trace
 
 object Stores {
 
-
     val urls = listOf(
         // https://www.bilibili.com/read/cv11912133/
         "https://i0.hdslb.com/bfs/article/093e5df6c6eeb2888809110e2f57c90d48f590b3.jpg@1256w_1776h_!web-article-pic.jpg",

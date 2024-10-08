@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.Glide
+import com.korilin.samples.compose.trace.Stores
 import com.korilin.samples.compose.trace.theme.ComposetraceTheme
 
 class MainActivity : ComponentActivity() {
@@ -72,6 +73,17 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
+                        spacerItem {
+                            Button(
+                                onClick = {
+                                    val intent =
+                                        Intent(this@MainActivity, NinePatchActivity::class.java)
+                                    startActivity(intent)
+                                }
+                            ) {
+                                Text(text = "Nine Patch Preview")
+                            }
+                        }
                     }
                 }
             }
