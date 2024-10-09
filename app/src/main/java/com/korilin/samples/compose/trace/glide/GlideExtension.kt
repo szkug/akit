@@ -12,5 +12,6 @@ interface DrawableTranscoder {
  */
 data class GlideExtension(
     val resolveSize: Size? = null,
-    val transcoder: DrawableTranscoder? = null
+    val transcoder: DrawableTranscoder? = null,
+    val ignoreNinePatchPadding: Boolean = false
 )

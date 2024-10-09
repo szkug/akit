@@ -123,7 +123,9 @@ private class GlideBackgroundNode(
         glideSize.putSize(inferredGlideSize)
 
         // measure with padding
-        val padding = (painter as? NinePatchPainter)?.padding ?: Rect()
+        val padding: Rect = if (extension?.ignoreNinePatchPadding != true) {
+            (painter as? NinePatchPainter)?.padding ?: Rect()
+        } else Rect()
 
         val horizontal = padding.left + padding.right
         val vertical = padding.top + padding.bottom
