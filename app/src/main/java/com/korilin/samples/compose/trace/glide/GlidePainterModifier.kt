@@ -120,12 +120,13 @@ internal class GlidePainterNode(
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    var extension: GlideExtension?
+    extension: GlideExtension?
 ) : GlideRequestNode(
     nodeModel = nodeModel,
     loadingModel = loadingModel,
     failureModel = failureModel,
     contentScale = contentScale,
+    extension = extension
 ), LayoutModifierNode, DrawModifierNode {
 
     override val glideSize = AsyncGlideSize()

@@ -98,6 +98,7 @@ private class FlowTarget(
     override fun onLoadCleared(placeholder: Drawable?) {
         scope.trySend(GlideLoadResult.Cleared)
     }
+
     override fun onLoadFailed(errorDrawable: Drawable?) {
         scope.trySend(GlideLoadResult.Error(errorDrawable))
     }

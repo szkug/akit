@@ -24,6 +24,7 @@ internal abstract class GlideRequestNode(
     var loadingModel: GlidePlaceholderModel?,
     var failureModel: GlidePlaceholderModel?,
     var contentScale: ContentScale,
+    var extension: GlideExtension?,
 ) : Modifier.Node() {
 
     protected fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.isFinite()
@@ -153,6 +154,12 @@ internal abstract class GlideRequestNode(
         }
     }
 
+    private fun Drawable.transcodeDrawable(): Painter {
+        val transcoder = extension?.transcoder
+        val drawable = transcoder?.transcode(this) ?: this
+        return drawable.toPainter()
+    }
+
     private suspend fun flowRequest(requestModel: GlideRequestModel) {
 
         requestModel.requestBuilder()
@@ -166,13 +173,13 @@ internal abstract class GlideRequestNode(
                 log("startRequest") { "collectLatest $it" }
                 val result = when (it) {
                     is GlideLoadResult.Error -> {
-                        it.drawable?.toPainter()
+                        it.drawable?.transcodeDrawable()
                             ?: (failureModel as? PainterModel)?.painter
-                            ?: (failureModel as? DrawableModel)?.drawable?.toPainter()
+                            ?: (failureModel as? DrawableModel)?.drawable?.transcodeDrawable()
                             ?: placeablePainter
                     }
 
-                    is GlideLoadResult.Success -> it.drawable.toPainter()
+                    is GlideLoadResult.Success -> it.drawable.transcodeDrawable()
                     is GlideLoadResult.Cleared -> placeablePainter
                 }
 

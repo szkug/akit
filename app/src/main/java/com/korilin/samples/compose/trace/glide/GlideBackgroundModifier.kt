@@ -96,12 +96,13 @@ private class GlideBackgroundNode(
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    var extension: GlideExtension?
+    extension: GlideExtension?
 ) : GlideRequestNode(
     nodeModel = nodeModel,
     loadingModel = loadingModel,
     failureModel = loadingModel,
     contentScale = contentScale,
+    extension = extension
 ), LayoutModifierNode, DrawModifierNode {
 
     override val glideSize: ResolvableGlideSize = extension?.resolveSize?.let {
