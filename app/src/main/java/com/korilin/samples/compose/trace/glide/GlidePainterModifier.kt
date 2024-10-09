@@ -1,13 +1,6 @@
 package com.korilin.samples.compose.trace.glide
 
-import android.graphics.Rect
-import android.graphics.drawable.Drawable
-import android.net.Uri
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Size
@@ -15,7 +8,6 @@ import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -39,49 +31,13 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.trace
-import com.bumptech.glide.RequestBuilder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
-import java.io.File
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-sealed interface GlideNodeModel
-sealed interface GlidePlaceholderModel
-
-@Stable
-internal class GlideRequestModel(
-    val model: Any?,
-    val requestBuilder: () -> RequestBuilder<Drawable>,
-    val listener: PainterRequestListener?,
-) : GlideNodeModel {
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is GlideRequestModel) return false
-        return other.model == model
-    }
-
-    override fun toString(): String {
-        return "GlideRequestModel($model)"
-    }
-
-    override fun hashCode(): Int {
-        return model?.hashCode() ?: 0
-    }
-}
-
-@JvmInline
-value class PainterModel(val painter: Painter) : GlideNodeModel, GlidePlaceholderModel
-
-@JvmInline
-value class ResModel(@DrawableRes val id: Int) : GlidePlaceholderModel
 
 internal fun Modifier.glidePainterNode(
-    tag: String? = null,
     nodeModel: GlideNodeModel,
     loadingModel: GlidePlaceholderModel? = null,
     failureModel: GlidePlaceholderModel? = null,
@@ -90,6 +46,7 @@ internal fun Modifier.glidePainterNode(
     contentScale: ContentScale,
     alpha: Float,
     colorFilter: ColorFilter? = null,
+    extension: GlideExtension? = null,
 ): Modifier = clipToBounds()
     .semantics {
         if (contentDescription != null) {
@@ -97,7 +54,6 @@ internal fun Modifier.glidePainterNode(
         }
         role = Role.Image
     } then GlidePainterElement(
-    tag = tag,
     nodeModel = nodeModel,
     loadingModel = loadingModel,
     failureModel = failureModel,
@@ -105,22 +61,22 @@ internal fun Modifier.glidePainterNode(
     contentScale = contentScale,
     alpha = alpha,
     colorFilter = colorFilter,
+    extension = extension,
 )
 
-internal data class GlidePainterElement(
-    val tag: String? = null,
+private data class GlidePainterElement(
     val nodeModel: GlideNodeModel,
     val loadingModel: GlidePlaceholderModel?,
     val failureModel: GlidePlaceholderModel?,
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
-    val colorFilter: ColorFilter?
+    val colorFilter: ColorFilter?,
+    val extension: GlideExtension?
 ) : ModifierNodeElement<GlidePainterNode>() {
 
     override fun create(): GlidePainterNode {
         return GlidePainterNode(
-            tag = tag,
             nodeModel = nodeModel,
             loadingModel = loadingModel,
             failureModel = failureModel,
@@ -128,26 +84,24 @@ internal data class GlidePainterElement(
             contentScale = contentScale,
             alpha = alpha,
             colorFilter = colorFilter,
+            extension = extension,
         )
     }
 
     override fun update(node: GlidePainterNode) {
-        node.tag = tag
         node.alignment = alignment
         node.contentScale = contentScale
         node.alpha = alpha
         node.colorFilter = colorFilter
         node.loadingModel = loadingModel
         node.failureModel = failureModel
+        node.extension = extension
 
         node.update(nodeModel)
-
-        node.invalidateDraw()
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "GlidePainter"
-        properties["tag"] = tag
         properties["model"] = nodeModel
         properties["alignment"] = alignment
         properties["contentScale"] = contentScale
@@ -156,49 +110,25 @@ internal data class GlidePainterElement(
     }
 }
 
+private const val TRACE_SECTION_NAME = "GlidePainterNode"
+
 internal class GlidePainterNode(
-    var tag: String?,
-    var nodeModel: GlideNodeModel,
-    var loadingModel: GlidePlaceholderModel?,
-    var failureModel: GlidePlaceholderModel?,
+    nodeModel: GlideNodeModel,
+    loadingModel: GlidePlaceholderModel?,
+    failureModel: GlidePlaceholderModel?,
+    contentScale: ContentScale,
     var alignment: Alignment,
-    var contentScale: ContentScale,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-) : Modifier.Node(), DrawModifierNode, LayoutModifierNode {
-    companion object {
-        private const val TRACE_SECTION_NAME = "GlidePainterNode"
-    }
+    var extension: GlideExtension?
+) : GlideRequestNode(
+    nodeModel = nodeModel,
+    loadingModel = loadingModel,
+    failureModel = failureModel,
+    contentScale = contentScale,
+), LayoutModifierNode, DrawModifierNode {
 
-    private val loadingPainter get() = (loadingModel as? PainterModel)?.painter
-    private val errorPainter get() = (failureModel as? PainterModel)?.painter
-
-    private val placeablePainter
-        get() = when (val model = nodeModel) {
-            is GlideRequestModel -> null
-            is PainterModel -> model.painter
-        } ?: loadingPainter ?: EmptyPainter
-
-    private var painter = placeablePainter
-        set(value) = trace("$TRACE_SECTION_NAME.painter.setter") {
-            if (field == value) return
-            stopAnimation(field)
-            field = value
-            log { "update painter $field" }
-        }
-
-    private fun startAnimation() {
-        val cur = painter
-        if (cur is AnimatablePainter) cur.startAnimation()
-        log("startAnimation") { "$painter" }
-    }
-
-    private fun stopAnimation(painter: Painter) {
-        if (painter is AnimatablePainter) painter.stopAnimation()
-        log("stopAnimation") { "$painter" }
-    }
-
-    private val glideSize = AsyncGlideSize()
+    override val glideSize = AsyncGlideSize()
 
     /**
      * Helper property to determine if we should size content to the intrinsic
@@ -210,32 +140,8 @@ internal class GlidePainterNode(
     override val shouldAutoInvalidate: Boolean
         get() = false
 
-    private inline fun log(subtag: String? = null, message: () -> String) {
-        // skip redundant string concatenation
-        if (GlidePainterLogger.LOGGER_ENABLE)
-            GlidePainterLogger.log("$TRACE_SECTION_NAME[$tag]") {
-                if (subtag == null) message()
-                else "[$subtag] ${message()}"
-            }
-    }
-
     private var hasFixedSize: Boolean = false
     private fun Constraints.hasFixedSize() = hasFixedWidth && hasFixedHeight
-
-    private fun Constraints.inferredGlideSize(): Size {
-        val width = if (hasBoundedWidth) {
-            maxWidth
-        } else {
-            com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
-        }
-        val height =
-            if (hasBoundedHeight) {
-                maxHeight
-            } else {
-                com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
-            }
-        return Size(width.toFloat(), height.toFloat())
-    }
 
 
     override fun MeasureScope.measure(
@@ -245,25 +151,15 @@ internal class GlidePainterNode(
         val modified = modifyConstraints(constraints)
 
         val inferredGlideSize = modified.inferredGlideSize()
-        glideSize.tryEmit(inferredGlideSize)
+
+        glideSize.putSize(inferredGlideSize)
 
         hasFixedSize = modified.hasFixedSize()
 
-        // measure with padding
-        val padding = (painter as? NinePatchPainter)?.padding ?: Rect()
+        val placeable = measurable.measure(modified)
 
-        val horizontal = padding.left + padding.right
-        val vertical = padding.top + padding.bottom
-
-        val placeable = measurable.measure(modified.offset(-horizontal, -vertical))
-        val width = constraints.constrainWidth(placeable.width + horizontal)
-        val height = constraints.constrainHeight(placeable.height + vertical)
-
-        return layout(width, height) {
-            placeable.placeRelative(
-                padding.left,
-                padding.top
-            )
+        return layout(placeable.width, placeable.height) {
+            placeable.placeRelative(0, 0)
         }
     }
 
@@ -433,15 +329,9 @@ internal class GlidePainterNode(
         // Individual Painter implementations should be responsible for scaling their drawing
         // content accordingly to fit within the drawing area.
 
-        // plus draw padding
-        val padding = (painter as? NinePatchPainter)?.padding ?: Rect()
-        val horizontal = padding.left + padding.right
-        val vertical = padding.top + padding.bottom
-        val drawSize = Size(scaledSize.width + horizontal, scaledSize.height + vertical)
-
-        translate(dx - padding.left, dy - padding.top) {
+        translate(dx, dy) {
             with(painter) {
-                draw(size = drawSize, alpha = alpha, colorFilter = colorFilter)
+                draw(size = scaledSize, alpha = alpha, colorFilter = colorFilter)
             }
         }
 
@@ -449,171 +339,18 @@ internal class GlidePainterNode(
         drawContent()
     }
 
-    private var rememberJob: Job? = null
-        set(value) {
-            field?.cancel()
-            field = value
+    override fun onCollectResult(result: GlideLoadResult) {
+        if (!hasFixedSize) {
+            invalidateMeasurement()
         }
-
-    /**
-     * Launch via [sideEffect] because [onAttach] is called before [update],
-     * and [update] is not always called.
-     *
-     * That means in [onAttach] if we launch the request, we might restart an old request
-     * only to have it immediately replaced by a new request, causing jank.
-     * Or if we don't launch the new requests in [onAttach],
-     * then [update] might not be called and we won't show the old image.
-     *
-     * [sideEffect] is called after all changes in the tree, so we can always queue a new request,
-     * but drop any for old requests by comparing requests builders.
-     */
-    @OptIn(ExperimentalComposeUiApi::class)
-    private fun startRequest(requestModel: GlideNodeModel) =
-        sideEffect {
-
-            log("startRequest") { "cur:$nodeModel req:$nodeModel ${rememberJob?.isActive}" }
-
-            // The request changed while our sideEffect was queued, which should also have triggered
-            // another sideEffect. Wait for that one instead.
-            if (this.nodeModel != requestModel) return@sideEffect
-
-            if (rememberJob != null || requestModel !is GlideRequestModel) return@sideEffect
-
-            trace("GlidePainterNode.launch") {
-                rememberJob = coroutineScope.launch {
-                    flowRequest(requestModel)
-                }
-            }
-        }
-
-    private fun RequestBuilder<Drawable>.setupScaleTransform(): RequestBuilder<Drawable> {
-        return when (contentScale) {
-            ContentScale.Crop -> optionalCenterCrop()
-
-            // Outside compose, glide would use fitCenter() for FIT. But that's probably not a good
-            // decision given how unimportant Bitmap re-use is relative to minimizing texture sizes now.
-            // So instead we'll do something different and prefer not to upscale, which means using
-            // centerInside(). The UI can still scale the view even if the Bitmap is smaller.
-            ContentScale.Fit,
-            ContentScale.FillHeight,
-            ContentScale.FillWidth,
-            ContentScale.FillBounds -> optionalCenterInside()
-
-            ContentScale.Inside -> optionalCenterInside()
-
-            // NONE
-            else -> this
-        }
+        invalidateDraw()
     }
 
-    private fun RequestBuilder<Drawable>.loadRequestModel(requestModel: GlideRequestModel): RequestBuilder<Drawable> {
-        return when (val model = requestModel.model) {
-            is Int -> fallback(model).load(null as Any?)
-            is File -> load(model)
-            is Uri -> load(model)
-            is String -> load(model)
-            else -> load(model)
-        }
+    override fun update(nodeModel: GlideNodeModel) {
+        super.update(nodeModel)
+        invalidateMeasurement()
+        invalidateDraw()
     }
-
-    private fun RequestBuilder<Drawable>.setupPlaceholder(): RequestBuilder<Drawable> {
-        return when (val model = loadingModel) {
-            is ResModel -> placeholder(model.id)
-            else -> this
-        }
-    }
-
-    private fun RequestBuilder<Drawable>.setupFailure(): RequestBuilder<Drawable> {
-        return when (val model = failureModel) {
-            is ResModel -> error(model.id)
-            else -> this
-        }
-    }
-
-    private suspend fun flowRequest(requestModel: GlideRequestModel) {
-        val flow = withContext(Dispatchers.IO) {
-            requestModel.requestBuilder()
-                .setupScaleTransform()
-                .setupPlaceholder()
-                .setupFailure()
-                .loadRequestModel(requestModel)
-                .flow(glideSize, requestModel.listener)
-        }
-
-        flow.collectLatest {
-            log("startRequest") { "$it" }
-
-            painter = when (it) {
-                is GlideLoadResult.Error -> it.painter ?: errorPainter ?: placeablePainter
-                is GlideLoadResult.Success -> it.painter
-                is GlideLoadResult.Cleared -> placeablePainter
-            }
-
-            startAnimation()
-
-            if (!hasFixedSize) {
-                invalidateMeasurement()
-            }
-            invalidateDraw()
-        }
-    }
-
-    private fun stopRequest() {
-        rememberJob?.cancel()
-        rememberJob = null
-        // finish all flow target
-        if (!glideSize.hasEmit) glideSize.tryEmit(Size.Unspecified)
-    }
-
-    /**
-     * Setup state and start request.
-     *
-     * It may be call when node attach or update
-     */
-    private fun setup() {
-        startAnimation()
-        startRequest(nodeModel)
-    }
-
-    /**
-     * Reset all state and stop request.
-     *
-     * It may be call node detach/reset or model [update]
-     */
-    private fun reset() {
-        stopRequest()
-        painter = placeablePainter
-    }
-
-    fun update(nodeModel: GlideNodeModel) {
-        if (nodeModel == this.nodeModel) return
-        // if different model, reset all and restart request
-        log("update") { "${this.nodeModel} -> $nodeModel" }
-        this.nodeModel = nodeModel
-        reset()
-        setup()
-    }
-
-    override fun onAttach() {
-        super.onAttach()
-        log("attach") { "$nodeModel" }
-        setup()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        log("detach") { "$nodeModel" }
-        reset()
-    }
-
-    override fun onReset() {
-        super.onReset()
-        log("reset") { "$nodeModel" }
-        reset()
-    }
-
-    private fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.isFinite()
-    private fun Size.hasSpecifiedAndFiniteHeight() = this != Size.Unspecified && height.isFinite()
 
     override fun toString(): String =
         "GlidePainterNode(" +

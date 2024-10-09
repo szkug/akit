@@ -24,7 +24,6 @@ import com.bumptech.glide.RequestBuilder
  * ```Kotlin
  * GlideAsyncImage(
  *     model = model,
- *     tag = "LogTag",
  *     contentDescription = null,
  *     modifier = Modifier
  *         .height(20.dp)
@@ -49,7 +48,6 @@ import com.bumptech.glide.RequestBuilder
 @Composable
 fun GlideAsyncImage(
     model: Any?,
-    tag: String? = null,
     contentDescription: String?,
     modifier: Modifier,
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
@@ -59,6 +57,7 @@ fun GlideAsyncImage(
     loadingModel: Any? = null,
     failureModel: Any? = null,
     listener: PainterRequestListener? = null,
+    extension: GlideExtension? = null,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ) = trace("GlideAsyncImage") {
 
@@ -83,7 +82,6 @@ fun GlideAsyncImage(
     Layout(
         modifier = modifier
             .glidePainterNode(
-                tag = tag,
                 nodeModel = nodeModel,
                 loadingModel = loadingModel?.castPlaceholderModel(),
                 failureModel = failureModel?.castPlaceholderModel(),
@@ -91,7 +89,8 @@ fun GlideAsyncImage(
                 alignment,
                 contentScale,
                 alpha,
-                colorFilter
+                colorFilter,
+                extension,
             ),
         measurePolicy = { _, constraints ->
             layout(constraints.minWidth, constraints.minHeight) {}

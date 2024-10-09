@@ -23,12 +23,13 @@ import com.bumptech.glide.RequestBuilder
  */
 fun Modifier.glideBackground(
     model: Any?,
-    placeholder: Int,
+    placeholder: Int? = null,
     alignment: Alignment = GlideDefaults.DefaultAlignment,
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
     alpha: Float = GlideDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
     listener: PainterRequestListener? = null,
+    extension: GlideExtension? = null,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ): Modifier = composed {
 
@@ -52,61 +53,11 @@ fun Modifier.glideBackground(
 
     this.glideBackground(
         nodeModel = nodeModel,
-        loadingModel = ResModel(placeholder),
+        loadingModel = placeholder?.let { ResModel(it) },
         alignment,
         contentScale,
         alpha,
-        colorFilter
+        colorFilter,
+        extension
     )
 }
-
-fun Modifier.glideBackground(
-    model: Int,
-    alignment: Alignment = GlideDefaults.DefaultAlignment,
-    contentScale: ContentScale = GlideDefaults.DefaultContentScale,
-    alpha: Float = GlideDefaults.DefaultAlpha,
-    colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
-    listener: PainterRequestListener? = null,
-    requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
-): Modifier = composed {
-
-    val preview = LocalInspectionMode.current
-    val context = LocalContext.current
-
-    val painter = if (preview) painterResource(id = model) else null
-
-    val nodeModel = if (painter != null) PainterModel(painter)
-    else remember(model) {
-        GlideRequestModel(
-            model = model,
-            requestBuilder = { requestBuilder(context) },
-            listener = listener
-        )
-    }
-
-    this.glideBackground(
-        nodeModel = nodeModel,
-        loadingModel = ResModel(model),
-        alignment,
-        contentScale,
-        alpha,
-        colorFilter
-    )
-}
-
-private fun Modifier.glideBackground(
-    nodeModel: GlideNodeModel,
-    loadingModel: GlidePlaceholderModel,
-    alignment: Alignment,
-    contentScale: ContentScale,
-    alpha: Float,
-    colorFilter: ColorFilter?,
-): Modifier = clipToBounds() then GlidePainterElement(
-    nodeModel = nodeModel,
-    loadingModel = loadingModel,
-    failureModel = null,
-    alignment = alignment,
-    contentScale = contentScale,
-    alpha = alpha,
-    colorFilter = colorFilter,
-)

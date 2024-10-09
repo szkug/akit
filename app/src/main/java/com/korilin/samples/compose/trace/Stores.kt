@@ -1,5 +1,9 @@
 package com.korilin.samples.compose.trace
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+
 object Stores {
 
     val urls = listOf(
@@ -12,6 +16,7 @@ object Stores {
         "https://i0.hdslb.com/bfs/article/e83e19239675ee0886c3085c19fed66955894fa3.jpg@1256w_1792h_!web-article-pic.jpg"
     )
 
+    const val ninePatchUrl = "https://cdn-fusion.imgcdn.store/i/2024/8efa0f1c53dffcd6.png"
 
     val names = listOf(
         "Kotlin",

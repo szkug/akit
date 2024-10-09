@@ -10,16 +10,40 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlin.math.roundToInt
 
 
+private fun Float.roundFiniteToInt() = if (isFinite()) roundToInt() else Target.SIZE_ORIGINAL
+
 internal data class GlideSize(val width: Int, val height: Int)
 
-
 internal sealed interface ResolvableGlideSize {
-    suspend fun getSize(): GlideSize
+    suspend fun awaitSize(): GlideSize
+    fun sizeReady(): Boolean
+    fun putSize(size: Size)
+    fun readySize(): GlideSize?
 }
 
 internal data class ImmediateGlideSize(val size: GlideSize) : ResolvableGlideSize {
-    override suspend fun getSize(): GlideSize {
+
+    constructor(size: Size) : this(
+        GlideSize(
+            width = size.width.roundFiniteToInt(),
+            height = size.height.roundFiniteToInt()
+        )
+    )
+
+    override suspend fun awaitSize(): GlideSize {
         return size
+    }
+
+    override fun readySize(): GlideSize? {
+        return size
+    }
+
+    override fun sizeReady(): Boolean {
+        return true
+    }
+
+    override fun putSize(size: Size) {
+        // Immediate
     }
 }
 
@@ -30,22 +54,24 @@ internal class AsyncGlideSize : ResolvableGlideSize {
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-    var hasEmit = false
-        private set
+    private var readySize: GlideSize? = null
 
-    suspend fun emit(size: Size) {
-        hasEmit = true
-        this.drawSize.emit(size)
+    private var hasEmit = false
+
+    override fun sizeReady(): Boolean {
+        return hasEmit && readySize != null
     }
 
-    fun tryEmit(size: Size) {
+    override fun putSize(size: Size) {
         hasEmit = true
         this.drawSize.tryEmit(size)
     }
 
-    private fun Float.roundFiniteToInt() = if (isFinite()) roundToInt() else Target.SIZE_ORIGINAL
+    override fun readySize(): GlideSize? {
+        return readySize
+    }
 
-    override suspend fun getSize(): GlideSize {
+    override suspend fun awaitSize(): GlideSize {
         return drawSize
             .mapNotNull {
                 when {
@@ -59,6 +85,8 @@ internal class AsyncGlideSize : ResolvableGlideSize {
                         height = it.height.roundFiniteToInt()
                     )
                 }
-            }.first()
+            }.first().also {
+                readySize = it
+            }
     }
 }

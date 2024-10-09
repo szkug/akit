@@ -3,6 +3,7 @@ package com.korilin.samples.compose.trace.glide
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.NinePatchDrawable
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -12,6 +13,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -75,8 +77,8 @@ private class FlowTarget(
     }
 
     override fun getSize(cb: SizeReadyCallback) {
-        scope.launch {
-            val complete = size.getSize()
+        scope.launch(Dispatchers.IO) {
+            val complete = size.awaitSize()
             GlidePainterLogger.log("FlowTarget") { "getSize $complete" }
             cb.onSizeReady(complete.width, complete.height)
         }
@@ -97,12 +99,11 @@ private class FlowTarget(
         scope.trySend(GlideLoadResult.Cleared)
     }
     override fun onLoadFailed(errorDrawable: Drawable?) {
-        scope.trySend(GlideLoadResult.Error(errorDrawable?.toPainter()))
+        scope.trySend(GlideLoadResult.Error(errorDrawable))
     }
 
     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-        val painter = resource.toPainter()
-        scope.trySend(GlideLoadResult.Success(painter))
+        scope.trySend(GlideLoadResult.Success(resource))
     }
 
     override fun onStart() {}

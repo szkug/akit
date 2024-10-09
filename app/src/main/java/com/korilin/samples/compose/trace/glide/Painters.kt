@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.withSave
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 private val MAIN_HANDLER by lazy(LazyThreadSafetyMode.NONE) {
@@ -46,17 +45,11 @@ private val Drawable.intrinsicSize: Size
         else -> Size.Unspecified
     }
 
-internal object EmptyPainter : Painter() {
-    override val intrinsicSize: Size get() = Size.Unspecified
-    override fun DrawScope.onDraw() {}
-}
-
-internal fun Drawable?.toPainter(): Painter =
+internal fun Drawable.toPainter(): Painter =
     when (this) {
         is BitmapDrawable -> BitmapPainter(bitmap.asImageBitmap())
         is ColorDrawable -> ColorPainter(Color(color))
-        is NinePatchDrawable -> NinePatchPainter(mutate())
-        null -> ColorPainter(Color.Transparent)
+        is NinePatchDrawable -> NinePatchPainter(this)
         else -> DrawablePainter(mutate())
     }
 
@@ -65,8 +58,13 @@ internal interface AnimatablePainter {
     fun stopAnimation()
 }
 
+internal object EmptyPainter : Painter() {
+    override val intrinsicSize: Size get() = Size.Unspecified
+    override fun DrawScope.onDraw() {}
+}
+
 internal class NinePatchPainter(
-    val drawable: Drawable
+    val drawable: NinePatchDrawable
 ) : Painter() {
 
     val padding = Rect()
@@ -104,7 +102,6 @@ internal class NinePatchPainter(
         drawIntoCanvas { canvas ->
             // Update the Drawable's bounds
             drawable.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
-
             canvas.withSave {
                 drawable.draw(canvas.nativeCanvas)
             }
@@ -112,7 +109,7 @@ internal class NinePatchPainter(
     }
 
     override fun toString(): String {
-        return "DrawablePainter@${hashCode()}(drawable=$drawable, size=$intrinsicSize)"
+        return "NinePatchPainter@${hashCode()}(drawable=$drawable, size=${drawable.intrinsicSize})"
     }
 }
 
@@ -125,7 +122,6 @@ internal class DrawablePainter(
     private val callback: Drawable.Callback by lazy {
         object : Drawable.Callback {
             override fun invalidateDrawable(d: Drawable) {
-                GlidePainterLogger.log("DrawablePainter") { "${hashCode()} invalidateDrawable" }
                 // Update the tick so that we get re-drawn
                 drawInvalidateTick++
                 // Update our intrinsic size too
@@ -133,12 +129,10 @@ internal class DrawablePainter(
             }
 
             override fun scheduleDrawable(d: Drawable, what: Runnable, time: Long) {
-                GlidePainterLogger.log("DrawablePainter") { "${hashCode()} scheduleDrawable" }
                 MAIN_HANDLER.postAtTime(what, time)
             }
 
             override fun unscheduleDrawable(d: Drawable, what: Runnable) {
-                GlidePainterLogger.log("DrawablePainter") { "${hashCode()} unscheduleDrawable" }
                 MAIN_HANDLER.removeCallbacks(what)
             }
         }

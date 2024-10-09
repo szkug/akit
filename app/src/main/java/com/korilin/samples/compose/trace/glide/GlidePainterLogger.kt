@@ -26,7 +26,7 @@ object GlidePainterLogger {
         }
 
         override fun error(tag: String, exception: GlideException?) {
-            exception?.logRootCauses(tag)
+            Log.e(tag, exception?.stackTraceToString() ?: "GlideException is null")
         }
 
         override fun error(tag: String, message: String) {
