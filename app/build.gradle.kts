@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
@@ -53,11 +54,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -66,7 +67,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.6"
     }
-    packaging {
+    packagingOptions {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -74,8 +75,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.profileinstaller)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -92,11 +91,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation(libs.bundles.glide)
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.recyclerview)
     implementation(libs.coil.compose)
 
+    // kapt(libs.glide.compiler)
+    implementation(libs.bundles.glide)
 
     implementation(libs.androidx.runtime.tracing)
 }
