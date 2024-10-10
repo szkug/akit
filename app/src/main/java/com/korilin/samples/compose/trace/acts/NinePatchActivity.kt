@@ -10,9 +10,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.Glide
 import com.korilin.samples.compose.trace.R
@@ -27,17 +32,38 @@ import com.korilin.samples.compose.trace.sp
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
-    val extension = GlideExtension(
-        transcoder = NinePatchDrawableTranscoder(this)
+    val extension1 = GlideExtension(
+        transcoder = NinePatchDrawableTranscoder(this),
+        ignoreNinePatchPadding = true
+    )
+    val extension2 = GlideExtension(
+        transcoder = NinePatchDrawableTranscoder(this),
     )
 
-    inline fun Modifier.background(
+    inline fun Modifier.background1(
         model: Any?,
         placeholder: Int? = null,
     ) = glideBackground(
         model,
         placeholder,
-        extension = extension
+        contentScale = ContentScale.Crop,
+        alignment = Alignment.Center,
+        extension = extension1
+    ) {
+        Glide
+            .with(it)
+            .asDrawable()
+    }
+        .padding(5.dp)
+        .padding(bottom = 10.dp)
+
+    inline fun Modifier.background2(
+        model: Any?,
+        placeholder: Int? = null,
+    ) = glideBackground(
+        model,
+        placeholder,
+        extension = extension2
     ) {
         Glide.with(it).asDrawable()
     }
@@ -77,23 +103,22 @@ class NinePatchActivity : ComponentActivity() {
                         .padding(2.dp)
                 )
 
-                Text("===============")
+                Text("======== Drawable =======")
 
                 Text(
                     text = "Kotlin",
                     color = Color.White,
                     fontSize = 8.dp.sp,
                     modifier = Modifier
-                        .background(
+                        .background1(
                             model = R.drawable.nine_patch_1,
                         )
                 )
 
-
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
-                    modifier = Modifier.background(
+                    modifier = Modifier.background1(
                         model = R.drawable.nine_patch_1,
                     )
                 )
@@ -102,8 +127,38 @@ class NinePatchActivity : ComponentActivity() {
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose\"",
                     color = Color.White,
-                    modifier = Modifier.background(
+                    modifier = Modifier.background1(
                         model = R.drawable.nine_patch_1,
+                    )
+                )
+
+
+                Text("======== NoDpi =======")
+
+                Text(
+                    text = "Kotlin",
+                    color = Color.White,
+                    fontSize = 8.dp.sp,
+                    modifier = Modifier
+                        .background1(
+                            model = R.drawable.nine_patch_1_no,
+                        )
+                )
+
+                Text(
+                    text = "Kotlin & Compose & Kotlin & Compose",
+                    color = Color.White,
+                    modifier = Modifier.background1(
+                        model = R.drawable.nine_patch_1_no,
+                    )
+                )
+
+
+                Text(
+                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose\"",
+                    color = Color.White,
+                    modifier = Modifier.background1(
+                        model = R.drawable.nine_patch_1_no,
                     )
                 )
 
@@ -116,7 +171,7 @@ class NinePatchActivity : ComponentActivity() {
                     color = Color.White,
                     fontSize = 8.dp.sp,
                     modifier = Modifier
-                        .background(R.drawable.nine_patch_2)
+                        .background2(R.drawable.nine_patch_2)
                 )
 
                 Text(
@@ -124,14 +179,14 @@ class NinePatchActivity : ComponentActivity() {
                     color = Color.White,
                     fontSize = 8.dp.sp,
                     modifier = Modifier
-                        .background(R.drawable.nine_patch_2)
+                        .background2(R.drawable.nine_patch_2)
                 )
 
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     modifier = Modifier
-                        .background(R.drawable.nine_patch_2)
+                        .background2(R.drawable.nine_patch_2)
                 )
 
                 Text("===============")
@@ -141,7 +196,7 @@ class NinePatchActivity : ComponentActivity() {
                     color = Color.White,
                     fontSize = 8.dp.sp,
                     modifier = Modifier
-                        .background(
+                        .background2(
                             model = url,
                         )
                 )
@@ -150,8 +205,7 @@ class NinePatchActivity : ComponentActivity() {
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
-                    fontSize = 8.dp.sp,
-                    modifier = Modifier.background(
+                    modifier = Modifier.background2(
                         model = url,
                     )
                 )
@@ -160,13 +214,30 @@ class NinePatchActivity : ComponentActivity() {
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose\"",
                     color = Color.White,
-                    modifier = Modifier.background(
+                    modifier = Modifier.background2(
                         model = url,
                     )
                 )
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun Preview() {
+    Text(
+        text = "Kotlin",
+        color = Color.White,
+        fontSize = 8.dp.sp,
+        modifier = Modifier
+            .glideBackground(
+                model = R.drawable.nine_patch_2,
+                extension = GlideExtension(
+                    transcoder = NinePatchDrawableTranscoder(LocalContext.current),
+                )
+            )
+    )
 }
 
 

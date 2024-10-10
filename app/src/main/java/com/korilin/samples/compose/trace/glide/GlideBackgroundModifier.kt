@@ -15,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.times
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -22,9 +23,11 @@ import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import kotlin.math.roundToInt
 
 
 internal fun Modifier.glideBackground(
@@ -114,6 +117,10 @@ private class GlideBackgroundNode(
         invalidateDraw()
     }
 
+    private fun drawPadding() = if (extension?.ignoreNinePatchPadding != true) {
+        (painter as? NinePatchPainter)?.padding ?: Rect()
+    } else Rect()
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -123,9 +130,7 @@ private class GlideBackgroundNode(
         glideSize.putSize(inferredGlideSize)
 
         // measure with padding
-        val padding: Rect = if (extension?.ignoreNinePatchPadding != true) {
-            (painter as? NinePatchPainter)?.padding ?: Rect()
-        } else Rect()
+        val padding: Rect = drawPadding()
 
         val horizontal = padding.left + padding.right
         val vertical = padding.top + padding.bottom
@@ -141,13 +146,45 @@ private class GlideBackgroundNode(
     }
 
     override fun ContentDrawScope.draw() {
+        val intrinsicSize = painter.intrinsicSize
+        val srcWidth = if (intrinsicSize.hasSpecifiedAndFiniteWidth()) {
+            intrinsicSize.width
+        } else {
+            size.width
+        }
+
+        val srcHeight = if (intrinsicSize.hasSpecifiedAndFiniteHeight()) {
+            intrinsicSize.height
+        } else {
+            size.height
+        }
+
+        val srcSize = Size(srcWidth, srcHeight)
+
+        // Compute the offset to translate the content based on the given alignment
+        // and size to draw based on the ContentScale parameter
+        val scaledSize = if (size.width != 0f && size.height != 0f) {
+            srcSize * contentScale.computeScaleFactor(srcSize, size)
+        } else {
+            size
+        }
+
+        val alignedPosition = alignment.align(
+            IntSize(scaledSize.width.roundToInt(), scaledSize.height.roundToInt()),
+            IntSize(size.width.roundToInt(), size.height.roundToInt()),
+            layoutDirection
+        )
+
+        val dx = alignedPosition.x.toFloat()
+        val dy = alignedPosition.y.toFloat()
+
         // plus draw padding
-        val padding = (painter as? NinePatchPainter)?.padding ?: Rect()
+        val padding: Rect = drawPadding()
         val horizontal = padding.left + padding.right
         val vertical = padding.top + padding.bottom
-        val drawSize = Size(size.width + horizontal, size.height + vertical)
+        val drawSize = Size(scaledSize.width + horizontal, scaledSize.height + vertical)
 
-        translate(padding.left * -1f, padding.top * -1f) {
+        translate(dx - padding.left, dy - padding.top) {
             drawIntoCanvas {
                 it.withSave {
                     with(painter) {

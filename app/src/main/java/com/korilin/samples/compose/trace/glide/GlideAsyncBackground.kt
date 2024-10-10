@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 
@@ -38,7 +39,10 @@ fun Modifier.glideBackground(
 
     val painter = when (model) {
         is Painter -> model
-        is Int -> if (preview) painterResource(id = model) else null
+        is Int -> if (preview) {
+            val drawable = ContextCompat.getDrawable(context, model)
+            drawable!!.toPainter()
+        } else null
         else -> null
     }
 
@@ -51,9 +55,11 @@ fun Modifier.glideBackground(
         )
     }
 
+    val loadingRes = placeholder ?: if (preview) model as? Int? else null
+
     this.glideBackground(
         nodeModel = nodeModel,
-        loadingModel = placeholder?.let { ResModel(it) },
+        loadingModel = loadingRes?.let { ResModel(it) },
         alignment,
         contentScale,
         alpha,
