@@ -101,12 +101,10 @@ private class FlowTarget(
 
     override fun onLoadFailed(errorDrawable: Drawable?) {
         scope.trySend(GlideLoadResult.Error(errorDrawable))
-        errorDrawable?.let { listener?.onLoadDrawable(false, it) }
     }
 
     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
         scope.trySend(GlideLoadResult.Success(resource))
-        listener?.onLoadDrawable(true, resource)
     }
 
     override fun onStart() {}
