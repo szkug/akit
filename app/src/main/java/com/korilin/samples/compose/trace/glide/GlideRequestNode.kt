@@ -20,11 +20,11 @@ import java.io.File
 private const val TRACE_SECTION_NAME = "GlideRequestNode"
 
 internal abstract class GlideRequestNode(
-    var nodeModel: GlideNodeModel,
-    var loadingModel: GlidePlaceholderModel?,
-    var failureModel: GlidePlaceholderModel?,
+    private var nodeModel: GlideNodeModel,
+    private var loadingModel: GlidePlaceholderModel?,
+    private var failureModel: GlidePlaceholderModel?,
     var contentScale: ContentScale,
-    var extension: GlideExtension?,
+    var extension: GlideExtension,
 ) : Modifier.Node() {
 
     protected fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.isFinite()
@@ -46,7 +46,7 @@ internal abstract class GlideRequestNode(
 
     private inline fun log(subtag: String? = null, message: () -> String) {
         // skip redundant string concatenation
-        if (GlidePainterLogger.LOGGER_ENABLE)
+        if (extension.enableLog)
             GlidePainterLogger.log(TRACE_SECTION_NAME) {
                 if (subtag == null) message()
                 else "[$subtag] ${message()}"
@@ -155,7 +155,7 @@ internal abstract class GlideRequestNode(
     }
 
     private fun Drawable.transcodeDrawable(): Painter {
-        val transcoder = extension?.transcoder
+        val transcoder = extension.transcoder
         val drawable = transcoder?.transcode(this) ?: this
         return drawable.toPainter()
     }
@@ -229,8 +229,26 @@ internal abstract class GlideRequestNode(
         painter = placeablePainter
     }
 
-    open fun update(nodeModel: GlideNodeModel) {
-        if (nodeModel == this.nodeModel) return
+    open fun update(
+        nodeModel: GlideNodeModel,
+        loadingModel: GlidePlaceholderModel?,
+        failureModel: GlidePlaceholderModel?
+    ) {
+        var hasModify = false
+        if (nodeModel != this.nodeModel) {
+            this.nodeModel = nodeModel
+            hasModify = true
+        }
+
+        if (loadingModel != this.loadingModel) {
+            this.loadingModel = loadingModel
+            hasModify = true
+        }
+        if (failureModel != this.failureModel) {
+            this.failureModel = failureModel
+            hasModify = true
+        }
+        if (!hasModify) return
         // if different model, reset all and restart request
         log("update") { "${this.nodeModel} -> $nodeModel" }
         this.nodeModel = nodeModel

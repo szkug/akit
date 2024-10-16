@@ -13,5 +13,10 @@ interface DrawableTranscoder {
 data class GlideExtension(
     val resolveSize: Size? = null,
     val transcoder: DrawableTranscoder? = null,
-    val ignoreNinePatchPadding: Boolean = false
-)
+    val ignoreNinePatchPadding: Boolean = false,
+    val enableLog: Boolean = false,
+) {
+    companion object {
+        val NORMAL = GlideExtension()
+    }
+}

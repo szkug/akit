@@ -30,7 +30,7 @@ fun Modifier.glideBackground(
     alpha: Float = GlideDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
     listener: PainterRequestListener? = null,
-    extension: GlideExtension? = null,
+    extension: GlideExtension = GlideExtension.NORMAL,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ): Modifier = composed {
 

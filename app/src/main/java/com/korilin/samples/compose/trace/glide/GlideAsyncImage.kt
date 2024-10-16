@@ -57,7 +57,7 @@ fun GlideAsyncImage(
     loadingModel: Any? = null,
     failureModel: Any? = null,
     listener: PainterRequestListener? = null,
-    extension: GlideExtension? = null,
+    extension: GlideExtension = GlideExtension.NORMAL,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ) = trace("GlideAsyncImage") {
 

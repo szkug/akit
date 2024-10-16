@@ -5,11 +5,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.withSave
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Measurable
@@ -32,12 +30,12 @@ import kotlin.math.roundToInt
 
 internal fun Modifier.glideBackground(
     nodeModel: GlideNodeModel,
-    loadingModel: GlidePlaceholderModel? = null,
+    loadingModel: GlidePlaceholderModel?,
     alignment: Alignment,
     contentScale: ContentScale,
     alpha: Float,
-    colorFilter: ColorFilter? = null,
-    extension: GlideExtension? = null,
+    colorFilter: ColorFilter?,
+    extension: GlideExtension,
 ): Modifier = this then GlideBackgroundElement(
     nodeModel = nodeModel,
     loadingModel = loadingModel,
@@ -55,7 +53,7 @@ private data class GlideBackgroundElement(
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val extension: GlideExtension?
+    val extension: GlideExtension
 ) : ModifierNodeElement<GlideBackgroundNode>() {
 
     override fun create(): GlideBackgroundNode {
@@ -75,16 +73,15 @@ private data class GlideBackgroundElement(
         node.contentScale = contentScale
         node.alpha = alpha
         node.colorFilter = colorFilter
-        node.loadingModel = loadingModel
-        node.failureModel = loadingModel
         node.extension = extension
 
-        node.update(nodeModel)
+        node.update(nodeModel, loadingModel, loadingModel)
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "GlideBackground"
         properties["model"] = nodeModel
+        properties["placeholder"] = loadingModel
         properties["alignment"] = alignment
         properties["contentScale"] = contentScale
         properties["alpha"] = alpha
@@ -99,7 +96,7 @@ private class GlideBackgroundNode(
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    extension: GlideExtension?
+    extension: GlideExtension
 ) : GlideRequestNode(
     nodeModel = nodeModel,
     loadingModel = loadingModel,
@@ -108,7 +105,7 @@ private class GlideBackgroundNode(
     extension = extension
 ), LayoutModifierNode, DrawModifierNode {
 
-    override val glideSize: ResolvableGlideSize = extension?.resolveSize?.let {
+    override val glideSize: ResolvableGlideSize = extension.resolveSize?.let {
         ImmediateGlideSize(it)
     } ?: AsyncGlideSize()
 
@@ -117,7 +114,7 @@ private class GlideBackgroundNode(
         invalidateDraw()
     }
 
-    private fun drawPadding() = if (extension?.ignoreNinePatchPadding != true) {
+    private fun drawPadding() = if (!extension.ignoreNinePatchPadding) {
         (painter as? NinePatchPainter)?.padding ?: Rect()
     } else Rect()
 
@@ -197,8 +194,12 @@ private class GlideBackgroundNode(
         drawContent()
     }
 
-    override fun update(nodeModel: GlideNodeModel) {
-        super.update(nodeModel)
+    override fun update(
+        nodeModel: GlideNodeModel,
+        loadingModel: GlidePlaceholderModel?,
+        failureModel: GlidePlaceholderModel?
+    ) {
+        super.update(nodeModel, loadingModel, failureModel)
         invalidateMeasurement()
         invalidateDraw()
     }

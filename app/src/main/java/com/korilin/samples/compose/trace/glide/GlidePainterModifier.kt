@@ -29,24 +29,21 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.trace
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.max
 import kotlin.math.roundToInt
 
 
 internal fun Modifier.glidePainterNode(
     nodeModel: GlideNodeModel,
-    loadingModel: GlidePlaceholderModel? = null,
-    failureModel: GlidePlaceholderModel? = null,
-    contentDescription: String? = null,
+    loadingModel: GlidePlaceholderModel?,
+    failureModel: GlidePlaceholderModel?,
+    contentDescription: String?,
     alignment: Alignment,
     contentScale: ContentScale,
     alpha: Float,
-    colorFilter: ColorFilter? = null,
-    extension: GlideExtension? = null,
+    colorFilter: ColorFilter?,
+    extension: GlideExtension,
 ): Modifier = clipToBounds()
     .semantics {
         if (contentDescription != null) {
@@ -72,7 +69,7 @@ private data class GlidePainterElement(
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val extension: GlideExtension?
+    val extension: GlideExtension
 ) : ModifierNodeElement<GlidePainterNode>() {
 
     override fun create(): GlidePainterNode {
@@ -93,16 +90,16 @@ private data class GlidePainterElement(
         node.contentScale = contentScale
         node.alpha = alpha
         node.colorFilter = colorFilter
-        node.loadingModel = loadingModel
-        node.failureModel = failureModel
         node.extension = extension
 
-        node.update(nodeModel)
+        node.update(nodeModel, loadingModel, failureModel)
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "GlidePainter"
         properties["model"] = nodeModel
+        properties["loadingModel"] = loadingModel
+        properties["failureModel"] = failureModel
         properties["alignment"] = alignment
         properties["contentScale"] = contentScale
         properties["alpha"] = alpha
@@ -120,7 +117,7 @@ internal class GlidePainterNode(
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    extension: GlideExtension?
+    extension: GlideExtension
 ) : GlideRequestNode(
     nodeModel = nodeModel,
     loadingModel = loadingModel,
@@ -347,17 +344,13 @@ internal class GlidePainterNode(
         invalidateDraw()
     }
 
-    override fun update(nodeModel: GlideNodeModel) {
-        super.update(nodeModel)
+    override fun update(
+        nodeModel: GlideNodeModel,
+        loadingModel: GlidePlaceholderModel?,
+        failureModel: GlidePlaceholderModel?
+    ) {
+        super.update(nodeModel, loadingModel, failureModel)
         invalidateMeasurement()
         invalidateDraw()
     }
-
-    override fun toString(): String =
-        "GlidePainterNode(" +
-                "nodeModel=$nodeModel, " +
-                "painter=$painter, " +
-                "alignment=$alignment, " +
-                "alpha=$alpha, " +
-                "colorFilter=$colorFilter)"
 }
