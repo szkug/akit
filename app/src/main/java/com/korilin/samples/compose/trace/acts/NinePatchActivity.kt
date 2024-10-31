@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -182,6 +183,8 @@ class NinePatchActivity : ComponentActivity() {
                         .background2(R.drawable.nine_patch_2)
                 )
 
+                Size.Unspecified
+
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
@@ -203,7 +206,7 @@ class NinePatchActivity : ComponentActivity() {
 
 
                 Text(
-                    text = "Kotlin & Compose & Kotlin & Compose",
+                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     modifier = Modifier.background2(
                         model = url,
@@ -212,7 +215,7 @@ class NinePatchActivity : ComponentActivity() {
 
 
                 Text(
-                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose\"",
+                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     modifier = Modifier.background2(
                         model = url,
