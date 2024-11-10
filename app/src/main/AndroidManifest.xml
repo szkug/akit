@@ -48,6 +48,9 @@
         <activity
             android:name=".acts.NinePatchActivity"
             android:exported="true" />
+        <activity
+            android:name=".acts.LayoutOptActivity"
+            android:exported="true" />
 
     </application>
 

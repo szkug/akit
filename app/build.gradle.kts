@@ -54,11 +54,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -94,6 +94,7 @@ dependencies {
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.recyclerview)
     implementation(libs.coil.compose)
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     // kapt(libs.glide.compiler)
     implementation(libs.bundles.glide)

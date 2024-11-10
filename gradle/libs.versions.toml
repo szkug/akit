@@ -1,12 +1,12 @@
 [versions]
-agp = "7.4.1"
+agp = "8.4.2"
 kotlin = "1.8.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.9.1"
-composeBom = "2024.06.00"
+composeBom = "2024.10.01"
 ksp = "1.8.20-1.0.11"
 
 glide = "4.16.0"
@@ -25,9 +25,9 @@ androidx-test-ext-junit = "1.2.1"
 androidx-test-runner = "1.6.2"
 androidx-test-core = "1.6.1"
 androidx-test-uiautomator = "2.3.0"
-androidx-benchmark-macroJunit4 = "1.3.0"
+androidx-benchmark-macroJunit4 = "1.3.3"
 androidx-tracing-perfetto = "1.0.0"
-androidx-runtime-tracing = "1.0.0-beta01"
+androidx-runtime-tracing = "1.7.5"
 
 
 [libraries]

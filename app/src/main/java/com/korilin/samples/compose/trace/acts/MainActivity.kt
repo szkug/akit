@@ -84,6 +84,18 @@ class MainActivity : ComponentActivity() {
                                 Text(text = "Nine Patch Preview")
                             }
                         }
+
+                        spacerItem {
+                            Button(
+                                onClick = {
+                                    val intent =
+                                        Intent(this@MainActivity, LayoutOptActivity::class.java)
+                                    startActivity(intent)
+                                }
+                            ) {
+                                Text(text = "Layout Opt")
+                            }
+                        }
                     }
                 }
             }
