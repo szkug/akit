@@ -1,6 +1,7 @@
 package com.korilin.samples.compose.trace.acts
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,11 +26,16 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +45,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
+import com.korilin.samples.compose.trace.customBlur
+import com.korilin.samples.compose.trace.draw9Patch
 import com.korilin.samples.compose.trace.glide.GlideAsyncImage
+import com.skydoves.cloudy.cloudy
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
 
 
 data class RoomInfo(
@@ -58,7 +69,7 @@ data class RoomInfo(
 
 class RoomGridListActivity : ComponentActivity() {
 
-    private val list = List(10) { RoomInfo.create() }
+    private val list = List(1) { RoomInfo.create() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,7 +144,8 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
                 text = info.name,
                 color = Color.White,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
             )
         }
 
@@ -155,7 +167,13 @@ private fun RoomTagsRow() = trace("Compose:RoomTagsRow") {
 
 @Composable
 private fun RoomTagsRow_Opt1() = trace("Compose:RoomTagsRow") {
-    Row {
+    Row(
+        modifier = Modifier
+            .graphicsLayer {
+                Log.d("BlurNode", "graphicsLayer")
+            }
+            .customBlur(15)
+    ) {
         RoomTag_Opt1(R.drawable.compose)
         RoomTag_Opt1(R.drawable.kotlin)
     }
