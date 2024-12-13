@@ -97,6 +97,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
     implementation("dev.chrisbanes.haze:haze:1.1.1")
     implementation("com.github.skydoves:cloudy:0.2.3")
+    implementation(libs.coil.network.okhttp)
 
     // kapt(libs.glide.compiler)
     implementation(libs.bundles.glide)

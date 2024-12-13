@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,9 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.trace
-import coil.compose.AsyncImage
+import androidx.constraintlayout.compose.ChainStyle
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import coil3.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.korilin.samples.compose.trace.R
@@ -140,7 +147,7 @@ class CompareActivity : ComponentActivity() {
                         modifier = Modifier
                             .height(50.dp)
                             .wrapContentWidth()
-                            .background(Color.Red),
+                            .background(Color.Blue),
                         contentScale = ContentScale.FillHeight,
                         alignment = Alignment.CenterStart,
                         contentDescription = null
@@ -150,7 +157,7 @@ class CompareActivity : ComponentActivity() {
                         modifier = Modifier
                             .height(50.dp)
                             .wrapContentWidth()
-                            .background(Color.Red),
+                            .background(Color.Green),
                         contentScale = ContentScale.FillHeight,
                         alignment = Alignment.CenterStart,
                         contentDescription = null
@@ -215,4 +222,43 @@ class CompareActivity : ComponentActivity() {
             }
         }
     }
+}
+
+
+@Preview
+@Composable
+fun Test() {
+
+
+    ConstraintLayout(
+        modifier = Modifier
+            .width(200.dp)
+            .background(Color.Blue)
+    ) {
+
+        val (text, spacer) = createRefs()
+        val chain = createHorizontalChain(
+            text, spacer, chainStyle = ChainStyle.Packed
+        )
+
+        Text(
+            "asjdias",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.constrainAs(text) {
+                linkTo(parent.start, spacer.start, bias = 0f)
+
+                width = Dimension.preferredWrapContent
+            })
+
+
+        Spacer(modifier = Modifier
+            .background(Color.Red)
+            .size(50.dp)
+            .constrainAs(spacer) {
+                linkTo(text.end, parent.end)
+            })
+
+    }
+
 }

@@ -20,12 +20,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +42,7 @@ import androidx.compose.ui.util.trace
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import kotlinx.coroutines.launch
 
 class LayoutOptActivity : ComponentActivity() {
 
@@ -51,7 +56,6 @@ class LayoutOptActivity : ComponentActivity() {
     @OptIn(ExperimentalGlideComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             Column(
                 modifier = Modifier
@@ -60,19 +64,32 @@ class LayoutOptActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
-                bf.Content()
-                Spacer(modifier = Modifier.height(10.dp))
-                opt.Content()
 
-                Spacer(modifier = Modifier.height(10.dp))
-                bf.Content()
-                Spacer(modifier = Modifier.height(10.dp))
-                opt.Content()
+                val scope = rememberCoroutineScope()
+                val state = rememberLazyListState()
 
-                Spacer(modifier = Modifier.height(10.dp))
-                bf.Content()
-                Spacer(modifier = Modifier.height(10.dp))
-                opt.Content()
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.weight(1f),
+                    state = state,
+                ) {
+                    items(100) {
+                        val color = when (it % 3) {
+                            1 -> Color.Green
+                            2 -> Color.Red
+                            else -> Color.Blue
+                        }
+                        Box(Modifier.height(100.dp).fillMaxWidth().background(color)) {
+                            Text("$it")
+                        }
+                    }
+                }
+
+                Button(onClick = {
+                    scope.launch { state.animateScrollToItem(0) }
+                }) {
+                    Text("Scroll to Top")
+                }
 
             }
         }
