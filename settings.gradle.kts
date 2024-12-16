@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "compose-trace"
+rootProject.name = "compose-akit"
 include(":app")
 include(":benchmark")
