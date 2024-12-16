@@ -1,9 +1,8 @@
-package com.korilin.samples.compose.trace.glide
+package com.korilin.compose.akit.image.glide
 
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.NinePatchDrawable
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -50,7 +49,7 @@ private class FlowTarget(
         target: Target<Drawable>,
         isFirstResource: Boolean
     ): Boolean {
-        GlidePainterLogger.error("FlowTarget", e)
+        GlideDefaults.logger.error("FlowTarget", e)
         listener?.onLoadFailed(e, model, target, isFirstResource)
         return false
     }
@@ -62,7 +61,7 @@ private class FlowTarget(
         dataSource: DataSource,
         isFirstResource: Boolean
     ): Boolean {
-        GlidePainterLogger.log("FlowTarget") {
+        GlideDefaults.logger.info("FlowTarget") {
             "onResourceReady first:$isFirstResource source:$dataSource Size(${resource.width}, ${resource.height}) model:$model"
         }
         val unBoundMemorySize = when (resource) {
@@ -79,7 +78,7 @@ private class FlowTarget(
     override fun getSize(cb: SizeReadyCallback) {
         scope.launch(Dispatchers.IO) {
             val complete = size.awaitSize()
-            GlidePainterLogger.log("FlowTarget") { "getSize $complete" }
+            GlideDefaults.logger.info("FlowTarget") { "getSize $complete" }
             cb.onSizeReady(complete.width, complete.height)
         }
     }

@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.glide
+package com.korilin.compose.akit.image.glide
 
 import android.content.Context
 import android.graphics.drawable.Drawable

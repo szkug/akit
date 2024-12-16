@@ -46,11 +46,6 @@ import androidx.compose.ui.util.trace
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.samples.compose.trace.customBlur
-import com.korilin.samples.compose.trace.draw9Patch
-import com.korilin.samples.compose.trace.glide.GlideAsyncImage
-import com.skydoves.cloudy.cloudy
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.haze
 
 
 data class RoomInfo(
@@ -115,7 +110,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             .clip(RoundedCornerShape(12.dp))
     ) {
 
-        GlideAsyncImage(
+        com.korilin.compose.akit.image.glide.GlideAsyncImage(
             modifier = Modifier.fillMaxSize(),
             model = info.cover,
             contentDescription = null,
@@ -210,7 +205,7 @@ private fun RoomTag(@DrawableRes id: Int) = trace("Compose:RoomTag") {
 
 @Composable
 private fun RoomTag_Opt1(@DrawableRes id: Int) = trace("Compose:RoomTag") {
-    GlideAsyncImage(
+    com.korilin.compose.akit.image.glide.GlideAsyncImage(
         model = id,
         modifier = Modifier.size(20.dp),
         contentDescription = null

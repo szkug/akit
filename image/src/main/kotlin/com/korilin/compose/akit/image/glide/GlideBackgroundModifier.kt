@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.glide
+package com.korilin.compose.akit.image.glide
 
 import android.graphics.Rect
 import androidx.compose.ui.Alignment
@@ -118,6 +118,7 @@ private class GlideBackgroundNode(
         (painter as? NinePatchPainter)?.padding ?: Rect()
     } else Rect()
 
+    // TODO Handle adaptive width and height scenarios with different ContentScale using modifyConstraints
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints

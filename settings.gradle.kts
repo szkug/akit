@@ -19,6 +19,10 @@ dependencyResolutionManagement {
     }
 }
 
+// open projects accessors feature
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "compose-akit"
 include(":app")
 include(":benchmark")
+include(":image")

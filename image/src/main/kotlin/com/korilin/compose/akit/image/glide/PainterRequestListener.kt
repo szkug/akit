@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.glide
+package com.korilin.compose.akit.image.glide
 
 import android.graphics.drawable.Drawable
 import com.bumptech.glide.request.RequestListener

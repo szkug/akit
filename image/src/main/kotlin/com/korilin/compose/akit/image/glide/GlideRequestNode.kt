@@ -1,13 +1,17 @@
-package com.korilin.samples.compose.trace.glide
+package com.korilin.compose.akit.image.glide
 
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.times
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.RequestBuilder
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.math.roundToInt
 
 private const val TRACE_SECTION_NAME = "GlideRequestNode"
 
@@ -44,10 +49,10 @@ internal abstract class GlideRequestNode(
         return Size(width.toFloat(), height.toFloat())
     }
 
-    private inline fun log(subtag: String? = null, message: () -> String) {
+    private inline fun log(subtag: String? = null, crossinline message: () -> String) {
         // skip redundant string concatenation
         if (extension.enableLog)
-            GlidePainterLogger.log(TRACE_SECTION_NAME) {
+            GlideDefaults.logger.info(TRACE_SECTION_NAME) {
                 if (subtag == null) message()
                 else "[$subtag] ${message()}"
             }
@@ -272,5 +277,97 @@ internal abstract class GlideRequestNode(
         super.onReset()
         log("reset") { "$nodeModel" }
         reset()
+    }
+
+
+    /**
+     * Helper property to determine if we should size content to the intrinsic
+     * size of the Painter or not. This is only done if the Painter has an intrinsic size
+     */
+    protected val painterIntrinsicSizeSpecified: Boolean
+        get() = painter.intrinsicSize.isSpecified
+
+
+    /**
+     * By comparing [androidx.compose.ui.draw.NodePainter], coil3-compose(rc02), glide-compose(1.0.0-beta01),
+     * here make some adaptive adjustment of the width and height.
+     */
+    protected fun modifyConstraints(constraints: Constraints): Constraints =
+        trace("$TRACE_SECTION_NAME.modifyConstraints") {
+
+            // If we have fixed constraints, use the original constraints
+            if (constraints.hasFixedWidth && constraints.hasFixedHeight) return constraints
+
+            val hasBoundedDimens = constraints.hasBoundedWidth && constraints.hasBoundedHeight
+
+            // If we are not attempting to size the composable based on the size of the Painter,
+            // do not attempt to modify them.
+            if (!painterIntrinsicSizeSpecified && hasBoundedDimens) {
+                return constraints
+            }
+
+            // Otherwise rely on Alignment and ContentScale to determine
+            // how to position the drawing contents of the Painter within the provided bounds
+
+            val intrinsicSize = painter.intrinsicSize
+            val intrinsicWidth =
+                if (intrinsicSize.hasSpecifiedAndFiniteWidth()) {
+                    intrinsicSize.width.roundToInt()
+                } else {
+                    constraints.minWidth
+                }
+
+            val intrinsicHeight =
+                if (intrinsicSize.hasSpecifiedAndFiniteHeight()) {
+                    intrinsicSize.height.roundToInt()
+                } else {
+                    constraints.minHeight
+                }
+
+            // Scale the width and height appropriately based on the given constraints
+            // and ContentScale
+            val constrainedWidth = constraints.constrainWidth(intrinsicWidth)
+            val constrainedHeight = constraints.constrainHeight(intrinsicHeight)
+            val scaledSize = calculateScaledSize(
+                Size(constrainedWidth.toFloat(), constrainedHeight.toFloat())
+            )
+
+            // For both width and height constraints, consume the minimum of the scaled width
+            // and the maximum constraint as some scale types can scale larger than the maximum
+            // available size (ex ContentScale.Crop)
+            // In this case the larger of the 2 dimensions is used and the aspect ratio is
+            // maintained. Even if the size of the composable is smaller, the painter will
+            // draw its content clipped
+            val minWidth = constraints.constrainWidth(scaledSize.width.roundToInt())
+            val minHeight = constraints.constrainHeight(scaledSize.height.roundToInt())
+            return constraints.copy(minWidth = minWidth, minHeight = minHeight)
+        }
+
+
+
+    private fun calculateScaledSize(dstSize: Size): Size {
+        return if (painterIntrinsicSizeSpecified) {
+            val srcWidth = if (!painter.intrinsicSize.hasSpecifiedAndFiniteWidth()) {
+                dstSize.width
+            } else {
+                painter.intrinsicSize.width
+            }
+
+            val srcHeight = if (!painter.intrinsicSize.hasSpecifiedAndFiniteHeight()) {
+                dstSize.height
+            } else {
+                painter.intrinsicSize.height
+            }
+
+            val srcSize = Size(srcWidth, srcHeight)
+            if (dstSize.width != 0f && dstSize.height != 0f) {
+                srcSize * contentScale.computeScaleFactor(srcSize, dstSize)
+            } else {
+                Size.Zero
+            }
+
+        } else {
+            dstSize
+        }
     }
 }

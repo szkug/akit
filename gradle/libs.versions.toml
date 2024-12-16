@@ -1,14 +1,14 @@
 [versions]
 agp = "8.4.2"
-coilNetworkOkhttp = "3.0.4"
+cloudy = "0.2.3"
+constraintlayoutCompose = "1.1.0"
 kotlin = "1.8.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.9.1"
-composeBom = "2024.10.01"
-ksp = "1.8.20-1.0.11"
+composeBom = "2024.12.01"
+composeCompiler = "1.4.6"
 
 glide = "4.16.0"
 glide-plugin = "2.24.0"
@@ -19,7 +19,7 @@ compose-coil = "3.0.0-rc02"
 profileinstaller = "1.4.1"
 recyclerview = "1.3.2"
 
-accompanist = "0.34.0"
+accompanist = "0.36.0"
 
 androidx-test-espresso-core = "3.6.1"
 androidx-test-ext-junit = "1.2.1"
@@ -28,30 +28,37 @@ androidx-test-core = "1.6.1"
 androidx-test-uiautomator = "2.3.0"
 androidx-benchmark-macroJunit4 = "1.3.3"
 androidx-tracing-perfetto = "1.0.0"
-androidx-runtime-tracing = "1.7.5"
+androidx-runtime-tracing = "1.7.6"
+appcompat = "1.7.0"
+material = "1.12.0"
 
 
 [libraries]
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+cloudy = { module = "com.github.skydoves:cloudy", version.ref = "cloudy" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "compose-coil" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
-
 
 # glide
 glide-runtime = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-okhttp3 = { group = "com.github.bumptech.glide", name = "okhttp3-integration", version.ref = "glide" }
-glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 glide-gif = { group = "com.github.bumptech.glide", name = "gifencoder-integration", version.ref = "glide" }
 glide-awebp = { group = "com.github.penfeizhou.android.animation", name = "awebp", version.ref = "glide-awebp" }
 glide-plugin = { group = "com.github.penfeizhou.android.animation", name = "glide-plugin", version.ref = "glide-plugin" }
@@ -73,9 +80,12 @@ androidx-tracing-macro-junit4 = { group = "androidx.tracing", name = "benchmark-
 
 androidx-tracing-perfetto = { module = "androidx.tracing:tracing-perfetto", version.ref = "androidx-tracing-perfetto" }
 androidx-tracing-perfetto-binary = { module = "androidx.tracing:tracing-perfetto-binary", version.ref = "androidx-tracing-perfetto" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 
@@ -83,5 +93,8 @@ android-test = { id = "com.android.test", version.ref = "agp" }
 glide = [
     "glide-runtime", "glide-okhttp3",
     "glide-plugin", "glide-gif", "glide-awebp",
-    "glide-compose"
+]
+
+compose-base = [
+    "compose-ui", "compose-foundation", "compose-ui-graphics", "compose-ui-tooling"
 ]

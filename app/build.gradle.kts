@@ -65,9 +65,9 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.6"
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -79,27 +79,28 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.bundles.compose.base)
     implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.recyclerview)
+
+    implementation(libs.bundles.glide)
+    implementation(libs.glide.compose)
     implementation(libs.coil.compose)
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
-    implementation("com.github.skydoves:cloudy:0.2.3")
     implementation(libs.coil.network.okhttp)
 
-    // kapt(libs.glide.compiler)
-    implementation(libs.bundles.glide)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.cloudy)
 
     implementation(libs.androidx.runtime.tracing)
+
+    // project module
+    implementation(projects.image)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

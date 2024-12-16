@@ -24,20 +24,20 @@ import com.bumptech.glide.Glide
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.samples.compose.trace.draw9Patch
-import com.korilin.samples.compose.trace.glide.DrawableTranscoder
-import com.korilin.samples.compose.trace.glide.GlideExtension
-import com.korilin.samples.compose.trace.glide.glideBackground
+import com.korilin.compose.akit.image.glide.DrawableTranscoder
+import com.korilin.compose.akit.image.glide.GlideExtension
+import com.korilin.compose.akit.image.glide.glideBackground
 import com.korilin.samples.compose.trace.ninepatch.NinePatchChunk
 import com.korilin.samples.compose.trace.sp
 
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
-    val extension1 = GlideExtension(
+    val extension1 = com.korilin.compose.akit.image.glide.GlideExtension(
         transcoder = NinePatchDrawableTranscoder(this),
         ignoreNinePatchPadding = true
     )
-    val extension2 = GlideExtension(
+    val extension2 = com.korilin.compose.akit.image.glide.GlideExtension(
         transcoder = NinePatchDrawableTranscoder(this),
     )
 
@@ -236,7 +236,7 @@ fun Preview() {
         modifier = Modifier
             .glideBackground(
                 model = R.drawable.nine_patch_2,
-                extension = GlideExtension(
+                extension = com.korilin.compose.akit.image.glide.GlideExtension(
                     transcoder = NinePatchDrawableTranscoder(LocalContext.current),
                 )
             )
@@ -244,7 +244,8 @@ fun Preview() {
 }
 
 
-class NinePatchDrawableTranscoder(private val context: Context) : DrawableTranscoder {
+class NinePatchDrawableTranscoder(private val context: Context) :
+    com.korilin.compose.akit.image.glide.DrawableTranscoder {
     override fun transcode(
         drawable: Drawable
     ): Drawable {

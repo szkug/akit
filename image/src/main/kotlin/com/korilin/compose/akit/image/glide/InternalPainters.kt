@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.glide
+package com.korilin.compose.akit.image.glide
 
 import android.graphics.Rect
 import android.graphics.drawable.Animatable
@@ -9,7 +9,6 @@ import android.graphics.drawable.NinePatchDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

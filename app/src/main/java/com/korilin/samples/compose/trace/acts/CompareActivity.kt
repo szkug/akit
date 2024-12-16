@@ -43,7 +43,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.samples.compose.trace.glide.GlideAsyncImage
+import com.korilin.compose.akit.image.glide.GlideAsyncImage
 
 class CompareActivity : ComponentActivity() {
 
@@ -167,7 +167,7 @@ class CompareActivity : ComponentActivity() {
 
                 Text("GlideAsyncImage", modifier = Modifier.padding(top = 20.dp))
                 Row {
-                    GlideAsyncImage(
+                    com.korilin.compose.akit.image.glide.GlideAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)
@@ -177,7 +177,7 @@ class CompareActivity : ComponentActivity() {
                         alignment = Alignment.CenterStart,
                         contentDescription = null
                     )
-                    GlideAsyncImage(
+                    com.korilin.compose.akit.image.glide.GlideAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)
@@ -187,7 +187,7 @@ class CompareActivity : ComponentActivity() {
                         alignment = Alignment.CenterStart,
                         contentDescription = null
                     )
-                    GlideAsyncImage(
+                    com.korilin.compose.akit.image.glide.GlideAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)
