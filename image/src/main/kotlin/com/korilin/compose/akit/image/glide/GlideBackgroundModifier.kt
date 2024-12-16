@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.trace
 import kotlin.math.roundToInt
 
 
@@ -89,6 +90,8 @@ private data class GlideBackgroundElement(
     }
 }
 
+private const val TRACE_SECTION_NAME = "GlideBackgroundNode"
+
 private class GlideBackgroundNode(
     nodeModel: GlideNodeModel,
     loadingModel: GlidePlaceholderModel?,
@@ -109,23 +112,27 @@ private class GlideBackgroundNode(
         ImmediateGlideSize(it)
     } ?: AsyncGlideSize()
 
+    private var hasFixedSize: Boolean = false
+
     override fun onCollectResult(result: GlideLoadResult) {
         invalidateMeasurement()
         invalidateDraw()
     }
 
     private fun drawPadding() = if (!extension.ignoreNinePatchPadding) {
-        (painter as? NinePatchPainter)?.padding ?: Rect()
+        (painter as? DrawablePainter)?.padding ?: Rect()
     } else Rect()
 
-    // TODO Handle adaptive width and height scenarios with different ContentScale using modifyConstraints
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
-    ): MeasureResult {
+    ): MeasureResult = trace("$TRACE_SECTION_NAME.measure") {
+        val modified = modifyConstraints(constraints)
 
-        val inferredGlideSize = constraints.inferredGlideSize()
+        val inferredGlideSize = modified.inferredGlideSize()
+
         glideSize.putSize(inferredGlideSize)
+        hasFixedSize = modified.hasFixedSize()
 
         // measure with padding
         val padding: Rect = drawPadding()
@@ -140,7 +147,6 @@ private class GlideBackgroundNode(
         return layout(width, height) {
             placeable.placeRelative(padding.left, padding.top)
         }
-
     }
 
     override fun ContentDrawScope.draw() {

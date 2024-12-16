@@ -48,7 +48,6 @@ internal fun Drawable.toPainter(): Painter =
     when (this) {
         is BitmapDrawable -> BitmapPainter(bitmap.asImageBitmap())
         is ColorDrawable -> ColorPainter(Color(color))
-        is NinePatchDrawable -> NinePatchPainter(this)
         else -> DrawablePainter(mutate())
     }
 
@@ -62,9 +61,9 @@ internal object EmptyPainter : Painter() {
     override fun DrawScope.onDraw() {}
 }
 
-internal class NinePatchPainter(
-    val drawable: NinePatchDrawable
-) : Painter() {
+internal class DrawablePainter(
+    private val drawable: Drawable
+) : Painter(), RememberObserver, AnimatablePainter {
 
     val padding = Rect()
 
@@ -76,45 +75,6 @@ internal class NinePatchPainter(
         drawable.getPadding(padding)
     }
 
-    override fun applyAlpha(alpha: Float): Boolean {
-        drawable.alpha = (alpha * 255).roundToInt().coerceIn(0, 255)
-        return true
-    }
-
-    override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
-        drawable.colorFilter = colorFilter?.asAndroidColorFilter()
-        return true
-    }
-
-    override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
-        return drawable.setLayoutDirection(
-            when (layoutDirection) {
-                LayoutDirection.Ltr -> View.LAYOUT_DIRECTION_LTR
-                LayoutDirection.Rtl -> View.LAYOUT_DIRECTION_RTL
-            }
-        )
-    }
-
-    override val intrinsicSize: Size get() = Size.Unspecified
-
-    override fun DrawScope.onDraw() {
-        drawIntoCanvas { canvas ->
-            // Update the Drawable's bounds
-            drawable.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
-            canvas.withSave {
-                drawable.draw(canvas.nativeCanvas)
-            }
-        }
-    }
-
-    override fun toString(): String {
-        return "NinePatchPainter@${hashCode()}(drawable=$drawable, size=${drawable.intrinsicSize})"
-    }
-}
-
-internal class DrawablePainter(
-    val drawable: Drawable
-) : Painter(), RememberObserver, AnimatablePainter {
     private var drawInvalidateTick by mutableIntStateOf(0)
     private var drawableIntrinsicSize by mutableStateOf(drawable.intrinsicSize)
 
@@ -134,13 +94,6 @@ internal class DrawablePainter(
             override fun unscheduleDrawable(d: Drawable, what: Runnable) {
                 MAIN_HANDLER.removeCallbacks(what)
             }
-        }
-    }
-
-    init {
-        if (drawable.intrinsicWidth >= 0 && drawable.intrinsicHeight >= 0) {
-            // Update the drawable's bounds to match the intrinsic size
-            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
         }
     }
 

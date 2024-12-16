@@ -32,8 +32,11 @@ internal abstract class GlideRequestNode(
     var extension: GlideExtension,
 ) : Modifier.Node() {
 
+    // Shared extension functions
     protected fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.isFinite()
     protected fun Size.hasSpecifiedAndFiniteHeight() = this != Size.Unspecified && height.isFinite()
+    protected fun Constraints.hasFixedSize() = hasFixedWidth && hasFixedHeight
+
     protected fun Constraints.inferredGlideSize(): Size {
         val width = if (hasBoundedWidth) {
             maxWidth

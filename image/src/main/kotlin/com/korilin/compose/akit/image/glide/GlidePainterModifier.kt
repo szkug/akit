@@ -133,7 +133,6 @@ internal class GlidePainterNode(
         get() = false
 
     private var hasFixedSize: Boolean = false
-    private fun Constraints.hasFixedSize() = hasFixedWidth && hasFixedHeight
 
 
     override fun MeasureScope.measure(
@@ -145,7 +144,6 @@ internal class GlidePainterNode(
         val inferredGlideSize = modified.inferredGlideSize()
 
         glideSize.putSize(inferredGlideSize)
-
         hasFixedSize = modified.hasFixedSize()
 
         val placeable = measurable.measure(modified)
