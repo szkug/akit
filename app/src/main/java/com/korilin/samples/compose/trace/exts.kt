@@ -35,21 +35,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.core.content.ContextCompat
 import com.skydoves.cloudy.CloudyState
-import com.skydoves.cloudy.cloudy
 import com.skydoves.cloudy.internals.render.RenderScriptToolkit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-val Size.Companion.UnspecifiedWidth get() = Float.NaN
-val Size.Companion.UnspecifiedHeight get() = Float.NaN
 
 val Dp.sp @Composable get() = with(LocalDensity.current) { toSp() }
 
@@ -76,7 +71,6 @@ public fun Modifier.customBlur(
     radius: Int = 10,
     enabled: Boolean = true,
     graphicsLayer: GraphicsLayer = rememberGraphicsLayer(),
-    onStateChanged: (CloudyState) -> Unit = {}
 ): Modifier {
     if (!enabled) {
         return this
@@ -90,7 +84,6 @@ public fun Modifier.customBlur(
     return this then BlurModifierNodeElement(
         graphicsLayer = graphicsLayer,
         radius = radius,
-        onStateChanged = onStateChanged
     )
 }
 
