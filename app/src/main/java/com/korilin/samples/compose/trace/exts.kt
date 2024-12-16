@@ -56,7 +56,6 @@ fun Modifier.draw9Patch(
     val context = LocalContext.current
     drawBehind {
         drawIntoCanvas {
-            this.drawIntoCanvas { it.nativeCanvas }
             val ninePatch = ContextCompat.getDrawable(context, ninePatchRes)!! as NinePatchDrawable
             ninePatch.run {
                 bounds = Rect(0, 0, size.width.toInt(), size.height.toInt())
