@@ -56,7 +56,6 @@ fun GlideAsyncImage(
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
     loadingModel: Any? = null,
     failureModel: Any? = null,
-    listener: PainterRequestListener? = null,
     extension: GlideExtension = GlideExtension.NORMAL,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ) = trace("GlideAsyncImage") {
@@ -75,7 +74,6 @@ fun GlideAsyncImage(
         else GlideRequestModel(
             model = model,
             requestBuilder = { requestBuilder(context) },
-            listener = listener
         )
     }
 

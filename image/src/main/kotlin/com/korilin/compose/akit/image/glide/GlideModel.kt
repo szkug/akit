@@ -14,7 +14,6 @@ sealed interface GlidePlaceholderModel
 internal class GlideRequestModel(
     val model: Any?,
     val requestBuilder: () -> RequestBuilder<Drawable>,
-    val listener: PainterRequestListener?,
 ) : GlideNodeModel {
 
     override fun equals(other: Any?): Boolean {

@@ -112,6 +112,7 @@ internal abstract class GlideRequestNode(
         return when (contentScale) {
             ContentScale.Crop -> optionalCenterCrop()
 
+            // TODO fitCenter might be better in adaptive scenarios?
             // Outside compose, glide would use fitCenter() for FIT. But that's probably not a good
             // decision given how unimportant Bitmap re-use is relative to minimizing texture sizes now.
             // So instead we'll do something different and prefer not to upscale, which means using
@@ -173,7 +174,7 @@ internal abstract class GlideRequestNode(
             .setupPlaceholder()
             .setupFailure()
             .loadRequestModel(requestModel)
-            .flow(glideSize, requestModel.listener)
+            .flow(glideSize)
             .collectLatest {
                 log("startRequest") { "collectLatest $it" }
                 val result = when (it) {
@@ -289,7 +290,7 @@ internal abstract class GlideRequestNode(
 
 
     /**
-     * By comparing [androidx.compose.ui.draw.NodePainter], coil3-compose(rc02), glide-compose(1.0.0-beta01),
+     * By comparing [androidx.compose.ui.draw].NodePainter, coil3-compose(rc02), glide-compose(1.0.0-beta01),
      * here make some adaptive adjustment of the width and height.
      */
     protected fun modifyConstraints(constraints: Constraints): Constraints =

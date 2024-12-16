@@ -29,7 +29,6 @@ fun Modifier.glideBackground(
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
     alpha: Float = GlideDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
-    listener: PainterRequestListener? = null,
     extension: GlideExtension = GlideExtension.NORMAL,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ): Modifier = composed {
@@ -51,7 +50,6 @@ fun Modifier.glideBackground(
         else GlideRequestModel(
             model = model,
             requestBuilder = { requestBuilder(context) },
-            listener = listener
         )
     }
 

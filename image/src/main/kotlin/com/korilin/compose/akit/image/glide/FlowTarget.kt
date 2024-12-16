@@ -1,7 +1,6 @@
 package com.korilin.compose.akit.image.glide
 
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
@@ -22,11 +21,11 @@ import kotlinx.coroutines.launch
 
 internal fun RequestBuilder<Drawable>.flow(
     size: ResolvableGlideSize,
-    listener: PainterRequestListener?,
 ): Flow<GlideLoadResult> {
     return callbackFlow {
-        val target = FlowTarget(this, size, listener)
-        listener(target).into(target)
+        val target = FlowTarget(this, size)
+        // use add listener
+        addListener(target).into(target)
         awaitClose { manager.clear(target) }
     }
 }
@@ -34,7 +33,6 @@ internal fun RequestBuilder<Drawable>.flow(
 private class FlowTarget(
     private val scope: ProducerScope<GlideLoadResult>,
     private val size: ResolvableGlideSize,
-    private val listener: PainterRequestListener?,
 ) : Target<Drawable>, RequestListener<Drawable> {
 
     private val Drawable.width: Int
@@ -50,7 +48,6 @@ private class FlowTarget(
         isFirstResource: Boolean
     ): Boolean {
         GlideDefaults.logger.error("FlowTarget", e)
-        listener?.onLoadFailed(e, model, target, isFirstResource)
         return false
     }
 
@@ -64,14 +61,7 @@ private class FlowTarget(
         GlideDefaults.logger.info("FlowTarget") {
             "onResourceReady first:$isFirstResource source:$dataSource Size(${resource.width}, ${resource.height}) model:$model"
         }
-        val unBoundMemorySize = when (resource) {
-            is ColorDrawable -> 0
-            is BitmapDrawable -> resource.bitmap.byteCount
-            else -> resource.width * resource.height
-        }
 
-        listener?.onPainterMemorySize("FlowTarget", model, unBoundMemorySize)
-        listener?.onResourceReady(resource, model, target, dataSource, isFirstResource)
         return false
     }
 
