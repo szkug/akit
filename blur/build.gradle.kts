@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "com.korilin.compose.akit.blur"
     compileSdk = 34
 
     defaultConfig {

@@ -2,9 +2,12 @@ package com.korilin.compose.akit.blur
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.graphics.RenderEffect
 import android.graphics.drawable.NinePatchDrawable
+import android.os.Build
 import android.util.Log
 import androidx.annotation.DrawableRes
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -47,9 +50,8 @@ import kotlinx.coroutines.withContext
 
 @Composable
 public fun Modifier.customBlur(
-    radius: Int = 10,
+    @IntRange(0, 25) radius: Int = 10,
     enabled: Boolean = true,
-    graphicsLayer: GraphicsLayer = rememberGraphicsLayer(),
 ): Modifier {
     if (!enabled) {
         return this
@@ -59,15 +61,12 @@ public fun Modifier.customBlur(
     if (LocalInspectionMode.current) {
         return this.blur(radius = radius.dp)
     }
-
     return this then BlurModifierNodeElement(
-        graphicsLayer = graphicsLayer,
         radius = radius,
     )
 }
 
 private data class BlurModifierNodeElement(
-    private val graphicsLayer: GraphicsLayer,
     val radius: Int = 10,
 ) : ModifierNodeElement<BlurModifierNode>() {
 

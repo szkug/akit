@@ -33,11 +33,11 @@ import com.korilin.samples.compose.trace.sp
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
-    val extension1 = com.korilin.compose.akit.image.glide.GlideExtension(
+    val extension1 = GlideExtension(
         transcoder = NinePatchDrawableTranscoder(this),
         ignoreNinePatchPadding = true
     )
-    val extension2 = com.korilin.compose.akit.image.glide.GlideExtension(
+    val extension2 = GlideExtension(
         transcoder = NinePatchDrawableTranscoder(this),
     )
 
@@ -236,7 +236,7 @@ fun Preview() {
         modifier = Modifier
             .glideBackground(
                 model = R.drawable.nine_patch_2,
-                extension = com.korilin.compose.akit.image.glide.GlideExtension(
+                extension = GlideExtension(
                     transcoder = NinePatchDrawableTranscoder(LocalContext.current),
                 )
             )
@@ -244,8 +244,7 @@ fun Preview() {
 }
 
 
-class NinePatchDrawableTranscoder(private val context: Context) :
-    com.korilin.compose.akit.image.glide.DrawableTranscoder {
+class NinePatchDrawableTranscoder(private val context: Context) : DrawableTranscoder {
     override fun transcode(
         drawable: Drawable
     ): Drawable {

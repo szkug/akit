@@ -1,5 +1,7 @@
 package com.korilin.samples.compose.trace.acts
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -43,9 +45,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.Transformation
+import com.bumptech.glide.load.engine.Resource
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import com.google.android.renderscript.Toolkit
 import com.korilin.compose.akit.blur.customBlur
+import com.korilin.compose.akit.image.glide.GlideExtension
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
+import java.security.MessageDigest
 
 
 data class RoomInfo(
@@ -64,7 +74,7 @@ data class RoomInfo(
 
 class RoomGridListActivity : ComponentActivity() {
 
-    private val list = List(1) { RoomInfo.create() }
+    private val list = List(5) { RoomInfo.create() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,7 +125,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             model = info.cover,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            alignment = Alignment.Center
+            alignment = Alignment.Center,
         )
 
         Column(
@@ -141,6 +151,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
+                    .customBlur(10)
             )
         }
 
@@ -167,7 +178,6 @@ private fun RoomTagsRow_Opt1() = trace("Compose:RoomTagsRow") {
             .graphicsLayer {
                 Log.d("BlurNode", "graphicsLayer")
             }
-            .customBlur(15)
     ) {
         RoomTag_Opt1(R.drawable.compose)
         RoomTag_Opt1(R.drawable.kotlin)
@@ -208,6 +218,24 @@ private fun RoomTag_Opt1(@DrawableRes id: Int) = trace("Compose:RoomTag") {
     com.korilin.compose.akit.image.glide.GlideAsyncImage(
         model = id,
         modifier = Modifier.size(20.dp),
-        contentDescription = null
+        contentDescription = null,
     )
+}
+
+data class BlurTransformation(private val radius: Int) : BitmapTransformation() {
+    override fun updateDiskCacheKey(messageDigest: MessageDigest) {
+        messageDigest.update("BlurTransformation.$radius".toByteArray(CHARSET))
+    }
+
+    override fun transform(
+        pool: BitmapPool,
+        toTransform: Bitmap,
+        outWidth: Int,
+        outHeight: Int
+    ): Bitmap {
+        Log.d("BlurTransformation", "blur")
+        return Toolkit.blur(toTransform, radius)
+    }
+
+
 }
