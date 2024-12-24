@@ -108,33 +108,32 @@ private class GlideBackgroundNode(
     extension = extension
 ), LayoutModifierNode, DrawModifierNode {
 
-    override val glideSize: ResolvableGlideSize = extension.resolveSize?.let {
-        ImmediateGlideSize(it)
-    } ?: AsyncGlideSize()
-
-    private var hasFixedSize: Boolean = false
-
     override fun onCollectResult(result: GlideLoadResult) {
         invalidateMeasurement()
         invalidateDraw()
     }
 
     private fun drawPadding() = if (!extension.ignoreNinePatchPadding) {
-        (painter as? DrawablePainter)?.padding ?: Rect()
+        (painter as? HasPaddingPainter)?.padding ?: Rect()
     } else Rect()
 
+
+    /**
+     * For BackgroundNode, Node size should be controlled by the actual content,
+     * and the node size should only be interfered with the image internal padding.
+     *
+     * If want to ignore the padding of image, set [GlideExtension.ignoreNinePatchPadding] to false.
+     */
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult = trace("$TRACE_SECTION_NAME.measure") {
-        val modified = modifyConstraints(constraints)
 
-        val inferredGlideSize = modified.inferredGlideSize()
-
+        val inferredGlideSize = constraints.inferredGlideSize()
         glideSize.putSize(inferredGlideSize)
-        hasFixedSize = modified.hasFixedSize()
 
-        // measure with padding
+        // measure with padding.
+        // This could be zero.
         val padding: Rect = drawPadding()
 
         val horizontal = padding.left + padding.right
@@ -165,6 +164,8 @@ private class GlideBackgroundNode(
 
         val srcSize = Size(srcWidth, srcHeight)
 
+
+        // TODO add more test cast to verify here
         // Compute the offset to translate the content based on the given alignment
         // and size to draw based on the ContentScale parameter
         val scaledSize = if (size.width != 0f && size.height != 0f) {
@@ -182,12 +183,13 @@ private class GlideBackgroundNode(
         val dx = alignedPosition.x.toFloat()
         val dy = alignedPosition.y.toFloat()
 
-        // plus draw padding
+        // plus image padding into draw size
         val padding: Rect = drawPadding()
         val horizontal = padding.left + padding.right
         val vertical = padding.top + padding.bottom
         val drawSize = Size(scaledSize.width + horizontal, scaledSize.height + vertical)
 
+        // draw on the padding area
         translate(dx - padding.left, dy - padding.top) {
             drawIntoCanvas {
                 it.withSave {
@@ -207,7 +209,7 @@ private class GlideBackgroundNode(
         failureModel: GlidePlaceholderModel?
     ) {
         super.update(nodeModel, loadingModel, failureModel)
-        invalidateMeasurement()
+        if (!drawPadding().isEmpty) invalidateMeasurement()
         invalidateDraw()
     }
 }

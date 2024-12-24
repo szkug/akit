@@ -48,6 +48,7 @@ internal fun Drawable.toPainter(): Painter =
     when (this) {
         is BitmapDrawable -> BitmapPainter(bitmap.asImageBitmap())
         is ColorDrawable -> ColorPainter(Color(color))
+        is NinePatchDrawable -> NinePatchPainter(mutate())
         else -> DrawablePainter(mutate())
     }
 
@@ -61,11 +62,65 @@ internal object EmptyPainter : Painter() {
     override fun DrawScope.onDraw() {}
 }
 
+internal abstract class HasPaddingPainter: Painter() {
+    val padding = Rect()
+}
+
+internal class NinePatchPainter(
+    val drawable: Drawable
+) : HasPaddingPainter() {
+
+    init {
+        if (drawable.intrinsicWidth >= 0 && drawable.intrinsicHeight >= 0) {
+            // Update the drawable's bounds to match the intrinsic size
+            drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        }
+        drawable.getPadding(padding)
+    }
+
+    override fun applyAlpha(alpha: Float): Boolean {
+        drawable.alpha = (alpha * 255).roundToInt().coerceIn(0, 255)
+        return true
+    }
+
+    override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
+        drawable.colorFilter = colorFilter?.asAndroidColorFilter()
+        return true
+    }
+
+    override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean {
+        return drawable.setLayoutDirection(
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> View.LAYOUT_DIRECTION_LTR
+                LayoutDirection.Rtl -> View.LAYOUT_DIRECTION_RTL
+            }
+        )
+    }
+
+    /**
+     * Never give a specific size for NinePatch,
+     * otherwise drawable will lose the adaptive size.
+     */
+    override val intrinsicSize: Size get() = Size.Unspecified
+
+    override fun DrawScope.onDraw() {
+        drawIntoCanvas { canvas ->
+            // Update the Drawable's bounds
+            drawable.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
+            canvas.withSave {
+                drawable.draw(canvas.nativeCanvas)
+            }
+        }
+    }
+
+    override fun toString(): String {
+        return "NinePatchPainter@${hashCode()}(drawable=$drawable, size=${drawable.intrinsicSize})"
+    }
+}
+
 internal class DrawablePainter(
     private val drawable: Drawable
-) : Painter(), RememberObserver, AnimatablePainter {
-
-    val padding = Rect()
+) : HasPaddingPainter(), RememberObserver, AnimatablePainter {
 
     init {
         if (drawable.intrinsicWidth >= 0 && drawable.intrinsicHeight >= 0) {

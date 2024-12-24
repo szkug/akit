@@ -21,32 +21,6 @@ internal sealed interface ResolvableGlideSize {
     fun readySize(): GlideSize?
 }
 
-internal data class ImmediateGlideSize(val size: GlideSize) : ResolvableGlideSize {
-
-    constructor(size: Size) : this(
-        GlideSize(
-            width = size.width.roundFiniteToInt(),
-            height = size.height.roundFiniteToInt()
-        )
-    )
-
-    override suspend fun awaitSize(): GlideSize {
-        return size
-    }
-
-    override fun readySize(): GlideSize? {
-        return size
-    }
-
-    override fun sizeReady(): Boolean {
-        return true
-    }
-
-    override fun putSize(size: Size) {
-        // Immediate
-    }
-}
-
 internal class AsyncGlideSize : ResolvableGlideSize {
 
     private val drawSize = MutableSharedFlow<Size>(

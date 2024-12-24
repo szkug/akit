@@ -10,6 +10,7 @@ import com.bumptech.glide.RequestBuilder
 sealed interface GlideNodeModel
 sealed interface GlidePlaceholderModel
 
+// TODO remove requestBuilder property
 @Stable
 internal class GlideRequestModel(
     val model: Any?,
@@ -30,9 +31,18 @@ internal class GlideRequestModel(
     }
 }
 
+
+@Deprecated("""
+    Should a network/file image load component not need to support Painter?
+    However, it can still be used to support @Compose & @Preview.
+""")
 @JvmInline
 value class PainterModel(val painter: Painter) : GlideNodeModel, GlidePlaceholderModel
 
+@Deprecated("""
+    When Drawable already acquired, consider using Image function directly,
+    instead of using Glide for load, as internal loading imposes additional UI Performance costs.
+""")
 @JvmInline
 value class DrawableModel(val drawable: Drawable): GlidePlaceholderModel
 

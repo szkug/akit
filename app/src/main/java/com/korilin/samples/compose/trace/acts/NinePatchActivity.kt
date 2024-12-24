@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.NinePatchDrawable
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -230,7 +231,7 @@ class NinePatchActivity : ComponentActivity() {
 @Preview
 fun Preview() {
     Text(
-        text = "Kotlin",
+        text = "Kotlin Kotlin Kotlin Kotlin",
         color = Color.White,
         fontSize = 8.dp.sp,
         modifier = Modifier
@@ -251,6 +252,7 @@ class NinePatchDrawableTranscoder(private val context: Context) : DrawableTransc
         if (drawable !is BitmapDrawable) return drawable
         val bitmap = drawable.bitmap
         if (!NinePatchChunk.isRawNinePatchBitmap(bitmap)) return drawable
+        Log.d("NinePatchDrawableTranscoder", "transcode")
         return NinePatchChunk.create9PatchDrawable(context, bitmap, null)
     }
 }
