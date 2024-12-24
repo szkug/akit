@@ -96,6 +96,7 @@ dependencies {
 
     // project module
     implementation(projects.image)
+    implementation(projects.blur)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)

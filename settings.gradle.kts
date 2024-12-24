@@ -26,4 +26,4 @@ rootProject.name = "compose-akit"
 include(":app")
 include(":benchmark")
 include(":image")
-include(":renderscript-toolkit")
+include(":blur")

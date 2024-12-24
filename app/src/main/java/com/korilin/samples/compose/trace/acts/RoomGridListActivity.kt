@@ -43,9 +43,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
+import com.korilin.compose.akit.blur.customBlur
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.samples.compose.trace.customBlur
 
 
 data class RoomInfo(
