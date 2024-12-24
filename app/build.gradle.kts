@@ -91,7 +91,6 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
     implementation(libs.androidx.constraintlayout.compose)
-    implementation(libs.cloudy)
 
     implementation(libs.androidx.runtime.tracing)
 
