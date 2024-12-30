@@ -26,20 +26,21 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.trace
+import com.korilin.compose.akit.image.publics.AsyncImageContext
 import kotlin.math.roundToInt
 
 
 internal fun Modifier.glideBackground(
-    nodeModel: GlideNodeModel,
-    loadingModel: GlidePlaceholderModel?,
+    requestModel: GlideRequestModel,
+    placeholderModel: PainterModel?,
     alignment: Alignment,
     contentScale: ContentScale,
     alpha: Float,
     colorFilter: ColorFilter?,
-    extension: GlideExtension,
+    extension: AsyncImageContext,
 ): Modifier = this then GlideBackgroundElement(
-    nodeModel = nodeModel,
-    loadingModel = loadingModel,
+    requestModel = requestModel,
+    placeholderModel = placeholderModel,
     alignment = alignment,
     contentScale = contentScale,
     alpha = alpha,
@@ -48,19 +49,19 @@ internal fun Modifier.glideBackground(
 )
 
 private data class GlideBackgroundElement(
-    val nodeModel: GlideNodeModel,
-    val loadingModel: GlidePlaceholderModel?,
+    val requestModel: GlideRequestModel,
+    val placeholderModel: PainterModel?,
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val extension: GlideExtension
+    val extension: AsyncImageContext
 ) : ModifierNodeElement<GlideBackgroundNode>() {
 
     override fun create(): GlideBackgroundNode {
         return GlideBackgroundNode(
-            nodeModel = nodeModel,
-            loadingModel = loadingModel,
+            requestModel = requestModel,
+            placeholderModel = placeholderModel,
             alignment = alignment,
             contentScale = contentScale,
             alpha = alpha,
@@ -76,13 +77,13 @@ private data class GlideBackgroundElement(
         node.colorFilter = colorFilter
         node.extension = extension
 
-        node.update(nodeModel, loadingModel, loadingModel)
+        node.update(requestModel, placeholderModel, null)
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "GlideBackground"
-        properties["model"] = nodeModel
-        properties["placeholder"] = loadingModel
+        properties["requestModel"] = requestModel
+        properties["placeholderModel"] = placeholderModel
         properties["alignment"] = alignment
         properties["contentScale"] = contentScale
         properties["alpha"] = alpha
@@ -93,17 +94,17 @@ private data class GlideBackgroundElement(
 private const val TRACE_SECTION_NAME = "GlideBackgroundNode"
 
 private class GlideBackgroundNode(
-    nodeModel: GlideNodeModel,
-    loadingModel: GlidePlaceholderModel?,
+    requestModel: GlideRequestModel,
+    placeholderModel: PainterModel?,
     contentScale: ContentScale,
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    extension: GlideExtension
+    extension: AsyncImageContext
 ) : GlideRequestNode(
-    nodeModel = nodeModel,
-    loadingModel = loadingModel,
-    failureModel = loadingModel,
+    requestModel = requestModel,
+    placeholderModel = placeholderModel,
+    failureModel = null,
     contentScale = contentScale,
     extension = extension
 ), LayoutModifierNode, DrawModifierNode {
@@ -113,7 +114,7 @@ private class GlideBackgroundNode(
         invalidateDraw()
     }
 
-    private fun drawPadding() = if (!extension.ignoreNinePatchPadding) {
+    private fun drawPadding() = if (!extension.ignoreImagePadding) {
         (painter as? HasPaddingPainter)?.padding ?: Rect()
     } else Rect()
 
@@ -122,7 +123,7 @@ private class GlideBackgroundNode(
      * For BackgroundNode, Node size should be controlled by the actual content,
      * and the node size should only be interfered with the image internal padding.
      *
-     * If want to ignore the padding of image, set [GlideExtension.ignoreNinePatchPadding] to false.
+     * If want to ignore the padding of image, set [AsyncImageContext.ignoreImagePadding] to false.
      */
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -204,11 +205,11 @@ private class GlideBackgroundNode(
     }
 
     override fun update(
-        nodeModel: GlideNodeModel,
-        loadingModel: GlidePlaceholderModel?,
-        failureModel: GlidePlaceholderModel?
+        requestModel: GlideRequestModel,
+        placeholderModel: PainterModel?,
+        failureModel: ResModel?
     ) {
-        super.update(nodeModel, loadingModel, failureModel)
+        super.update(requestModel, placeholderModel, failureModel)
         if (!drawPadding().isEmpty) invalidateMeasurement()
         invalidateDraw()
     }

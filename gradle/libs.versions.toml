@@ -32,6 +32,7 @@ androidx-runtime-tracing = "1.7.6"
 appcompat = "1.7.0"
 material = "1.12.0"
 
+maven-public = "0.29.0"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -87,6 +88,8 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-test = { id = "com.android.test", version.ref = "agp" }
+
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-public" }
 
 [bundles]
 glide = [

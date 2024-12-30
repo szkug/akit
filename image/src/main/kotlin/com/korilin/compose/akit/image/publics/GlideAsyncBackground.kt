@@ -1,12 +1,12 @@
-package com.korilin.compose.akit.image.glide
+package com.korilin.compose.akit.image.publics
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -16,48 +16,40 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
+import com.korilin.compose.akit.image.glide.GlideDefaults
+import com.korilin.compose.akit.image.glide.GlideRequestModel
+import com.korilin.compose.akit.image.glide.PainterModel
+import com.korilin.compose.akit.image.glide.glideBackground
+import com.korilin.compose.akit.image.glide.toPainter
 
 /**
  * Use Glide load background image.
  *
  * [alignment] and [contentScale] will ignore if image type is nine patch.
  */
+@Composable
 fun Modifier.glideBackground(
     model: Any?,
-    placeholder: Int? = null,
+    placeholder: Int?,
     alignment: Alignment = GlideDefaults.DefaultAlignment,
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
     alpha: Float = GlideDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
-    extension: GlideExtension = GlideExtension.NORMAL,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
 ): Modifier = composed {
 
-    val preview = LocalInspectionMode.current
     val context = LocalContext.current
 
-    val painter = when (model) {
-        is Painter -> model
-        is Int -> if (preview) {
-            val drawable = ContextCompat.getDrawable(context, model)
-            drawable!!.toPainter()
-        } else null
-        else -> null
-    }
-
-    val nodeModel = remember(model) {
-        if (painter != null) PainterModel(painter)
-        else GlideRequestModel(
-            model = model,
-            requestBuilder = { requestBuilder(context) },
+    val extension = remember {
+        AsyncImageContext(
+            context = context,
+            requestBuilder = requestBuilder
         )
     }
 
-    val loadingRes = placeholder ?: if (preview) model as? Int? else null
-
     this.glideBackground(
-        nodeModel = nodeModel,
-        loadingModel = loadingRes?.let { ResModel(it) },
+        requestModel = GlideRequestModel(model),
+        placeholderModel = placeholder?.let { PainterModel(painterResource(it)) },
         alignment,
         contentScale,
         alpha,

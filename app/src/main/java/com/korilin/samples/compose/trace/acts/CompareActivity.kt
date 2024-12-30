@@ -4,9 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,25 +23,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.trace
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import coil3.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.compose.akit.image.glide.GlideAsyncImage
+import com.korilin.compose.akit.image.publics.GlideAsyncImage
 
 class CompareActivity : ComponentActivity() {
 
@@ -167,7 +160,7 @@ class CompareActivity : ComponentActivity() {
 
                 Text("GlideAsyncImage", modifier = Modifier.padding(top = 20.dp))
                 Row {
-                    com.korilin.compose.akit.image.glide.GlideAsyncImage(
+                    GlideAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)
@@ -177,7 +170,7 @@ class CompareActivity : ComponentActivity() {
                         alignment = Alignment.CenterStart,
                         contentDescription = null
                     )
-                    com.korilin.compose.akit.image.glide.GlideAsyncImage(
+                    GlideAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)
@@ -187,7 +180,7 @@ class CompareActivity : ComponentActivity() {
                         alignment = Alignment.CenterStart,
                         contentDescription = null
                     )
-                    com.korilin.compose.akit.image.glide.GlideAsyncImage(
+                    GlideAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)

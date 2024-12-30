@@ -1,6 +1,5 @@
 package com.korilin.samples.compose.trace.acts
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -28,13 +27,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -45,14 +40,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.Transformation
-import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.google.android.renderscript.Toolkit
 import com.korilin.compose.akit.blur.customBlur
-import com.korilin.compose.akit.image.glide.GlideExtension
+import com.korilin.compose.akit.image.publics.GlideAsyncImage
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import java.security.MessageDigest
@@ -120,7 +112,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             .clip(RoundedCornerShape(12.dp))
     ) {
 
-        com.korilin.compose.akit.image.glide.GlideAsyncImage(
+        GlideAsyncImage(
             modifier = Modifier.fillMaxSize(),
             model = info.cover,
             contentDescription = null,
@@ -215,7 +207,7 @@ private fun RoomTag(@DrawableRes id: Int) = trace("Compose:RoomTag") {
 
 @Composable
 private fun RoomTag_Opt1(@DrawableRes id: Int) = trace("Compose:RoomTag") {
-    com.korilin.compose.akit.image.glide.GlideAsyncImage(
+    GlideAsyncImage(
         model = id,
         modifier = Modifier.size(20.dp),
         contentDescription = null,

@@ -3,7 +3,6 @@ package com.korilin.samples.compose.trace.acts
 import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.NinePatchDrawable
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -14,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -26,19 +24,19 @@ import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.samples.compose.trace.draw9Patch
 import com.korilin.compose.akit.image.glide.DrawableTranscoder
-import com.korilin.compose.akit.image.glide.GlideExtension
-import com.korilin.compose.akit.image.glide.glideBackground
+import com.korilin.compose.akit.image.publics.AsyncImageContext
+import com.korilin.compose.akit.image.publics.glideBackground
 import com.korilin.samples.compose.trace.ninepatch.NinePatchChunk
 import com.korilin.samples.compose.trace.sp
 
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
-    val extension1 = GlideExtension(
+    val extension1 = AsyncImageContext(
         transcoder = NinePatchDrawableTranscoder(this),
-        ignoreNinePatchPadding = true
+        ignoreImagePadding = true
     )
-    val extension2 = GlideExtension(
+    val extension2 = AsyncImageContext(
         transcoder = NinePatchDrawableTranscoder(this),
     )
 
@@ -237,14 +235,14 @@ fun Preview() {
         modifier = Modifier
             .glideBackground(
                 model = R.drawable.nine_patch_2,
-                extension = GlideExtension(
+                extension = AsyncImageContext(
                     transcoder = NinePatchDrawableTranscoder(LocalContext.current),
                 )
             )
     )
 }
 
-
+// TODO replace as glide transformation
 class NinePatchDrawableTranscoder(private val context: Context) : DrawableTranscoder {
     override fun transcode(
         drawable: Drawable

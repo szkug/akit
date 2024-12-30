@@ -1,35 +1,30 @@
 package com.korilin.compose.akit.image.glide
 
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.times
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.RequestBuilder
+import com.korilin.compose.akit.image.publics.AsyncImageContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.math.roundToInt
 
 private const val TRACE_SECTION_NAME = "GlideRequestNode"
 
 internal abstract class GlideRequestNode(
-    private var nodeModel: GlideNodeModel,
-    private var loadingModel: GlidePlaceholderModel?,
-    private var failureModel: GlidePlaceholderModel?,
+    private var requestModel: GlideRequestModel,
+    private var placeholderModel: PainterModel?,
+    private var failureModel: ResModel?,
     var contentScale: ContentScale,
-    var extension: GlideExtension,
+    var extension: AsyncImageContext,
 ) : Modifier.Node() {
 
     // Shared extension functions
@@ -53,19 +48,15 @@ internal abstract class GlideRequestNode(
 
     private inline fun log(subtag: String? = null, crossinline message: () -> String) {
         // skip redundant string concatenation
-        if (extension.enableLog)
-            GlideDefaults.logger.info(TRACE_SECTION_NAME) {
-                if (subtag == null) message()
-                else "[$subtag] ${message()}"
-            }
+        if (extension.enableLog) GlideDefaults.logger.info(TRACE_SECTION_NAME) {
+            if (subtag == null) message()
+            else "[$subtag] ${message()}"
+        }
     }
 
     protected val glideSize: ResolvableGlideSize = AsyncGlideSize()
 
-    private val placeablePainter = when (val model = nodeModel) {
-        is GlideRequestModel -> null
-        is PainterModel -> model.painter
-    } ?: (loadingModel as? PainterModel)?.painter ?: EmptyPainter
+    private val placeablePainter get() = placeholderModel?.painter ?: EmptyPainter
 
     protected var painter = placeablePainter
         private set(value) {
@@ -92,48 +83,27 @@ internal abstract class GlideRequestNode(
      * but drop any for old requests by comparing requests builders.
      */
     @OptIn(ExperimentalComposeUiApi::class)
-    protected fun startRequest(requestModel: GlideNodeModel) =
+    protected fun startRequest(requestModel: RequestModel) =
         sideEffect {
 
-            log("startRequest") { "cur:$nodeModel req:$nodeModel ${rememberJob?.isActive}" }
+            log("startRequest") { "cur:$requestModel req:$requestModel ${rememberJob?.isActive}" }
 
             // The request changed while our sideEffect was queued, which should also have triggered
             // another sideEffect. Wait for that one instead.
-            if (this.nodeModel != requestModel) return@sideEffect
+            if (this.requestModel != requestModel) return@sideEffect
 
             if (rememberJob != null || requestModel !is GlideRequestModel) return@sideEffect
 
-            trace("GlidePainterNode.launch") {
+            trace("GlideRequestNode.launch") {
                 rememberJob = coroutineScope.launch(Dispatchers.IO) {
                     flowRequest(requestModel)
                 }
             }
         }
 
-    private fun RequestBuilder<Drawable>.setupScaleTransform(): RequestBuilder<Drawable> {
-        return when (contentScale) {
-            ContentScale.Crop -> optionalCenterCrop()
-
-            // TODO fitCenter might be better in adaptive scenarios?
-            // Outside compose, glide would use fitCenter() for FIT. But that's probably not a good
-            // decision given how unimportant Bitmap re-use is relative to minimizing texture sizes now.
-            // So instead we'll do something different and prefer not to upscale, which means using
-            // centerInside(). The UI can still scale the view even if the Bitmap is smaller.
-            ContentScale.Fit,
-            ContentScale.FillHeight,
-            ContentScale.FillWidth,
-            ContentScale.FillBounds -> optionalCenterInside()
-
-            ContentScale.Inside -> optionalCenterInside()
-
-            // NONE
-            else -> this
-        }
-    }
-
-    private fun RequestBuilder<Drawable>.loadRequestModel(requestModel: GlideRequestModel): RequestBuilder<Drawable> {
+    private fun <T> RequestBuilder<T>.loadRequestModel(requestModel: GlideRequestModel): RequestBuilder<T> {
         return when (val model = requestModel.model) {
-            is Int -> fallback(model).load(null as Any?)
+            is Int -> load(model)
             is File -> load(model)
             is Uri -> load(model)
             is String -> load(model)
@@ -141,53 +111,32 @@ internal abstract class GlideRequestNode(
         }
     }
 
-    private fun RequestBuilder<Drawable>.setupPlaceholder(): RequestBuilder<Drawable> {
-        return when (val model = loadingModel) {
-            is ResModel -> placeholder(model.id)
-            else -> this
-        }
-    }
-
-    private fun RequestBuilder<Drawable>.setupFailure(): RequestBuilder<Drawable> {
+    private fun <T> RequestBuilder<T>.setupFailure(): RequestBuilder<T> {
         return when (val model = failureModel) {
-            is ResModel -> error(model.id)
+            is ResModel -> error(model.resId)
             else -> this
         }
     }
 
-    private fun RequestBuilder<Drawable>.setupSize(): RequestBuilder<Drawable> {
+    private fun <T> RequestBuilder<T>.setupSize(): RequestBuilder<T> {
         return when (val size = glideSize.readySize()) {
             null -> this
             else -> override(size.width, size.height)
         }
     }
 
-    private fun Drawable.transcodeDrawable(): Painter {
-        val transcoder = extension.transcoder
-        val drawable = transcoder?.transcode(this) ?: this
-        return drawable.toPainter()
-    }
-
     private suspend fun flowRequest(requestModel: GlideRequestModel) {
-
-        requestModel.requestBuilder()
+        extension.requestBuilder(extension.context)
             .setupSize()
-            .setupScaleTransform()
-            .setupPlaceholder()
+            .setupTransforms(contentScale, extension)
             .setupFailure()
             .loadRequestModel(requestModel)
             .flow(glideSize)
             .collectLatest {
                 log("startRequest") { "collectLatest $it" }
                 val result = when (it) {
-                    is GlideLoadResult.Error -> {
-                        it.drawable?.transcodeDrawable()
-                            ?: (failureModel as? PainterModel)?.painter
-                            ?: (failureModel as? DrawableModel)?.drawable?.transcodeDrawable()
-                            ?: placeablePainter
-                    }
-
-                    is GlideLoadResult.Success -> it.drawable.transcodeDrawable()
+                    is GlideLoadResult.Error -> it.drawable?.toPainter() ?: placeablePainter
+                    is GlideLoadResult.Success -> it.drawable.toPainter()
                     is GlideLoadResult.Cleared -> placeablePainter
                 }
 
@@ -201,18 +150,18 @@ internal abstract class GlideRequestNode(
 
     abstract fun onCollectResult(result: GlideLoadResult)
 
-    protected fun stopRequest() {
+    private fun stopRequest() {
         rememberJob?.cancel()
         rememberJob = null
         // finish all flow target
         if (!glideSize.sizeReady()) glideSize.putSize(Size.Unspecified)
     }
 
-    protected fun startAnimation(painter: Painter) {
+    private fun startAnimation(painter: Painter) {
         if (painter is AnimatablePainter) painter.startAnimation()
     }
 
-    protected fun stopAnimation(painter: Painter) {
+    private fun stopAnimation(painter: Painter) {
         if (painter is AnimatablePainter) painter.stopAnimation()
     }
 
@@ -224,7 +173,7 @@ internal abstract class GlideRequestNode(
      */
     open fun setup() {
         startAnimation(painter)
-        startRequest(nodeModel)
+        startRequest(requestModel)
     }
 
     /**
@@ -238,18 +187,18 @@ internal abstract class GlideRequestNode(
     }
 
     open fun update(
-        nodeModel: GlideNodeModel,
-        loadingModel: GlidePlaceholderModel?,
-        failureModel: GlidePlaceholderModel?
+        requestModel: GlideRequestModel,
+        placeholderModel: PainterModel?,
+        failureModel: ResModel?
     ) {
         var hasModify = false
-        if (nodeModel != this.nodeModel) {
-            this.nodeModel = nodeModel
+        if (requestModel != this.requestModel) {
+            this.requestModel = requestModel
             hasModify = true
         }
 
-        if (loadingModel != this.loadingModel) {
-            this.loadingModel = loadingModel
+        if (placeholderModel != this.placeholderModel) {
+            this.placeholderModel = placeholderModel
             hasModify = true
         }
         if (failureModel != this.failureModel) {
@@ -258,27 +207,26 @@ internal abstract class GlideRequestNode(
         }
         if (!hasModify) return
         // if different model, reset all and restart request
-        log("update") { "${this.nodeModel} -> $nodeModel" }
-        this.nodeModel = nodeModel
+        log("update") { "${this.requestModel} -> $requestModel" }
         reset()
         setup()
     }
 
     override fun onAttach() {
         super.onAttach()
-        log("attach") { "$nodeModel" }
+        log("attach") { "$requestModel" }
         setup()
     }
 
     override fun onDetach() {
         super.onDetach()
-        log("detach") { "$nodeModel" }
+        log("detach") { "$requestModel" }
         reset()
     }
 
     override fun onReset() {
         super.onReset()
-        log("reset") { "$nodeModel" }
+        log("reset") { "$requestModel" }
         reset()
     }
 }

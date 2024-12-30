@@ -1,9 +1,6 @@
-package com.korilin.compose.akit.image.glide
+package com.korilin.compose.akit.image.publics
 
-import android.content.Context
-import android.graphics.drawable.Drawable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -11,11 +8,14 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestBuilder
+import com.korilin.compose.akit.image.glide.GlideDefaults
+import com.korilin.compose.akit.image.glide.GlideRequestModel
+import com.korilin.compose.akit.image.glide.PainterModel
+import com.korilin.compose.akit.image.glide.ResModel
+import com.korilin.compose.akit.image.glide.glidePainterNode
 
 /**
  * Async image load node base on glide.
@@ -48,41 +48,26 @@ import com.bumptech.glide.RequestBuilder
 @Composable
 fun GlideAsyncImage(
     model: Any?,
+    placeholder: Int? = null,
+    failureRes: Int? = null,
     contentDescription: String?,
     modifier: Modifier,
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
     alignment: Alignment = GlideDefaults.DefaultAlignment,
     alpha: Float = GlideDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
-    loadingModel: Any? = null,
-    failureModel: Any? = null,
-    extension: GlideExtension = GlideExtension.NORMAL,
-    requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
+    extension: AsyncImageContext = AsyncImageContext(
+        context = LocalContext.current,
+        requestBuilder = { Glide.with(it).asDrawable() }
+    ),
 ) = trace("GlideAsyncImage") {
-
-    val preview = LocalInspectionMode.current
-    val context = LocalContext.current
-
-    val painter = when (model) {
-        is Painter -> model
-        is Int -> if (preview) painterResource(id = model) else null
-        else -> null
-    }
-
-    val nodeModel = remember(model) {
-        if (painter != null) PainterModel(painter)
-        else GlideRequestModel(
-            model = model,
-            requestBuilder = { requestBuilder(context) },
-        )
-    }
 
     Layout(
         modifier = modifier
             .glidePainterNode(
-                nodeModel = nodeModel,
-                loadingModel = loadingModel?.castPlaceholderModel(),
-                failureModel = failureModel?.castPlaceholderModel(),
+                requestModel = GlideRequestModel(model),
+                placeholderModel = placeholder?.let { PainterModel(painterResource(it)) },
+                failureModel = failureRes?.let { ResModel(it) },
                 contentDescription,
                 alignment,
                 contentScale,
@@ -94,15 +79,4 @@ fun GlideAsyncImage(
             layout(constraints.minWidth, constraints.minHeight) {}
         },
     )
-}
-
-
-@Composable
-private fun Any?.castPlaceholderModel(): GlidePlaceholderModel? {
-    val preview = LocalInspectionMode.current
-    return when (this) {
-        is Int -> if (preview) PainterModel(painterResource(this)) else ResModel(this)
-        is Painter -> PainterModel(this)
-        else -> null
-    }
 }

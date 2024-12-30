@@ -1,5 +1,6 @@
 package com.korilin.compose.akit.image.glide
 
+import android.graphics.drawable.Drawable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -30,20 +31,21 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.trace
+import com.bumptech.glide.RequestBuilder
+import com.korilin.compose.akit.image.publics.AsyncImageContext
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-
 internal fun Modifier.glidePainterNode(
-    nodeModel: GlideNodeModel,
-    loadingModel: GlidePlaceholderModel?,
-    failureModel: GlidePlaceholderModel?,
+    requestModel: GlideRequestModel,
+    placeholderModel: PainterModel?,
+    failureModel: ResModel?,
     contentDescription: String?,
     alignment: Alignment,
     contentScale: ContentScale,
     alpha: Float,
     colorFilter: ColorFilter?,
-    extension: GlideExtension,
+    extension: AsyncImageContext,
 ): Modifier = clipToBounds()
     .semantics {
         if (contentDescription != null) {
@@ -51,8 +53,8 @@ internal fun Modifier.glidePainterNode(
         }
         role = Role.Image
     } then GlidePainterElement(
-    nodeModel = nodeModel,
-    loadingModel = loadingModel,
+    requestModel = requestModel,
+    placeholderModel = placeholderModel,
     failureModel = failureModel,
     alignment = alignment,
     contentScale = contentScale,
@@ -62,20 +64,20 @@ internal fun Modifier.glidePainterNode(
 )
 
 private data class GlidePainterElement(
-    val nodeModel: GlideNodeModel,
-    val loadingModel: GlidePlaceholderModel?,
-    val failureModel: GlidePlaceholderModel?,
+    val requestModel: GlideRequestModel,
+    val placeholderModel: PainterModel?,
+    val failureModel: ResModel?,
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val extension: GlideExtension
+    val extension: AsyncImageContext
 ) : ModifierNodeElement<GlidePainterNode>() {
 
     override fun create(): GlidePainterNode {
         return GlidePainterNode(
-            nodeModel = nodeModel,
-            loadingModel = loadingModel,
+            requestModel = requestModel,
+            placeholderModel = placeholderModel,
             failureModel = failureModel,
             alignment = alignment,
             contentScale = contentScale,
@@ -92,13 +94,13 @@ private data class GlidePainterElement(
         node.colorFilter = colorFilter
         node.extension = extension
 
-        node.update(nodeModel, loadingModel, failureModel)
+        node.update(requestModel, placeholderModel, failureModel)
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "GlidePainter"
-        properties["model"] = nodeModel
-        properties["loadingModel"] = loadingModel
+        properties["requestModel"] = requestModel
+        properties["placeholderModel"] = placeholderModel
         properties["failureModel"] = failureModel
         properties["alignment"] = alignment
         properties["contentScale"] = contentScale
@@ -110,17 +112,17 @@ private data class GlidePainterElement(
 private const val TRACE_SECTION_NAME = "GlidePainterNode"
 
 internal class GlidePainterNode(
-    nodeModel: GlideNodeModel,
-    loadingModel: GlidePlaceholderModel?,
-    failureModel: GlidePlaceholderModel?,
+    requestModel: GlideRequestModel,
+    placeholderModel: PainterModel?,
+    failureModel: ResModel?,
     contentScale: ContentScale,
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    extension: GlideExtension
+    extension: AsyncImageContext
 ) : GlideRequestNode(
-    nodeModel = nodeModel,
-    loadingModel = loadingModel,
+    requestModel = requestModel,
+    placeholderModel = placeholderModel,
     failureModel = failureModel,
     contentScale = contentScale,
     extension = extension
@@ -349,11 +351,11 @@ internal class GlidePainterNode(
     }
 
     override fun update(
-        nodeModel: GlideNodeModel,
-        loadingModel: GlidePlaceholderModel?,
-        failureModel: GlidePlaceholderModel?
+        requestModel: GlideRequestModel,
+        placeholderModel: PainterModel?,
+        failureModel: ResModel?
     ) {
-        super.update(nodeModel, loadingModel, failureModel)
+        super.update(requestModel, placeholderModel, failureModel)
         invalidateMeasurement()
         invalidateDraw()
     }
