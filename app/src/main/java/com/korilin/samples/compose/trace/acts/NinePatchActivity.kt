@@ -19,25 +19,28 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.bumptech.glide.Glide
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.samples.compose.trace.draw9Patch
-import com.korilin.compose.akit.image.glide.DrawableTranscoder
 import com.korilin.compose.akit.image.publics.AsyncImageContext
+import com.korilin.compose.akit.image.publics.DrawableTranscoder
 import com.korilin.compose.akit.image.publics.glideBackground
+import com.korilin.compose.akit.image.publics.rememberAsyncImageContext
 import com.korilin.samples.compose.trace.ninepatch.NinePatchChunk
 import com.korilin.samples.compose.trace.sp
+import java.security.MessageDigest
 
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
     val extension1 = AsyncImageContext(
-        transcoder = NinePatchDrawableTranscoder(this),
+        this,
+        drawableTransformation = listOf(NinePatchDrawableTranscoder),
         ignoreImagePadding = true
     )
     val extension2 = AsyncImageContext(
-        transcoder = NinePatchDrawableTranscoder(this),
+        this,
+        drawableTransformation = listOf(NinePatchDrawableTranscoder),
     )
 
     inline fun Modifier.background1(
@@ -48,12 +51,8 @@ class NinePatchActivity : ComponentActivity() {
         placeholder,
         contentScale = ContentScale.Crop,
         alignment = Alignment.Center,
-        extension = extension1
-    ) {
-        Glide
-            .with(it)
-            .asDrawable()
-    }
+        context = extension1
+    )
         .padding(5.dp)
         .padding(bottom = 10.dp)
 
@@ -63,10 +62,8 @@ class NinePatchActivity : ComponentActivity() {
     ) = glideBackground(
         model,
         placeholder,
-        extension = extension2
-    ) {
-        Glide.with(it).asDrawable()
-    }
+        context = extension2
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -235,21 +232,23 @@ fun Preview() {
         modifier = Modifier
             .glideBackground(
                 model = R.drawable.nine_patch_2,
-                extension = AsyncImageContext(
-                    transcoder = NinePatchDrawableTranscoder(LocalContext.current),
+                context = rememberAsyncImageContext(
+                    drawableTransformation = listOf(NinePatchDrawableTranscoder),
                 )
             )
     )
 }
 
-// TODO replace as glide transformation
-class NinePatchDrawableTranscoder(private val context: Context) : DrawableTranscoder {
-    override fun transcode(
-        drawable: Drawable
-    ): Drawable {
-        if (drawable !is BitmapDrawable) return drawable
-        val bitmap = drawable.bitmap
-        if (!NinePatchChunk.isRawNinePatchBitmap(bitmap)) return drawable
+object NinePatchDrawableTranscoder : DrawableTranscoder() {
+
+    override fun key(): String {
+        return "NinePatchDrawableTranscoder"
+    }
+
+    override fun transcode(context: Context, resource: Drawable, width: Int, height: Int): Drawable {
+        if (resource !is BitmapDrawable) return resource
+        val bitmap = resource.bitmap
+        if (!NinePatchChunk.isRawNinePatchBitmap(bitmap)) return resource
         Log.d("NinePatchDrawableTranscoder", "transcode")
         return NinePatchChunk.create9PatchDrawable(context, bitmap, null)
     }

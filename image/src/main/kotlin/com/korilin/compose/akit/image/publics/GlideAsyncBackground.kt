@@ -22,31 +22,21 @@ import com.korilin.compose.akit.image.glide.PainterModel
 import com.korilin.compose.akit.image.glide.glideBackground
 import com.korilin.compose.akit.image.glide.toPainter
 
+
 /**
  * Use Glide load background image.
  *
  * [alignment] and [contentScale] will ignore if image type is nine patch.
  */
-@Composable
 fun Modifier.glideBackground(
     model: Any?,
-    placeholder: Int?,
+    placeholder: Int? = null,
     alignment: Alignment = GlideDefaults.DefaultAlignment,
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
     alpha: Float = GlideDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
-    requestBuilder: (Context) -> RequestBuilder<Drawable> = { Glide.with(it).asDrawable() },
+    context: AsyncImageContext? = null,
 ): Modifier = composed {
-
-    val context = LocalContext.current
-
-    val extension = remember {
-        AsyncImageContext(
-            context = context,
-            requestBuilder = requestBuilder
-        )
-    }
-
     this.glideBackground(
         requestModel = GlideRequestModel(model),
         placeholderModel = placeholder?.let { PainterModel(painterResource(it)) },
@@ -54,6 +44,6 @@ fun Modifier.glideBackground(
         contentScale,
         alpha,
         colorFilter,
-        extension
+        extension = context ?: rememberAsyncImageContext()
     )
 }

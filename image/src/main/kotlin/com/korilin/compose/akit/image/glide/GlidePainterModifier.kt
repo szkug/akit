@@ -211,11 +211,6 @@ internal class GlidePainterNode(
     private val painterIntrinsicSizeSpecified: Boolean
         get() = painter.intrinsicSize.isSpecified
 
-
-    /**
-     * By comparing [androidx.compose.ui.draw].NodePainter, coil3-compose(rc02), glide-compose(1.0.0-beta01),
-     * here make some adaptive adjustment of the width and height.
-     */
     private fun modifyConstraints(constraints: Constraints): Constraints =
         trace("$TRACE_SECTION_NAME.modifyConstraints") {
 

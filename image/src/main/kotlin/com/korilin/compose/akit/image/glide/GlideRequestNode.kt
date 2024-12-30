@@ -47,7 +47,6 @@ internal abstract class GlideRequestNode(
     }
 
     private inline fun log(subtag: String? = null, crossinline message: () -> String) {
-        // skip redundant string concatenation
         if (extension.enableLog) GlideDefaults.logger.info(TRACE_SECTION_NAME) {
             if (subtag == null) message()
             else "[$subtag] ${message()}"
