@@ -1,7 +1,5 @@
 package com.korilin.compose.akit.image.glide
 
-import android.content.Context
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.painter.Painter
 

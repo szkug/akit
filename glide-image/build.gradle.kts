@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         minSdk = 23
-
+        externalNativeBuild.cmake.cppFlags("-std=c++17")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -37,6 +37,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
+    externalNativeBuild.cmake.path = file("src/main/cpp/CMakeLists.txt")
 }
 
 

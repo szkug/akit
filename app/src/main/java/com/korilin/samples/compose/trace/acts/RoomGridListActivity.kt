@@ -1,5 +1,6 @@
 package com.korilin.samples.compose.trace.acts
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -42,9 +43,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import com.google.android.renderscript.BlurConfig
+import com.google.android.renderscript.BlurToolkit
 import com.google.android.renderscript.Toolkit
-import com.korilin.compose.akit.blur.customBlur
+import com.korilin.compose.akit.image.publics.BitmapTranscoder
 import com.korilin.compose.akit.image.publics.GlideAsyncImage
+import com.korilin.compose.akit.image.publics.rememberAsyncImageContext
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import java.security.MessageDigest
@@ -118,6 +122,9 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             contentDescription = null,
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
+            extension = rememberAsyncImageContext(
+                bitmapTransformation = listOf(BlurTransformation(25))
+            )
         )
 
         Column(
@@ -143,7 +150,6 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .customBlur(10)
             )
         }
 
@@ -214,20 +220,11 @@ private fun RoomTag_Opt1(@DrawableRes id: Int) = trace("Compose:RoomTag") {
     )
 }
 
-data class BlurTransformation(private val radius: Int) : BitmapTransformation() {
-    override fun updateDiskCacheKey(messageDigest: MessageDigest) {
-        messageDigest.update("BlurTransformation.$radius".toByteArray(CHARSET))
+data class BlurTransformation(private val radius: Int) : BitmapTranscoder() {
+
+    override fun key(): String = "BlurTransformation.$radius"
+
+    override fun transcode(context: Context, resource: Bitmap, width: Int, height: Int): Bitmap {
+        return BlurToolkit.blur(BlurConfig(radius, radius), resource)
     }
-
-    override fun transform(
-        pool: BitmapPool,
-        toTransform: Bitmap,
-        outWidth: Int,
-        outHeight: Int
-    ): Bitmap {
-        Log.d("BlurTransformation", "blur")
-        return Toolkit.blur(toTransform, radius)
-    }
-
-
 }

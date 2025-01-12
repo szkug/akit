@@ -77,7 +77,7 @@ private data class GlideBackgroundElement(
         node.colorFilter = colorFilter
         node.extension = extension
 
-        node.update(requestModel, placeholderModel, null)
+        node.update(requestModel, placeholderModel, null, contentScale, extension)
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -165,7 +165,6 @@ private class GlideBackgroundNode(
 
         val srcSize = Size(srcWidth, srcHeight)
 
-
         // TODO add more test cast to verify here
         // Compute the offset to translate the content based on the given alignment
         // and size to draw based on the ContentScale parameter
@@ -207,9 +206,11 @@ private class GlideBackgroundNode(
     override fun update(
         requestModel: GlideRequestModel,
         placeholderModel: PainterModel?,
-        failureModel: ResModel?
+        failureModel: ResModel?,
+        contentScale: ContentScale,
+        extension: AsyncImageContext,
     ) {
-        super.update(requestModel, placeholderModel, failureModel)
+        super.update(requestModel, placeholderModel, failureModel, contentScale, extension)
         if (!drawPadding().isEmpty) invalidateMeasurement()
         invalidateDraw()
     }

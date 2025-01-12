@@ -1,17 +1,21 @@
 package com.korilin.compose.akit.image.glide
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.Transformation
+import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.load.resource.bitmap.DrawableTransformation
 import com.bumptech.glide.request.autoCloneEnabled
 import com.korilin.compose.akit.image.publics.AsyncImageContext
+import java.security.MessageDigest
 
 internal fun RequestBuilder<Drawable>.setupTransforms(
     contentScale: ContentScale,
@@ -84,6 +88,10 @@ private fun <T> RequestBuilder<T>.optionalTransforms(
 
     if (insideDrawable != null) {
         builder = builder.optionalTransform(Drawable::class.java, insideDrawable)
+        builder = builder.optionalTransform(
+            BitmapDrawable::class.java,
+            insideDrawable as Transformation<BitmapDrawable>
+        )
     }
 
     return builder

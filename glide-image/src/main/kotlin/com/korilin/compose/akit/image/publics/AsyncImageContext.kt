@@ -9,15 +9,13 @@ import androidx.compose.ui.platform.LocalContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.Transformation
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
-import com.bumptech.glide.load.resource.bitmap.DrawableTransformation
 
 
 private val NormalGlideRequestBuilder: (context: Context) -> RequestBuilder<Drawable> = {
     Glide.with(it).asDrawable()
 }
 
-data class AsyncImageContext constructor(
+data class AsyncImageContext(
     val context: Context,
     val requestBuilder: (Context) -> RequestBuilder<Drawable> = NormalGlideRequestBuilder,
     val bitmapTransformation: List<Transformation<Bitmap>>? = null,

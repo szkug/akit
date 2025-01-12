@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -94,7 +95,7 @@ internal abstract class GlideRequestNode(
             if (rememberJob != null || requestModel !is GlideRequestModel) return@sideEffect
 
             trace("GlideRequestNode.launch") {
-                rememberJob = coroutineScope.launch(Dispatchers.IO) {
+                rememberJob = (coroutineScope + Dispatchers.Main.immediate).launch {
                     flowRequest(requestModel)
                 }
             }
@@ -139,11 +140,9 @@ internal abstract class GlideRequestNode(
                     is GlideLoadResult.Cleared -> placeablePainter
                 }
 
-                withContext(Dispatchers.Main) {
-                    painter = result
-                    startAnimation(painter)
-                    onCollectResult(it)
-                }
+                painter = result
+                startAnimation(painter)
+                onCollectResult(it)
             }
     }
 
@@ -188,20 +187,29 @@ internal abstract class GlideRequestNode(
     open fun update(
         requestModel: GlideRequestModel,
         placeholderModel: PainterModel?,
-        failureModel: ResModel?
+        failureModel: ResModel?,
+        contentScale: ContentScale,
+        extension: AsyncImageContext,
     ) {
         var hasModify = false
         if (requestModel != this.requestModel) {
             this.requestModel = requestModel
             hasModify = true
         }
-
         if (placeholderModel != this.placeholderModel) {
             this.placeholderModel = placeholderModel
             hasModify = true
         }
         if (failureModel != this.failureModel) {
             this.failureModel = failureModel
+            hasModify = true
+        }
+        if (contentScale != this.contentScale) {
+            this.contentScale = contentScale
+            hasModify = true
+        }
+        if (extension != this.extension) {
+            this.extension = extension
             hasModify = true
         }
         if (!hasModify) return

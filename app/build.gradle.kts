@@ -95,8 +95,7 @@ dependencies {
     implementation(libs.androidx.runtime.tracing)
 
     // project module
-    implementation(projects.image)
-    implementation(projects.blur)
+    implementation(projects.glideImage)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)

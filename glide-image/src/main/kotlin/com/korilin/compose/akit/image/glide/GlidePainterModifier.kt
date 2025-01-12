@@ -94,7 +94,7 @@ private data class GlidePainterElement(
         node.colorFilter = colorFilter
         node.extension = extension
 
-        node.update(requestModel, placeholderModel, failureModel)
+        node.update(requestModel, placeholderModel, failureModel, contentScale, extension)
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -263,7 +263,6 @@ internal class GlidePainterNode(
         }
 
 
-
     private fun calculateScaledSize(dstSize: Size): Size {
         return if (painterIntrinsicSizeSpecified) {
             val srcWidth = if (!painter.intrinsicSize.hasSpecifiedAndFiniteWidth()) {
@@ -348,9 +347,11 @@ internal class GlidePainterNode(
     override fun update(
         requestModel: GlideRequestModel,
         placeholderModel: PainterModel?,
-        failureModel: ResModel?
+        failureModel: ResModel?,
+        contentScale: ContentScale,
+        extension: AsyncImageContext,
     ) {
-        super.update(requestModel, placeholderModel, failureModel)
+        super.update(requestModel, placeholderModel, failureModel, contentScale, extension)
         invalidateMeasurement()
         invalidateDraw()
     }
