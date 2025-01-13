@@ -1,5 +1,6 @@
 package com.korilin.compose.akit.image.publics
 
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,10 +13,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.Glide
 import com.korilin.compose.akit.image.glide.GlideDefaults
-import com.korilin.compose.akit.image.glide.GlideRequestModel
 import com.korilin.compose.akit.image.glide.PainterModel
+import com.korilin.compose.akit.image.glide.RequestModel
 import com.korilin.compose.akit.image.glide.ResModel
 import com.korilin.compose.akit.image.glide.glidePainterNode
+import com.korilin.compose.akit.image.glide.toPainter
 
 /**
  * Async image load node base on glide.
@@ -56,17 +58,14 @@ fun GlideAsyncImage(
     alignment: Alignment = GlideDefaults.DefaultAlignment,
     alpha: Float = GlideDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = GlideDefaults.DefaultColorFilter,
-    extension: AsyncImageContext = AsyncImageContext(
-        context = LocalContext.current,
-        requestBuilder = { Glide.with(it).asDrawable() }
-    ),
+    extension: AsyncImageContext = rememberAsyncImageContext(),
 ) = trace("GlideAsyncImage") {
 
     Layout(
         modifier = modifier
             .glidePainterNode(
-                requestModel = GlideRequestModel(model),
-                placeholderModel = placeholder?.let { PainterModel(painterResource(it)) },
+                requestModel = RequestModel(model),
+                placeholderModel = PainterModel.fromId(placeholder, LocalContext.current),
                 failureModel = failureRes?.let { ResModel(it) },
                 contentDescription,
                 alignment,

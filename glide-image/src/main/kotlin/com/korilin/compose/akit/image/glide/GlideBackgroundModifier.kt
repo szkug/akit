@@ -1,6 +1,7 @@
 package com.korilin.compose.akit.image.glide
 
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -31,7 +32,7 @@ import kotlin.math.roundToInt
 
 
 internal fun Modifier.glideBackground(
-    requestModel: GlideRequestModel,
+    requestModel: RequestModel,
     placeholderModel: PainterModel?,
     alignment: Alignment,
     contentScale: ContentScale,
@@ -49,7 +50,7 @@ internal fun Modifier.glideBackground(
 )
 
 private data class GlideBackgroundElement(
-    val requestModel: GlideRequestModel,
+    val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val alignment: Alignment,
     val contentScale: ContentScale,
@@ -94,7 +95,7 @@ private data class GlideBackgroundElement(
 private const val TRACE_SECTION_NAME = "GlideBackgroundNode"
 
 private class GlideBackgroundNode(
-    requestModel: GlideRequestModel,
+    requestModel: RequestModel,
     placeholderModel: PainterModel?,
     contentScale: ContentScale,
     var alignment: Alignment,
@@ -109,7 +110,7 @@ private class GlideBackgroundNode(
     extension = extension
 ), LayoutModifierNode, DrawModifierNode {
 
-    override fun onCollectResult(result: GlideLoadResult) {
+    override fun onCollectResult(result: GlideLoadResult<Drawable>) {
         invalidateMeasurement()
         invalidateDraw()
     }
@@ -204,7 +205,7 @@ private class GlideBackgroundNode(
     }
 
     override fun update(
-        requestModel: GlideRequestModel,
+        requestModel: RequestModel,
         placeholderModel: PainterModel?,
         failureModel: ResModel?,
         contentScale: ContentScale,

@@ -1,7 +1,9 @@
 package com.korilin.compose.akit.image.glide
 
+import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import androidx.appcompat.content.res.AppCompatResources
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -16,12 +18,24 @@ import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
+internal fun flowOfId(
+    context: Context,
+    resId: Int,
+): Flow<GlideLoadResult<Drawable>> {
+    return flow {
+        GlideDefaults.logger.error("FlowTarget", "flowOfId $resId")
+        val drawable = AppCompatResources.getDrawable(context, resId)!!
+        val result = GlideLoadResult.Success(drawable)
+        emit(result)
+    }
+}
 
-internal fun RequestBuilder<Drawable>.flow(
+internal fun <T : Any> RequestBuilder<T>.flowOfSize(
     size: ResolvableGlideSize,
-): Flow<GlideLoadResult> {
+): Flow<GlideLoadResult<T>> {
     return callbackFlow {
         val target = FlowTarget(this, size)
         // use add listener
@@ -30,21 +44,15 @@ internal fun RequestBuilder<Drawable>.flow(
     }
 }
 
-private class FlowTarget(
-    private val scope: ProducerScope<GlideLoadResult>,
+private class FlowTarget<T : Any>(
+    private val scope: ProducerScope<GlideLoadResult<T>>,
     private val size: ResolvableGlideSize,
-) : Target<Drawable>, RequestListener<Drawable> {
-
-    private val Drawable.width: Int
-        get() = (this as? BitmapDrawable)?.bitmap?.width ?: intrinsicWidth
-
-    private val Drawable.height: Int
-        get() = (this as? BitmapDrawable)?.bitmap?.height ?: intrinsicHeight
+) : Target<T>, RequestListener<T> {
 
     override fun onLoadFailed(
         e: GlideException?,
         model: Any?,
-        target: Target<Drawable>,
+        target: Target<T>,
         isFirstResource: Boolean
     ): Boolean {
         GlideDefaults.logger.error("FlowTarget", e)
@@ -52,14 +60,14 @@ private class FlowTarget(
     }
 
     override fun onResourceReady(
-        resource: Drawable,
+        resource: T,
         model: Any,
-        target: Target<Drawable>?,
+        target: Target<T>?,
         dataSource: DataSource,
         isFirstResource: Boolean
     ): Boolean {
         GlideDefaults.logger.info("FlowTarget") {
-            "onResourceReady first:$isFirstResource source:$dataSource Size(${resource.width}, ${resource.height}) model:$model"
+            "onResourceReady first:$isFirstResource source:$dataSource model:$model"
         }
 
         return false
@@ -85,14 +93,14 @@ private class FlowTarget(
 
     override fun removeCallback(cb: SizeReadyCallback) {}
     override fun onLoadCleared(placeholder: Drawable?) {
-        scope.trySend(GlideLoadResult.Cleared)
+        scope.trySend(GlideLoadResult.Cleared(placeholder))
     }
 
     override fun onLoadFailed(errorDrawable: Drawable?) {
         scope.trySend(GlideLoadResult.Error(errorDrawable))
     }
 
-    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+    override fun onResourceReady(resource: T, transition: Transition<in T>?) {
         scope.trySend(GlideLoadResult.Success(resource))
     }
 

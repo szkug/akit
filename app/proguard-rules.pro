@@ -21,3 +21,5 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class androidx.profileinstaller.ProfileInstallReceiver { **; }
+-keep public class  extends com.bumptech.glide.module.AppGlideModule
+-keep class com.bumptech.glide.GeneratedAppGlideModuleImpl

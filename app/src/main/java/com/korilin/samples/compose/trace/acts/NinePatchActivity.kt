@@ -19,6 +19,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.samples.compose.trace.draw9Patch
@@ -33,36 +35,23 @@ import java.security.MessageDigest
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
-    val extension1 = AsyncImageContext(
+    val extension = AsyncImageContext(
         this,
+        enableLog = true,
         drawableTransformation = listOf(NinePatchDrawableTranscoder),
-        ignoreImagePadding = true
-    )
-    val extension2 = AsyncImageContext(
-        this,
-        drawableTransformation = listOf(NinePatchDrawableTranscoder),
+        requestBuilder = {
+            Glide.with(it).asDrawable().skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+        }
     )
 
-    inline fun Modifier.background1(
+    private fun Modifier.background2(
         model: Any?,
         placeholder: Int? = null,
     ) = glideBackground(
         model,
         placeholder,
-        contentScale = ContentScale.Crop,
-        alignment = Alignment.Center,
-        context = extension1
-    )
-        .padding(5.dp)
-        .padding(bottom = 10.dp)
-
-    inline fun Modifier.background2(
-        model: Any?,
-        placeholder: Int? = null,
-    ) = glideBackground(
-        model,
-        placeholder,
-        context = extension2
+        context = extension
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,119 +62,27 @@ class NinePatchActivity : ComponentActivity() {
                 modifier = Modifier.padding(10.dp)
             ) {
 
-
                 Text(
-                    text = "Kotlin",
+                    text = "Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     fontSize = 8.dp.sp,
                     modifier = Modifier
-                        .draw9Patch(R.drawable.nine_patch_1)
-                        .padding(2.dp)
+                        .background2(model = R.drawable.nine_patch_2)
                 )
-
 
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
+                    fontSize = 8.dp.sp,
                     modifier = Modifier
-                        .draw9Patch(R.drawable.nine_patch_1)
-                        .padding(2.dp)
+                        .background2(model = R.drawable.nine_patch_2)
                 )
 
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     modifier = Modifier
-                        .draw9Patch(R.drawable.nine_patch_1)
-                        .padding(2.dp)
-                )
-
-                Text("======== Drawable =======")
-
-                Text(
-                    text = "Kotlin",
-                    color = Color.White,
-                    fontSize = 8.dp.sp,
-                    modifier = Modifier
-                        .background1(
-                            model = R.drawable.nine_patch_1,
-                        )
-                )
-
-                Text(
-                    text = "Kotlin & Compose & Kotlin & Compose",
-                    color = Color.White,
-                    modifier = Modifier.background1(
-                        model = R.drawable.nine_patch_1,
-                    )
-                )
-
-
-                Text(
-                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose\"",
-                    color = Color.White,
-                    modifier = Modifier.background1(
-                        model = R.drawable.nine_patch_1,
-                    )
-                )
-
-
-                Text("======== NoDpi =======")
-
-                Text(
-                    text = "Kotlin",
-                    color = Color.White,
-                    fontSize = 8.dp.sp,
-                    modifier = Modifier
-                        .background1(
-                            model = R.drawable.nine_patch_1_no,
-                        )
-                )
-
-                Text(
-                    text = "Kotlin & Compose & Kotlin & Compose",
-                    color = Color.White,
-                    modifier = Modifier.background1(
-                        model = R.drawable.nine_patch_1_no,
-                    )
-                )
-
-
-                Text(
-                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose\"",
-                    color = Color.White,
-                    modifier = Modifier.background1(
-                        model = R.drawable.nine_patch_1_no,
-                    )
-                )
-
-
-                Text("===============")
-
-
-                Text(
-                    text = "Kotlin & Compose & Kotlin & Compose",
-                    color = Color.White,
-                    fontSize = 8.dp.sp,
-                    modifier = Modifier
-                        .background2(R.drawable.nine_patch_2)
-                )
-
-                Text(
-                    text = "Kotlin & Compose & Kotlin & Compose",
-                    color = Color.White,
-                    fontSize = 8.dp.sp,
-                    modifier = Modifier
-                        .background2(R.drawable.nine_patch_2)
-                )
-
-                Size.Unspecified
-
-                Text(
-                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
-                    color = Color.White,
-                    modifier = Modifier
-                        .background2(R.drawable.nine_patch_2)
+                        .background2(model = R.drawable.nine_patch_2)
                 )
 
                 Text("===============")
@@ -197,24 +94,25 @@ class NinePatchActivity : ComponentActivity() {
                     modifier = Modifier
                         .background2(
                             model = url,
+                            placeholder = R.drawable.nine_patch_2
                         )
                 )
-
 
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     modifier = Modifier.background2(
                         model = url,
+                        placeholder = R.drawable.nine_patch_2
                     )
                 )
-
 
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose & Compose & Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     modifier = Modifier.background2(
                         model = url,
+                        placeholder = R.drawable.nine_patch_2
                     )
                 )
             }
@@ -245,7 +143,12 @@ object NinePatchDrawableTranscoder : DrawableTranscoder() {
         return "NinePatchDrawableTranscoder"
     }
 
-    override fun transcode(context: Context, resource: Drawable, width: Int, height: Int): Drawable {
+    override fun transcode(
+        context: Context,
+        resource: Drawable,
+        width: Int,
+        height: Int
+    ): Drawable {
         if (resource !is BitmapDrawable) return resource
         val bitmap = resource.bitmap
         if (!NinePatchChunk.isRawNinePatchBitmap(bitmap)) return resource

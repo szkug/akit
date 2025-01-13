@@ -3,12 +3,13 @@ package com.korilin.compose.akit.image.glide
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.painter.Painter
 
-internal sealed interface GlideLoadResult {
+internal sealed interface GlideLoadResult<T> {
     @JvmInline
-    value class Error(val drawable: Drawable?) : GlideLoadResult
+    value class Error<T>(val drawable: Drawable?) : GlideLoadResult<T>
 
     @JvmInline
-    value class Success(val drawable: Drawable) : GlideLoadResult
+    value class Success<T>(val drawable: T) : GlideLoadResult<T>
 
-    object Cleared : GlideLoadResult
+    @JvmInline
+    value class Cleared<T>(val drawable: Drawable?) : GlideLoadResult<T>
 }

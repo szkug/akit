@@ -2,6 +2,7 @@ package com.korilin.compose.akit.image.publics
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,8 +18,8 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.korilin.compose.akit.image.glide.GlideDefaults
-import com.korilin.compose.akit.image.glide.GlideRequestModel
 import com.korilin.compose.akit.image.glide.PainterModel
+import com.korilin.compose.akit.image.glide.RequestModel
 import com.korilin.compose.akit.image.glide.glideBackground
 import com.korilin.compose.akit.image.glide.toPainter
 
@@ -38,8 +39,8 @@ fun Modifier.glideBackground(
     context: AsyncImageContext? = null,
 ): Modifier = composed {
     this.glideBackground(
-        requestModel = GlideRequestModel(model),
-        placeholderModel = placeholder?.let { PainterModel(painterResource(it)) },
+        requestModel = RequestModel(model),
+        placeholderModel = PainterModel.fromId(placeholder, LocalContext.current),
         alignment,
         contentScale,
         alpha,

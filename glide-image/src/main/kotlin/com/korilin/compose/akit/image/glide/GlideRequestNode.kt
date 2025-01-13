@@ -1,5 +1,6 @@
 package com.korilin.compose.akit.image.glide
 
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -12,16 +13,16 @@ import com.bumptech.glide.RequestBuilder
 import com.korilin.compose.akit.image.publics.AsyncImageContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import kotlinx.coroutines.withContext
 import java.io.File
 
 private const val TRACE_SECTION_NAME = "GlideRequestNode"
 
 internal abstract class GlideRequestNode(
-    private var requestModel: GlideRequestModel,
+    private var requestModel: RequestModel,
     private var placeholderModel: PainterModel?,
     private var failureModel: ResModel?,
     var contentScale: ContentScale,
@@ -92,7 +93,7 @@ internal abstract class GlideRequestNode(
             // another sideEffect. Wait for that one instead.
             if (this.requestModel != requestModel) return@sideEffect
 
-            if (rememberJob != null || requestModel !is GlideRequestModel) return@sideEffect
+            if (rememberJob != null) return@sideEffect
 
             trace("GlideRequestNode.launch") {
                 rememberJob = (coroutineScope + Dispatchers.Main.immediate).launch {
@@ -101,14 +102,14 @@ internal abstract class GlideRequestNode(
             }
         }
 
-    private fun <T> RequestBuilder<T>.loadRequestModel(requestModel: GlideRequestModel): RequestBuilder<T> {
+    private fun RequestBuilder<Drawable>.requestFlow(requestModel: RequestModel): Flow<GlideLoadResult<Drawable>> {
         return when (val model = requestModel.model) {
-            is Int -> load(model)
+            is Int -> return flowOfId(extension.context, model)
             is File -> load(model)
             is Uri -> load(model)
             is String -> load(model)
             else -> load(model)
-        }
+        }.flowOfSize(glideSize)
     }
 
     private fun <T> RequestBuilder<T>.setupFailure(): RequestBuilder<T> {
@@ -125,15 +126,14 @@ internal abstract class GlideRequestNode(
         }
     }
 
-    private suspend fun flowRequest(requestModel: GlideRequestModel) {
+    private suspend fun flowRequest(requestModel: RequestModel) {
         extension.requestBuilder(extension.context)
             .setupSize()
             .setupTransforms(contentScale, extension)
             .setupFailure()
-            .loadRequestModel(requestModel)
-            .flow(glideSize)
+            .requestFlow(requestModel)
             .collectLatest {
-                log("startRequest") { "collectLatest $it" }
+                log("startRequest") { "collectLatest $requestModel $it" }
                 val result = when (it) {
                     is GlideLoadResult.Error -> it.drawable?.toPainter() ?: placeablePainter
                     is GlideLoadResult.Success -> it.drawable.toPainter()
@@ -146,7 +146,7 @@ internal abstract class GlideRequestNode(
             }
     }
 
-    abstract fun onCollectResult(result: GlideLoadResult)
+    abstract fun onCollectResult(result: GlideLoadResult<Drawable>)
 
     private fun stopRequest() {
         rememberJob?.cancel()
@@ -185,7 +185,7 @@ internal abstract class GlideRequestNode(
     }
 
     open fun update(
-        requestModel: GlideRequestModel,
+        requestModel: RequestModel,
         placeholderModel: PainterModel?,
         failureModel: ResModel?,
         contentScale: ContentScale,

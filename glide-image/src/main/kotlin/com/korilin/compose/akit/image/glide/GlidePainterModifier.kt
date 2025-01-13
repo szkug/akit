@@ -37,7 +37,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 internal fun Modifier.glidePainterNode(
-    requestModel: GlideRequestModel,
+    requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResModel?,
     contentDescription: String?,
@@ -64,7 +64,7 @@ internal fun Modifier.glidePainterNode(
 )
 
 private data class GlidePainterElement(
-    val requestModel: GlideRequestModel,
+    val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val failureModel: ResModel?,
     val alignment: Alignment,
@@ -112,7 +112,7 @@ private data class GlidePainterElement(
 private const val TRACE_SECTION_NAME = "GlidePainterNode"
 
 internal class GlidePainterNode(
-    requestModel: GlideRequestModel,
+    requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResModel?,
     contentScale: ContentScale,
@@ -337,7 +337,7 @@ internal class GlidePainterNode(
         drawContent()
     }
 
-    override fun onCollectResult(result: GlideLoadResult) {
+    override fun onCollectResult(result: GlideLoadResult<Drawable>) {
         if (!hasFixedSize) {
             invalidateMeasurement()
         }
@@ -345,7 +345,7 @@ internal class GlidePainterNode(
     }
 
     override fun update(
-        requestModel: GlideRequestModel,
+        requestModel: RequestModel,
         placeholderModel: PainterModel?,
         failureModel: ResModel?,
         contentScale: ContentScale,

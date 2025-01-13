@@ -41,54 +41,43 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.google.android.renderscript.BlurConfig
 import com.google.android.renderscript.BlurToolkit
-import com.google.android.renderscript.Toolkit
 import com.korilin.compose.akit.image.publics.BitmapTranscoder
 import com.korilin.compose.akit.image.publics.GlideAsyncImage
 import com.korilin.compose.akit.image.publics.rememberAsyncImageContext
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import java.security.MessageDigest
 
 
 data class RoomInfo(
-    val cover: String,
+    val cover: Any,
     val name: String,
-) {
-
-    companion object {
-
-        fun create() = RoomInfo(
-            cover = Stores.urls.random(),
-            name = Stores.names.random()
-        )
-    }
-}
+)
 
 class RoomGridListActivity : ComponentActivity() {
 
-    private val list = List(5) { RoomInfo.create() }
+    private val list = listOf(
+        RoomInfo(
+            cover = Stores.urls.random(),
+            name = Stores.names.random()
+        ),
+
+        RoomInfo(
+            cover = Stores.imgIds.random(),
+            name = Stores.names.random()
+        )
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
         setContent {
             Column {
-                RoomTagsRow_OptCompare()
                 RoomGridList(list, Modifier.padding())
             }
         }
     }
-}
-
-@Composable
-@Preview
-private fun RoomGrid_Preview() {
-    RoomGridItem(RoomInfo.create())
 }
 
 @Composable
@@ -123,7 +112,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
             extension = rememberAsyncImageContext(
-                bitmapTransformation = listOf(BlurTransformation(25))
+                bitmapTransformation = listOf(BlurTransformation(15))
             )
         )
 
@@ -142,8 +131,6 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
                 .padding(10.dp)
         ) {
 
-            RoomTagsRow_Opt1()
-
             Text(
                 text = info.name,
                 color = Color.White,
@@ -152,72 +139,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
                 modifier = Modifier
             )
         }
-
     }
-
-}
-
-@Composable
-private fun RoomTagsRow() = trace("Compose:RoomTagsRow") {
-    LazyRow {
-        item {
-            RoomTag(R.drawable.compose)
-        }
-        item {
-            RoomTag(R.drawable.kotlin)
-        }
-    }
-}
-
-@Composable
-private fun RoomTagsRow_Opt1() = trace("Compose:RoomTagsRow") {
-    Row(
-        modifier = Modifier
-            .graphicsLayer {
-                Log.d("BlurNode", "graphicsLayer")
-            }
-    ) {
-        RoomTag_Opt1(R.drawable.compose)
-        RoomTag_Opt1(R.drawable.kotlin)
-    }
-}
-
-
-@Composable
-private fun RoomTagsRow_OptCompare() = trace("Compose:RoomTagsRow_OptCompare") {
-    Row {
-
-        trace("Compose:RoomTagsRow_OptCompare:Bigger") {
-            RoomTag_Opt1(R.drawable.compose)
-            RoomTag(R.drawable.compose)
-        }
-
-        trace("Compose:RoomTagsRow_OptCompare:Smaller") {
-            RoomTag_Opt1(R.drawable.music)
-            RoomTag(R.drawable.music)
-        }
-
-    }
-}
-
-
-
-@Composable
-private fun RoomTag(@DrawableRes id: Int) = trace("Compose:RoomTag") {
-    Image(
-        painter = painterResource(id),
-        modifier = Modifier.size(20.dp),
-        contentDescription = null
-    )
-}
-
-@Composable
-private fun RoomTag_Opt1(@DrawableRes id: Int) = trace("Compose:RoomTag") {
-    GlideAsyncImage(
-        model = id,
-        modifier = Modifier.size(20.dp),
-        contentDescription = null,
-    )
 }
 
 data class BlurTransformation(private val radius: Int) : BitmapTranscoder() {
