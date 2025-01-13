@@ -11,34 +11,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.samples.compose.trace.draw9Patch
 import com.korilin.compose.akit.image.publics.AsyncImageContext
 import com.korilin.compose.akit.image.publics.DrawableTranscoder
 import com.korilin.compose.akit.image.publics.glideBackground
 import com.korilin.compose.akit.image.publics.rememberAsyncImageContext
 import com.korilin.samples.compose.trace.ninepatch.NinePatchChunk
 import com.korilin.samples.compose.trace.sp
-import java.security.MessageDigest
 
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
-    val extension = AsyncImageContext(
+    private val extension = AsyncImageContext(
         this,
         enableLog = true,
-        drawableTransformation = listOf(NinePatchDrawableTranscoder),
+        drawableTransformations = listOf(NinePatchDrawableTranscoder),
         requestBuilder = {
             Glide.with(it).asDrawable().skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)

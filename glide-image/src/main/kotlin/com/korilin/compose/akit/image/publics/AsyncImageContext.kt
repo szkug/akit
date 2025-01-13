@@ -9,20 +9,30 @@ import androidx.compose.ui.platform.LocalContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.Transformation
+import com.google.android.renderscript.BlurConfig
 
 
 private val NormalGlideRequestBuilder: (context: Context) -> RequestBuilder<Drawable> = {
     Glide.with(it).asDrawable()
 }
 
-data class AsyncImageContext(
+open class AsyncImageContext(
     val context: Context,
-    val requestBuilder: (Context) -> RequestBuilder<Drawable> = NormalGlideRequestBuilder,
-    val bitmapTransformation: List<Transformation<Bitmap>>? = null,
-    val drawableTransformation: List<Transformation<Drawable>>? = null,
-    val ignoreImagePadding: Boolean = false,
     val enableLog: Boolean = false,
-)
+    val requestBuilder: (Context) -> RequestBuilder<Drawable> = NormalGlideRequestBuilder,
+
+    // internal support fields
+    val ignoreImagePadding: Boolean = false,
+
+    // TODO support with module and options
+    // val ninePatchSupport: Boolean,
+    // val blurConfig: BlurConfig? = null,
+
+    // transformations
+    val bitmapTransformations: List<BitmapTranscoder>? = null,
+    val drawableTransformations: List<DrawableTranscoder>? = null,
+) {
+}
 
 @Composable
 fun rememberAsyncImageContext(
@@ -43,8 +53,8 @@ fun rememberAsyncImageContext(
         AsyncImageContext(
             context = context,
             requestBuilder = requestBuilder,
-            bitmapTransformation = bitmapTransformation,
-            drawableTransformation = drawableTransformation,
+            bitmapTransformations = bitmapTransformation,
+            drawableTransformations = drawableTransformation,
             ignoreImagePadding = ignoreImagePadding,
             enableLog = enableLog
         )
