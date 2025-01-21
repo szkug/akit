@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image
+package com.korilin.akit.compose.image
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.korilin.compose.akit.image", appContext.packageName)
+        assertEquals("com.korilin.akit.compose.image", appContext.packageName)
     }
 }

@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 // open projects accessors feature
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "compose-akit"
+rootProject.name = "akit"
 include(":app")
 include(":benchmark")
 include(":glide-image")

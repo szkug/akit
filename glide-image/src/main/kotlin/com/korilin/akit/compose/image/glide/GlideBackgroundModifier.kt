@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image.glide
+package com.korilin.akit.compose.image.glide
 
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.trace
-import com.korilin.compose.akit.image.publics.AsyncImageContext
+import com.korilin.akit.compose.image.publics.AsyncImageContext
 import kotlin.math.roundToInt
 
 

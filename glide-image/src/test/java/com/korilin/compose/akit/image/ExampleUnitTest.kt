@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image
+package com.korilin.akit.compose.image
 
 import org.junit.Test
 

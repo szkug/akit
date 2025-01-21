@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.korilin.compose.akit.image"
+    namespace = "com.korilin.akit.compose.image"
     compileSdk = 34
 
 

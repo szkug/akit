@@ -43,9 +43,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
 import com.google.android.renderscript.BlurConfig
 import com.google.android.renderscript.BlurToolkit
-import com.korilin.compose.akit.image.publics.BitmapTranscoder
-import com.korilin.compose.akit.image.publics.GlideAsyncImage
-import com.korilin.compose.akit.image.publics.rememberAsyncImageContext
+import com.korilin.akit.compose.image.publics.BitmapTranscoder
+import com.korilin.akit.compose.image.publics.GlideAsyncImage
+import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 

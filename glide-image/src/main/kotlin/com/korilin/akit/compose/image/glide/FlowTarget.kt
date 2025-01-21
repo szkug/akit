@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image.glide
+package com.korilin.akit.compose.image.glide
 
 import android.content.Context
 import android.graphics.drawable.BitmapDrawable

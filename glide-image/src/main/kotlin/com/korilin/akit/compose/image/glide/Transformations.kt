@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image.glide
+package com.korilin.akit.compose.image.glide
 
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -12,7 +12,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.load.resource.bitmap.DrawableTransformation
 import com.bumptech.glide.request.autoCloneEnabled
-import com.korilin.compose.akit.image.publics.AsyncImageContext
+import com.korilin.akit.compose.image.publics.AsyncImageContext
 
 internal fun RequestBuilder<Drawable>.setupTransforms(
     contentScale: ContentScale,

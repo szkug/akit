@@ -36,7 +36,7 @@ import coil3.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.compose.akit.image.publics.GlideAsyncImage
+import com.korilin.akit.compose.image.publics.GlideAsyncImage
 
 class CompareActivity : ComponentActivity() {
 

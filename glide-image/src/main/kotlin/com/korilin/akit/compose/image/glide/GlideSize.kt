@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image.glide
+package com.korilin.akit.compose.image.glide
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified

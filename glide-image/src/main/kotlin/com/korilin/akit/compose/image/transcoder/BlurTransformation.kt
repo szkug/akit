@@ -1,10 +1,10 @@
-package com.korilin.compose.akit.image.transcoder
+package com.korilin.akit.compose.image.transcoder
 
 import android.content.Context
 import android.graphics.Bitmap
 import com.google.android.renderscript.BlurConfig
 import com.google.android.renderscript.BlurToolkit
-import com.korilin.compose.akit.image.publics.BitmapTranscoder
+import com.korilin.akit.compose.image.publics.BitmapTranscoder
 
 data class BlurTransformation(private val config: BlurConfig) : BitmapTranscoder() {
 

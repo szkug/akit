@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image.glide
+package com.korilin.akit.compose.image.glide
 
 import android.graphics.Rect
 import android.graphics.drawable.Animatable

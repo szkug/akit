@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image.publics
+package com.korilin.akit.compose.image.publics
 
 import android.content.Context
 import android.graphics.Bitmap

@@ -1,4 +1,4 @@
-package com.korilin.compose.akit.image.publics
+package com.korilin.akit.compose.image.publics
 
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Composable
@@ -12,12 +12,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.util.trace
 import com.bumptech.glide.Glide
-import com.korilin.compose.akit.image.glide.GlideDefaults
-import com.korilin.compose.akit.image.glide.PainterModel
-import com.korilin.compose.akit.image.glide.RequestModel
-import com.korilin.compose.akit.image.glide.ResModel
-import com.korilin.compose.akit.image.glide.glidePainterNode
-import com.korilin.compose.akit.image.glide.toPainter
+import com.korilin.akit.compose.image.glide.GlideDefaults
+import com.korilin.akit.compose.image.glide.PainterModel
+import com.korilin.akit.compose.image.glide.RequestModel
+import com.korilin.akit.compose.image.glide.ResModel
+import com.korilin.akit.compose.image.glide.glidePainterNode
+import com.korilin.akit.compose.image.glide.toPainter
 
 /**
  * Async image load node base on glide.

@@ -19,10 +19,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.compose.akit.image.publics.AsyncImageContext
-import com.korilin.compose.akit.image.publics.DrawableTranscoder
-import com.korilin.compose.akit.image.publics.glideBackground
-import com.korilin.compose.akit.image.publics.rememberAsyncImageContext
+import com.korilin.akit.compose.image.publics.AsyncImageContext
+import com.korilin.akit.compose.image.publics.DrawableTranscoder
+import com.korilin.akit.compose.image.publics.glideBackground
+import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
 import com.korilin.samples.compose.trace.ninepatch.NinePatchChunk
 import com.korilin.samples.compose.trace.sp
 
