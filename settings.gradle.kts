@@ -23,6 +23,13 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "akit"
+
+// apps
 include(":app")
 include(":benchmark")
-include(":glide-image")
+
+// glide
+include(":glide:compose-image")
+
+// images
+include(":image:renderscript")

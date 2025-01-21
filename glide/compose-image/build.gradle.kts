@@ -4,13 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.korilin.akit.compose.image"
+    namespace = "com.korilin.akit.glide.compose.image"
     compileSdk = 34
 
 
     defaultConfig {
         minSdk = 23
-        externalNativeBuild.cmake.cppFlags("-std=c++17")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -37,7 +36,6 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
-    externalNativeBuild.cmake.path = file("src/main/cpp/CMakeLists.txt")
 }
 
 
@@ -49,9 +47,9 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose.base)
 
-
     implementation(libs.bundles.glide)
 
+    implementation(projects.image.renderscript)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)
