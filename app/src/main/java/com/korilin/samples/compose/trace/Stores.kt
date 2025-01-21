@@ -1,9 +1,5 @@
 package com.korilin.samples.compose.trace
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-
 object Stores {
 
     val urls = listOf(
