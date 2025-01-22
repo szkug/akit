@@ -23,6 +23,7 @@ import com.korilin.akit.compose.image.publics.AsyncImageContext
 import com.korilin.akit.compose.image.publics.DrawableTranscoder
 import com.korilin.akit.compose.image.publics.glideBackground
 import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
+import com.korilin.samples.compose.trace.NinePatchDrawableDecoder
 import com.korilin.samples.compose.trace.ninepatch.NinePatchChunk
 import com.korilin.samples.compose.trace.sp
 
@@ -32,10 +33,11 @@ class NinePatchActivity : ComponentActivity() {
     private val extension = AsyncImageContext(
         this,
         enableLog = true,
-        drawableTransformations = listOf(NinePatchDrawableTranscoder),
+        // drawableTransformations = listOf(NinePatchDrawableTranscoder),
         requestBuilder = {
             Glide.with(it).asDrawable().skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .set(NinePatchDrawableDecoder.option, true)
         }
     )
 
@@ -125,28 +127,8 @@ fun Preview() {
             .glideBackground(
                 model = R.drawable.nine_patch_2,
                 context = rememberAsyncImageContext(
-                    drawableTransformation = listOf(NinePatchDrawableTranscoder),
+                    // drawableTransformation = listOf(NinePatchDrawableTranscoder),
                 )
             )
     )
-}
-
-object NinePatchDrawableTranscoder : DrawableTranscoder() {
-
-    override fun key(): String {
-        return "NinePatchDrawableTranscoder"
-    }
-
-    override fun transcode(
-        context: Context,
-        resource: Drawable,
-        width: Int,
-        height: Int
-    ): Drawable {
-        if (resource !is BitmapDrawable) return resource
-        val bitmap = resource.bitmap
-        if (!NinePatchChunk.isRawNinePatchBitmap(bitmap)) return resource
-        Log.d("NinePatchDrawableTranscoder", "transcode")
-        return NinePatchChunk.create9PatchDrawable(context, bitmap, null)
-    }
 }
