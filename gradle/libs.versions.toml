@@ -2,13 +2,13 @@
 agp = "8.4.2"
 cloudy = "0.2.3"
 constraintlayoutCompose = "1.1.0"
-kotlin = "1.8.20"
+kotlin = "1.9.23"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.9.1"
-composeBom = "2024.12.01"
-composeCompiler = "1.4.6"
+composeBom = "2025.01.00"
+composeCompiler = "1.5.13"
 
 glide = "4.16.0"
 glide-plugin = "2.24.0"
@@ -84,11 +84,20 @@ androidx-tracing-perfetto-binary = { module = "androidx.tracing:tracing-perfetto
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
+
+
+gradle-plugin-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+gradle-plugin-android = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+
 [plugins]
+
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 android-test = { id = "com.android.test", version.ref = "agp" }
+
+project-alib = { id = "com.korilin.akit.alib" , version = "unspecified"}
 
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-public" }
 

@@ -53,13 +53,6 @@ android {
             isDebuggable = false
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -74,6 +67,10 @@ android {
     }
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -84,6 +81,8 @@ dependencies {
 
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.recyclerview)
+
+    kapt(libs.glide.compiler)
 
     implementation(libs.bundles.glide)
     implementation(libs.glide.compose)

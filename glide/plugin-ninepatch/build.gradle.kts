@@ -2,12 +2,9 @@ plugins {
     alias(libs.plugins.project.alib)
 }
 
-android {
-    namespace = "com.korilin.akit.glide.compose.image"
 
-    buildFeatures.compose = true
-    
-    composeOptions.kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+android {
+    namespace = "com.korilin.akit.glide.plugin.ninepatch"
 }
 
 
