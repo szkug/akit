@@ -38,7 +38,8 @@ class NinePatchGlideModule : AppGlideModule() {
                 InputStream::class.java,
                 Drawable::class.java,
                 NinePatchDrawableDecoder(context) { it },
-            ).prepend(
+            )
+            .prepend(
                 ByteBuffer::class.java,
                 Drawable::class.java,
                 NinePatchDrawableDecoder(context) { ByteBufferBackedInputStream(it) },

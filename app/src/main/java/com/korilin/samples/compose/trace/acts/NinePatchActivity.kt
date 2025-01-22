@@ -67,7 +67,7 @@ class NinePatchActivity : ComponentActivity() {
                 )
 
                 Text(
-                    text = "Kotlin & Compose & Kotlin & Compose",
+                    text = "Kotlin & Compose & Kotlin & Compose & Kotlin & Compose",
                     color = Color.White,
                     fontSize = 8.dp.sp,
                     modifier = Modifier
