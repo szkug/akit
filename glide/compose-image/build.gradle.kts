@@ -21,8 +21,6 @@ dependencies {
 
     implementation(libs.bundles.glide)
 
-    implementation(projects.image.renderscript)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)

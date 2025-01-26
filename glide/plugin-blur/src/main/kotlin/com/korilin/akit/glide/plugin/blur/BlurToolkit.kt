@@ -1,7 +1,8 @@
-package com.google.android.renderscript
+package com.korilin.akit.glide.plugin.blur
 
 import android.graphics.Bitmap
 import androidx.annotation.IntRange
+import com.google.android.renderscript.Toolkit
 
 data class BlurConfig(
     @IntRange(from = 0, to = MAX_MOD.toLong()) val radius: Int,

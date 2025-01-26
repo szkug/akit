@@ -41,5 +41,3 @@ include(":glide:compose-image")
 include(":glide:plugin-ninepatch")
 include(":glide:plugin-blur")
 
-// images
-include(":image:renderscript")

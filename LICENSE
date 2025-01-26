@@ -201,13 +201,6 @@
    limitations under the License.
 
 ----------------------------------------------------------------------------------------------------
-image/renderscript
-
-License: Apache License 2.0
-
-https://github.com/android/renderscript-intrinsics-replacement-toolkit
-SHA Version: 344be3f6bf03fb6b63a80b36f08f8dccac59d784
-----------------------------------------------------------------------------------------------------
 https://github.com/bumptech/glide
 
 Copyright 2014 Google, Inc. All rights reserved.
@@ -243,4 +236,11 @@ License: Apache License 2.0
 
 https://github.com/Anatolii/NinePatchChunk
 SHA Version: c21dffb3f143c23c0707ca2f3e0125c2b6fe2814
+----------------------------------------------------------------------------------------------------
+submodules/renderscript
+
+License: Apache License 2.0
+
+https://github.com/android/renderscript-intrinsics-replacement-toolkit
+SHA Version: 344be3f6bf03fb6b63a80b36f08f8dccac59d784
 ----------------------------------------------------------------------------------------------------
