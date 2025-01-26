@@ -1,0 +1,3 @@
+[submodule "submodules/NinePatchChunk"]
+	path = submodules/NinePatchChunk
+	url = https://github.com/Anatolii/NinePatchChunk.git

@@ -58,6 +58,7 @@ recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version
 
 # glide
 glide-runtime = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-annotations = { group = "com.github.bumptech.glide", name = "annotations", version.ref = "glide" }
 glide-okhttp3 = { group = "com.github.bumptech.glide", name = "okhttp3-integration", version.ref = "glide" }
 glide-gif = { group = "com.github.bumptech.glide", name = "gifencoder-integration", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }

@@ -95,6 +95,7 @@ dependencies {
 
     // project module
     implementation(projects.glide.composeImage)
+    implementation(projects.glide.pluginNinepatch)
     implementation(projects.image.renderscript)
 
     testImplementation(libs.junit)

@@ -202,12 +202,11 @@
 
 ----------------------------------------------------------------------------------------------------
 image/renderscript
-https://github.com/android/renderscript-intrinsics-replacement-toolkit
-
-Git SHA Version: 344be3f6bf03fb6b63a80b36f08f8dccac59d784
 
 License: Apache License 2.0
 
+https://github.com/android/renderscript-intrinsics-replacement-toolkit
+SHA Version: 344be3f6bf03fb6b63a80b36f08f8dccac59d784
 ----------------------------------------------------------------------------------------------------
 https://github.com/bumptech/glide
 
@@ -237,4 +236,11 @@ The views and conclusions contained in the software and documentation are those 
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of Google, Inc.
 
+----------------------------------------------------------------------------------------------------
+submodules/NinePatchChunk
+
+License: Apache License 2.0
+
+https://github.com/Anatolii/NinePatchChunk
+SHA Version: c21dffb3f143c23c0707ca2f3e0125c2b6fe2814
 ----------------------------------------------------------------------------------------------------

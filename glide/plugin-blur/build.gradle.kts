@@ -13,11 +13,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.compose.base)
-
-    implementation(libs.bundles.glide)
-
+    implementation(libs.glide.runtime)
     implementation(projects.image.renderscript)
 
     testImplementation(libs.junit)
