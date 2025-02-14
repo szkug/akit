@@ -8,8 +8,11 @@ import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.SimpleResource
+import ua.anatolii.graphics.ninepatch.BitmapType
 import ua.anatolii.graphics.ninepatch.NinePatchChunk
 import java.io.InputStream
+
+val NinepatchEnableOption = Option.memory(NinePatchDrawableDecoder::class.qualifiedName!!, false)
 
 class NinePatchDrawableDecoder<Input : Any>(
     private val context: Context,
@@ -21,8 +24,9 @@ class NinePatchDrawableDecoder<Input : Any>(
         if (!enable) return false
         val stream = toStream(source)
         val bitmap = BitmapFactory.decodeStream(stream)
-        val ninepatch = NinePatchChunk.isRawNinePatchBitmap(bitmap)
-        return ninepatch
+        val type = BitmapType.determineBitmapType(bitmap)
+        val isNinepatch = type == BitmapType.NinePatch || type == BitmapType.RawNinePatch
+        return isNinepatch
     }
 
     override fun decode(
