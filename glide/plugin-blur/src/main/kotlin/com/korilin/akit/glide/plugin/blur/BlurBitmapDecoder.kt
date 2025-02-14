@@ -1,6 +1,7 @@
 package com.korilin.akit.glide.plugin.blur
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
@@ -17,6 +18,7 @@ class BlurBitmapDecoder<Input : Any>(
 
     override fun handles(source: Input, options: Options): Boolean {
         val enabled = options.get(BlurBitmapConfigOption) != null
+        Log.d("BlurBitmapDecoder", "handle $enabled")
         return enabled && decoder.handles(source, options)
     }
 

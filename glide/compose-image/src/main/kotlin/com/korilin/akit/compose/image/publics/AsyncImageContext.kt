@@ -9,9 +9,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 
 
-private val NormalGlideRequestBuilder: (context: Context) -> RequestBuilder<Drawable> = {
-    Glide.with(it).asDrawable()
-}
 
 open class AsyncImageContext(
     val context: Context,
@@ -29,6 +26,12 @@ open class AsyncImageContext(
     val bitmapTransformations: List<BitmapTranscoder>? = null,
     val drawableTransformations: List<DrawableTranscoder>? = null,
 ) {
+    companion object {
+
+        val NormalGlideRequestBuilder: (context: Context) -> RequestBuilder<Drawable> = {
+            Glide.with(it).asDrawable()
+        }
+    }
 }
 
 @Composable
@@ -37,7 +40,7 @@ fun rememberAsyncImageContext(
     ignoreImagePadding: Boolean = false,
     bitmapTransformation: List<BitmapTranscoder>? = null,
     drawableTransformation: List<DrawableTranscoder>? = null,
-    requestBuilder: (Context) -> RequestBuilder<Drawable> = NormalGlideRequestBuilder,
+    requestBuilder: (Context) -> RequestBuilder<Drawable> = AsyncImageContext.NormalGlideRequestBuilder,
 ): AsyncImageContext {
     val context = LocalContext.current
     return remember(

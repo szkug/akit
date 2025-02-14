@@ -20,11 +20,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.akit.compose.image.publics.AsyncImageContext
-import com.korilin.akit.compose.image.publics.DrawableTranscoder
 import com.korilin.akit.compose.image.publics.glideBackground
 import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
-import com.korilin.samples.compose.trace.NinePatchDrawableDecoder
-import com.korilin.samples.compose.trace.ninepatch.NinePatchChunk
+import com.korilin.akit.plugin.ninepatch.NinepatchEnableOption
 import com.korilin.samples.compose.trace.sp
 
 class NinePatchActivity : ComponentActivity() {
@@ -37,7 +35,7 @@ class NinePatchActivity : ComponentActivity() {
         requestBuilder = {
             Glide.with(it).asDrawable().skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .set(NinePatchDrawableDecoder.option, true)
+                .set(NinepatchEnableOption, true)
         }
     )
 

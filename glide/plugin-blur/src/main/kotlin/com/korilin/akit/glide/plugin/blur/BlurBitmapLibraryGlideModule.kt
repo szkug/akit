@@ -39,13 +39,13 @@ class BlurBitmapLibraryGlideModule : LibraryGlideModule() {
             Registry.BUCKET_BITMAP,
             ByteBuffer::class.java,
             Bitmap::class.java,
-            byteBufferBitmapDecoder
+            BlurBitmapDecoder(bitmapPool, byteBufferBitmapDecoder)
         )
         registry.prepend(
             Registry.BUCKET_BITMAP,
             InputStream::class.java,
             Bitmap::class.java,
-            streamBitmapDecoder
+            BlurBitmapDecoder(bitmapPool, streamBitmapDecoder)
         )
     }
 

@@ -41,11 +41,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
-import com.google.android.renderscript.BlurConfig
-import com.google.android.renderscript.BlurToolkit
+import com.korilin.akit.compose.image.publics.AsyncImageContext
 import com.korilin.akit.compose.image.publics.BitmapTranscoder
 import com.korilin.akit.compose.image.publics.GlideAsyncImage
 import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
+import com.korilin.akit.glide.plugin.blur.BlurBitmapConfigOption
+import com.korilin.akit.glide.plugin.blur.BlurConfig
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 
@@ -112,7 +113,11 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
             extension = rememberAsyncImageContext(
-                bitmapTransformation = listOf(BlurTransformation(15))
+                requestBuilder = {
+                    AsyncImageContext.NormalGlideRequestBuilder(it).set(
+                        BlurBitmapConfigOption, BlurConfig(15)
+                    )
+                }
             )
         )
 
@@ -139,14 +144,5 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
                 modifier = Modifier
             )
         }
-    }
-}
-
-data class BlurTransformation(private val radius: Int) : BitmapTranscoder() {
-
-    override fun key(): String = "BlurTransformation.$radius"
-
-    override fun transcode(context: Context, resource: Bitmap, width: Int, height: Int): Bitmap {
-        return BlurToolkit.blur(BlurConfig(radius, radius), resource)
     }
 }
