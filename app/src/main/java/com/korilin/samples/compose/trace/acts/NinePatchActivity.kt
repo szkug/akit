@@ -1,10 +1,6 @@
 package com.korilin.samples.compose.trace.acts
 
-import android.content.Context
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -22,7 +18,7 @@ import com.korilin.samples.compose.trace.Stores
 import com.korilin.akit.compose.image.publics.AsyncImageContext
 import com.korilin.akit.compose.image.publics.glideBackground
 import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
-import com.korilin.akit.plugin.ninepatch.NinepatchEnableOption
+import com.korilin.akit.glide.extensions.ninepatch.NinepatchEnableOption
 import com.korilin.samples.compose.trace.sp
 
 class NinePatchActivity : ComponentActivity() {

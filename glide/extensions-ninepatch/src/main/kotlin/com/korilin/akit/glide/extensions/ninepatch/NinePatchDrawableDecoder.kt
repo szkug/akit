@@ -1,4 +1,4 @@
-package com.korilin.akit.plugin.ninepatch
+package com.korilin.akit.glide.extensions.ninepatch
 
 import android.content.Context
 import android.graphics.BitmapFactory

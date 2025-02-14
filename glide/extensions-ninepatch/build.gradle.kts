@@ -5,7 +5,7 @@ plugins {
 
 
 android {
-    namespace = "com.korilin.akit.glide.plugin.ninepatch"
+    namespace = "com.korilin.akit.glide.extensions.ninepatch"
 
     sourceSets["main"].apply {
         java.srcDirs("../../submodules/NinePatchChunk/NinePatchChunk/Library/src/main/java")

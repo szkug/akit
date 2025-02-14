@@ -1,27 +1,18 @@
 package com.korilin.samples.compose.trace.acts
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -33,21 +24,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.korilin.akit.compose.image.publics.AsyncImageContext
-import com.korilin.akit.compose.image.publics.BitmapTranscoder
 import com.korilin.akit.compose.image.publics.GlideAsyncImage
 import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
-import com.korilin.akit.glide.plugin.blur.BlurBitmapConfigOption
-import com.korilin.akit.glide.plugin.blur.BlurConfig
-import com.korilin.samples.compose.trace.R
+import com.korilin.akit.glide.extensions.blur.BlurBitmapConfigOption
+import com.korilin.akit.glide.extensions.blur.BlurConfig
 import com.korilin.samples.compose.trace.Stores
 
 
@@ -114,8 +101,9 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             alignment = Alignment.Center,
             extension = rememberAsyncImageContext(
                 requestBuilder = {
-                    AsyncImageContext.NormalGlideRequestBuilder(it).set(
-                        BlurBitmapConfigOption, BlurConfig(15)
+                    AsyncImageContext.NormalGlideRequestBuilder(it).skipMemoryCache(true)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .set(BlurBitmapConfigOption, BlurConfig(15)
                     )
                 }
             )

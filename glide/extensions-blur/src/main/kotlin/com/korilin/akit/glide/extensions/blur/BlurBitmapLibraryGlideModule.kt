@@ -1,7 +1,10 @@
-package com.korilin.akit.glide.plugin.blur
+package com.korilin.akit.glide.extensions.blur
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
@@ -20,6 +23,8 @@ class BlurBitmapLibraryGlideModule : LibraryGlideModule() {
         context: Context, glide: Glide, registry: Registry
     ) {
 
+        Log.d("LibraryGlideModule", "register BlurBitmapLibraryGlideModule")
+
         val bitmapPool = glide.bitmapPool
         val arrayPool = glide.arrayPool
         val downsampler = Downsampler(
@@ -33,19 +38,49 @@ class BlurBitmapLibraryGlideModule : LibraryGlideModule() {
         val streamBitmapDecoder: ResourceDecoder<InputStream, Bitmap> =
             StreamBitmapDecoder(downsampler, arrayPool)
 
-        // InputStream
-        // ByteBuffer
+        val decoderContext = BitmapDecoderContext(context, bitmapPool)
+
+        // Bitmaps
         registry.prepend(
             Registry.BUCKET_BITMAP,
             ByteBuffer::class.java,
             Bitmap::class.java,
-            BlurBitmapDecoder(bitmapPool, byteBufferBitmapDecoder)
+            BlurBitmapDecoder(
+                decoderContext,
+                byteBufferBitmapDecoder,
+                BlurBitmapDecoder.BITMAP_OUTPUT
+            )
         )
         registry.prepend(
             Registry.BUCKET_BITMAP,
             InputStream::class.java,
             Bitmap::class.java,
-            BlurBitmapDecoder(bitmapPool, streamBitmapDecoder)
+            BlurBitmapDecoder(
+                decoderContext,
+                streamBitmapDecoder,
+                BlurBitmapDecoder.BITMAP_OUTPUT
+            )
+        )
+        // BitmapDrawables
+        registry.prepend(
+            Registry.BUCKET_BITMAP,
+            ByteBuffer::class.java,
+            BitmapDrawable::class.java,
+            BlurBitmapDecoder(
+                decoderContext,
+                byteBufferBitmapDecoder,
+                BlurBitmapDecoder.BITMAP_DRAWABLE_OUTPUT
+            )
+        )
+        registry.prepend(
+            Registry.BUCKET_BITMAP,
+            InputStream::class.java,
+            BitmapDrawable::class.java,
+            BlurBitmapDecoder(
+                decoderContext,
+                streamBitmapDecoder,
+                BlurBitmapDecoder.BITMAP_DRAWABLE_OUTPUT
+            )
         )
     }
 

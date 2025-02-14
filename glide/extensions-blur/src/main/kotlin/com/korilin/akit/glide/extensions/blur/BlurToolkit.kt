@@ -1,4 +1,4 @@
-package com.korilin.akit.glide.plugin.blur
+package com.korilin.akit.glide.extensions.blur
 
 import android.graphics.Bitmap
 import androidx.annotation.IntRange

@@ -93,10 +93,10 @@ dependencies {
 
     implementation(libs.androidx.runtime.tracing)
 
-    // project module
+    // project modules
     implementation(projects.glide.composeImage)
-    implementation(projects.glide.pluginNinepatch)
-    implementation(projects.glide.pluginBlur)
+    implementation(projects.glide.extensionsNinepatch)
+    implementation(projects.glide.extensionsBlur)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)

@@ -38,6 +38,6 @@ include(":benchmark")
 
 // glide
 include(":glide:compose-image")
-include(":glide:plugin-ninepatch")
-include(":glide:plugin-blur")
+include(":glide:extensions-ninepatch")
+include(":glide:extensions-blur")
 
