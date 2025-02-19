@@ -16,7 +16,7 @@ object Stores {
         R.drawable.image_1
     )
 
-    const val ninePatchUrl = "https://cdn-fusion.imgcdn.store/i/2024/8efa0f1c53dffcd6.png"
+    const val ninePatchUrl = "https://cdn-fusion.imgcdn.store/i/2025/ad8a31bc8d700523.png"
 
     val names = listOf(
         "Kotlin",

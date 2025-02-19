@@ -51,6 +51,7 @@ class NinePatchActivity : ComponentActivity() {
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
+                Text("======= Res =======")
 
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose",
@@ -75,7 +76,7 @@ class NinePatchActivity : ComponentActivity() {
                         .background2(model = R.drawable.nine_patch_2)
                 )
 
-                Text("===============")
+                Text("======= URL =======")
 
                 Text(
                     text = "Kotlin & Compose & Kotlin & Compose",
