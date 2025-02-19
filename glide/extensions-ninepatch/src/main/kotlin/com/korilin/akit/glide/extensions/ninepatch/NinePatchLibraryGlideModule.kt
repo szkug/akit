@@ -18,7 +18,6 @@ class NinePatchLibraryGlideModule : LibraryGlideModule() {
     override fun registerComponents(
         context: Context, glide: Glide, registry: Registry
     ) {
-        Log.d("LibraryGlideModule", "register NinePatchLibraryGlideModule")
         registry
             .prepend(
                 InputStream::class.java,

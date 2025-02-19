@@ -23,8 +23,6 @@ class BlurBitmapLibraryGlideModule : LibraryGlideModule() {
         context: Context, glide: Glide, registry: Registry
     ) {
 
-        Log.d("LibraryGlideModule", "register BlurBitmapLibraryGlideModule")
-
         val bitmapPool = glide.bitmapPool
         val arrayPool = glide.arrayPool
         val downsampler = Downsampler(
