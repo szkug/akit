@@ -1,6 +1,8 @@
 package com.korilin.samples.compose.trace.acts
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,19 +15,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.times
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +48,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.akit.compose.image.publics.GlideAsyncImage
+import com.korilin.samples.compose.trace.R
 
 class CompareActivity : ComponentActivity() {
 
@@ -51,10 +63,64 @@ class CompareActivity : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 20.dp)
+                    .verticalScroll(rememberScrollState())
+                ,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
+
+
+                Text("Long Width", modifier = Modifier.padding(top = 20.dp))
+                GlideAsyncImage(
+                    model = R.drawable.width_long,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .sizeIn(maxWidth = maxWidth.dp, maxHeight = maxHeight.dp)
+                        .background(Color.Green),
+                    contentScale = TestContentScale(LocalContext.current),
+                    alignment = Alignment.Center,
+                    contentDescription = null
+                )
+
+
+                Text("Long Height", modifier = Modifier.padding(top = 20.dp))
+                GlideAsyncImage(
+                    model = R.drawable.height_long,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .sizeIn(maxWidth = maxWidth.dp, maxHeight = maxHeight.dp)
+                        .background(Color.Green),
+                    contentScale = TestContentScale(LocalContext.current),
+                    alignment = Alignment.Center,
+                    contentDescription = null
+                )
+
+
+                Text("Long Height", modifier = Modifier.padding(top = 20.dp))
+                GlideAsyncImage(
+                    model = R.drawable.image_1,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .sizeIn(maxWidth = maxWidth.dp, maxHeight = maxHeight.dp)
+                        .background(Color.Green),
+                    contentScale = TestContentScale(LocalContext.current),
+                    alignment = Alignment.Center,
+                    contentDescription = null
+                )
+
+
+                Text("Same Width Height", modifier = Modifier.padding(top = 20.dp))
+                GlideAsyncImage(
+                    model = R.drawable.compose,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .background(Color.Green),
+                    contentScale = TestContentScale(LocalContext.current),
+                    alignment = Alignment.Center,
+                    contentDescription = null
+                )
+
 
 
 //                Text("Image", modifier = Modifier.padding(top = 20.dp))
@@ -245,13 +311,59 @@ fun Test() {
             })
 
 
-        Spacer(modifier = Modifier
-            .background(Color.Red)
-            .size(50.dp)
-            .constrainAs(spacer) {
-                linkTo(text.end, parent.end)
-            })
+        Spacer(
+            modifier = Modifier
+                .background(Color.Red)
+                .size(50.dp)
+                .constrainAs(spacer) {
+                    linkTo(text.end, parent.end)
+                })
 
     }
 
+}
+
+
+private val maxWidth = 240
+private val maxHeight = 192
+
+@Immutable
+class TestContentScale(val context: Context, val pinWidth: Int = 138, val pinHeight: Int = 158) : ContentScale {
+
+    private enum class WhoLong { Width, Height }
+
+    private fun computeConstraintFactor(srcSize: Size, dstSize: Size): ScaleFactor {
+
+        val who = if (srcSize.height >= srcSize.width) WhoLong.Height else WhoLong.Width
+
+        val density = context.resources.displayMetrics.density
+
+        // 约束的大小
+        val (contentScale, constraintSize) = when (who) {
+            // 横图的情况下，固定高度，按照高度缩放
+            WhoLong.Width -> ContentScale.FillHeight to Size(
+                dstSize.width,
+                pinHeight * density
+            )
+            // 竖图的情况下，固定宽度，按照宽度缩放
+            WhoLong.Height -> ContentScale.FillWidth to Size(
+                pinWidth * density,
+                dstSize.height
+            )
+        }
+
+        // 图片缩放比
+        val fitFactor = contentScale.computeScaleFactor(srcSize, constraintSize)
+
+        val result = srcSize * fitFactor
+
+        Log.d(
+            "TestContentScale",
+            "srcSize=$srcSize dstSize=$dstSize constraintSize=$constraintSize $fitFactor result=$result"
+        )
+        return fitFactor
+    }
+
+    override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
+        computeConstraintFactor(srcSize, dstSize)
 }

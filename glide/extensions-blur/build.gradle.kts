@@ -33,28 +33,6 @@ mavenPublishing {
     pom {
         name = "Akit Glide Blur Extension"
         description = "A Glide blur extension."
-        url.set("https://github.com/korilin/akit")
-
-        licenses {
-            license {
-                name = "The Apache License, Version 2.0"
-                url = "https://github.com/korilin/akit/blob/main/LICENSE"
-            }
-        }
-
-        developers {
-            developer {
-                id = "korilin"
-                name = "Kori"
-                email = "korilin.dev@gmail.com"
-            }
-        }
-
-        scm {
-            url.set("https://github.com/korilin/akit")
-            connection.set("scm:git:git://github.com/korilin/akit.git")
-            developerConnection.set("scm:git:ssh://git@github.com/korilin/akit.git")
-        }
     }
 }
 
