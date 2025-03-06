@@ -13,6 +13,7 @@ import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.load.resource.bitmap.DrawableTransformation
 import com.bumptech.glide.request.autoCloneEnabled
 import com.korilin.akit.compose.image.publics.AsyncImageContext
+import com.korilin.akit.fixed.LargeBitmapLimitTransformation
 
 internal fun RequestBuilder<Drawable>.setupTransforms(
     contentScale: ContentScale,
@@ -43,14 +44,14 @@ internal fun RequestBuilder<Drawable>.setupTransforms(
 private fun RequestBuilder<Drawable>.extendCenterCrop(extension: AsyncImageContext) =
     optionalTransforms(
         DownsampleStrategy.CENTER_OUTSIDE,
-        CenterCrop() + extension.bitmapTransformations.orEmpty(),
+        CenterCrop() + extension.bitmapTransformations.orEmpty() + LargeBitmapLimitTransformation,
         extension.drawableTransformations
     )
 
 private fun RequestBuilder<Drawable>.extendCenterInside(extension: AsyncImageContext) =
     optionalTransforms(
         DownsampleStrategy.CENTER_INSIDE,
-        CenterInside() + extension.bitmapTransformations.orEmpty(),
+        CenterInside() + extension.bitmapTransformations.orEmpty() + LargeBitmapLimitTransformation,
         extension.drawableTransformations
     )
 

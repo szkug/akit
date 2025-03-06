@@ -11,7 +11,3 @@ class App : Application() {
         super.onCreate()
     }
 }
-
-
-@GlideModule
-class GlideAppModuleImpl : AppGlideModule()

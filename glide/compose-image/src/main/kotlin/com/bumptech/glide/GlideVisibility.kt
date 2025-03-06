@@ -2,3 +2,5 @@
 package com.bumptech.glide
 
 val RequestBuilder<*>.manager: RequestManager get() = requestManager
+
+val Glide.visibleGlideContext get() = glideContext

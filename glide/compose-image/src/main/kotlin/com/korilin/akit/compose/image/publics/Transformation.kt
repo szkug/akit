@@ -15,13 +15,13 @@ import java.security.MessageDigest
 import kotlin.math.max
 
 
-interface ImageTranscoder<T> {
+interface ImageTransformation<T> {
     fun key(): String
-    fun transcode(context: Context, resource: T, width: Int, height: Int): T
+    fun transform(context: Context, resource: T, width: Int, height: Int): T
 }
 
 
-abstract class BitmapTranscoder : ImageTranscoder<Bitmap>, Transformation<Bitmap> {
+abstract class BitmapTransformation : ImageTransformation<Bitmap>, Transformation<Bitmap> {
     final override fun updateDiskCacheKey(messageDigest: MessageDigest) {
         messageDigest.update(key().toByteArray(CHARSET))
     }
@@ -45,13 +45,13 @@ abstract class BitmapTranscoder : ImageTranscoder<Bitmap>, Transformation<Bitmap
         val toTransform = resource.get()
         val targetWidth = if (outWidth == Target.SIZE_ORIGINAL) toTransform.width else outWidth
         val targetHeight = if (outHeight == Target.SIZE_ORIGINAL) toTransform.height else outHeight
-        val transformed: Bitmap = transcode(context, toTransform, targetWidth, targetHeight)
+        val transformed: Bitmap = transform(context, toTransform, targetWidth, targetHeight)
         return if (toTransform == transformed) resource
         else BitmapResource(transformed, bitmapPool)
     }
 }
 
-abstract class DrawableTranscoder : ImageTranscoder<Drawable>, Transformation<Drawable> {
+abstract class DrawableTransformation : ImageTransformation<Drawable>, Transformation<Drawable> {
 
     override fun updateDiskCacheKey(messageDigest: MessageDigest) {
         messageDigest.update(key().toByteArray(CHARSET))
@@ -78,7 +78,7 @@ abstract class DrawableTranscoder : ImageTranscoder<Drawable>, Transformation<Dr
             if (outWidth == Target.SIZE_ORIGINAL) toTransform.intrinsicWidth else outWidth
         val targetHeight =
             if (outHeight == Target.SIZE_ORIGINAL) toTransform.intrinsicHeight else outHeight
-        val transformed = transcode(context, toTransform, targetWidth, targetHeight)
+        val transformed = transform(context, toTransform, targetWidth, targetHeight)
 
         return if ((toTransform == transformed)) resource
         else NonOwnedDrawableResource(transformed)

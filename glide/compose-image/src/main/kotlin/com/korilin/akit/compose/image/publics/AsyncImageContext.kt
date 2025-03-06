@@ -23,8 +23,8 @@ open class AsyncImageContext(
     // val blurConfig: BlurConfig? = null,
 
     // transformations
-    val bitmapTransformations: List<BitmapTranscoder>? = null,
-    val drawableTransformations: List<DrawableTranscoder>? = null,
+    val bitmapTransformations: List<BitmapTransformation>? = null,
+    val drawableTransformations: List<DrawableTransformation>? = null,
 ) {
     companion object {
 
@@ -38,8 +38,8 @@ open class AsyncImageContext(
 fun rememberAsyncImageContext(
     enableLog: Boolean = false,
     ignoreImagePadding: Boolean = false,
-    bitmapTransformation: List<BitmapTranscoder>? = null,
-    drawableTransformation: List<DrawableTranscoder>? = null,
+    bitmapTransformation: List<BitmapTransformation>? = null,
+    drawableTransformation: List<DrawableTransformation>? = null,
     requestBuilder: (Context) -> RequestBuilder<Drawable> = AsyncImageContext.NormalGlideRequestBuilder,
 ): AsyncImageContext {
     val context = LocalContext.current

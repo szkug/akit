@@ -3,6 +3,7 @@ package com.korilin.akit.glide.extensions.ninepatch
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
+import android.util.Log
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
@@ -26,6 +27,7 @@ class NinePatchDrawableDecoder<Input : Any>(
         val bitmap = BitmapFactory.decodeStream(stream)
         val type = BitmapType.determineBitmapType(bitmap)
         val isNinepatch = type == BitmapType.NinePatch || type == BitmapType.RawNinePatch
+        Log.d("NinePatchDrawableDecoder", "handles isNinepatch=$isNinepatch")
         return isNinepatch
     }
 
