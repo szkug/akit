@@ -99,7 +99,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             contentDescription = null,
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
-            extension = rememberAsyncImageContext(
+            context = rememberAsyncImageContext(
                 requestBuilder = {
                     AsyncImageContext.NormalGlideRequestBuilder(it).skipMemoryCache(true)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)

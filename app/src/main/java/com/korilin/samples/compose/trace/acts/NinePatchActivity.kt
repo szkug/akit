@@ -35,13 +35,20 @@ class NinePatchActivity : ComponentActivity() {
         }
     )
 
+    @Composable
     private fun Modifier.background2(
         model: Any?,
         placeholder: Int? = null,
     ) = glideBackground(
-        model,
-        placeholder,
-        context = extension
+        model = model,
+        placeholder = placeholder,
+        context = rememberAsyncImageContext(
+            requestBuilder = {
+                Glide.with(it).asDrawable().skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .set(NinepatchEnableOption, true)
+            }
+        )
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,7 +129,6 @@ fun Preview() {
             .glideBackground(
                 model = R.drawable.nine_patch_2,
                 context = rememberAsyncImageContext(
-                    // drawableTransformation = listOf(NinePatchDrawableTranscoder),
                 )
             )
     )

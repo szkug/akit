@@ -18,10 +18,6 @@ open class AsyncImageContext(
     // internal support fields
     val ignoreImagePadding: Boolean = false,
 
-    // TODO support with module and options
-    // val ninePatchSupport: Boolean,
-    // val blurConfig: BlurConfig? = null,
-
     // transformations
     val bitmapTransformations: List<BitmapTransformation>? = null,
     val drawableTransformations: List<DrawableTransformation>? = null,
