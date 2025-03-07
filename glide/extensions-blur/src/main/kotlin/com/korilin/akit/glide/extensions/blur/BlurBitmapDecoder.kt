@@ -13,7 +13,7 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import com.bumptech.glide.load.resource.bitmap.LazyBitmapDrawableResource
 
-val BlurBitmapConfigOption = Option.memory<BlurConfig>(BlurBitmapDecoder::class.qualifiedName!!)
+val BlurBitmapConfigOption = Option.memory<BlurConfig?>(BlurBitmapDecoder::class.qualifiedName!!)
 
 data class BitmapDecoderContext(
     val context: Context,
