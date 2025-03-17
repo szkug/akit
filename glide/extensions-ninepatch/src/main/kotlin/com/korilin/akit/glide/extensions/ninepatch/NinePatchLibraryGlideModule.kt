@@ -15,9 +15,16 @@ import kotlin.math.min
 @GlideModule
 class NinePatchLibraryGlideModule : LibraryGlideModule() {
 
+    companion object {
+        var registerCount: Int = 0
+    }
+
     override fun registerComponents(
         context: Context, glide: Glide, registry: Registry
     ) {
+
+        registerCount++
+
         registry
             .prepend(
                 InputStream::class.java,

@@ -19,9 +19,15 @@ import java.nio.ByteBuffer
 @GlideModule
 class BlurBitmapLibraryGlideModule : LibraryGlideModule() {
 
+    companion object {
+        var registerCount: Int = 0
+    }
+
     override fun registerComponents(
         context: Context, glide: Glide, registry: Registry
     ) {
+
+        registerCount++
 
         val bitmapPool = glide.bitmapPool
         val arrayPool = glide.arrayPool

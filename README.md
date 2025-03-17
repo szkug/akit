@@ -124,3 +124,54 @@ class GlideAppModuleImpl : AppGlideModule() {
     }
 }
 ```
+
+### Fix your build problem
+
+If you use `extension-xxx` libraries and use an annotation processor such as kapt.
+The relevant LibraryGlideModules will usually be registered automatically.
+
+```kotlin
+dependencies {
+    kapt(libs.glide.compiler)
+    implementation("io.github.korilin.akit.glide:extension-blur:${lastVersion}")
+    implementation("io.github.korilin.akit.glide:extension-ninepatch:${lastVersion}")
+}
+```
+
+In some projects, annotation processor may not find these LibraryGlideModules. You can try the following solutions to solve this problem.
+
+Remove automatic Modules registration and call the `registerComponents` actively in GlideAppModuleImpl.
+
+```kotlin
+import com.bumptech.glide.annotation.Excludes
+
+@GlideModule
+@Excludes(value = [BlurBitmapLibraryGlideModule::class, NinePatchLibraryGlideModule::class])
+class GlideAppModuleImpl : AppGlideModule() {
+    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+
+        BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
+        NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
+    }
+}
+```
+
+If your project is compatible with a Java version, an error occurs when handing the `Excludes` annotation.
+Try determine whether the `registerComponents` should be called according to `registerCount`.
+
+```kotlin
+@GlideModule
+class GlideAppModuleImpl : AppGlideModule() {
+    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+        
+        // If registerCount is 0, it means that the Module isn't registered automatically.
+        if (BlurBitmapLibraryGlideModule.registerCount == 0) {
+            BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
+        }
+
+        if (NinePatchLibraryGlideModule.registerCount == 0) {
+            NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
+        }
+    }
+}
+```
