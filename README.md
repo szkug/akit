@@ -10,7 +10,7 @@ Load image for Compose base on Glide.
 
 ```kotlin
 
-val lastVersion = "1.0.2"
+val lastVersion = "1.0.5"
 
 dependencies {
     // Compose supports
