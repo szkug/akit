@@ -32,6 +32,7 @@ open class AsyncImageContext(
 
 @Composable
 fun rememberAsyncImageContext(
+    vararg keys: Any?,
     enableLog: Boolean = false,
     ignoreImagePadding: Boolean = false,
     bitmapTransformation: List<BitmapTransformation>? = null,
@@ -44,7 +45,8 @@ fun rememberAsyncImageContext(
         bitmapTransformation,
         drawableTransformation,
         ignoreImagePadding,
-        enableLog
+        enableLog,
+        *keys
     ) {
         AsyncImageContext(
             context = context,
