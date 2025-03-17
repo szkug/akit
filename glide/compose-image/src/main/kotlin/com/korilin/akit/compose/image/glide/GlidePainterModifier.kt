@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.trace
-import com.bumptech.glide.RequestBuilder
 import com.korilin.akit.compose.image.publics.AsyncImageContext
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -45,7 +44,7 @@ internal fun Modifier.glidePainterNode(
     contentScale: ContentScale,
     alpha: Float,
     colorFilter: ColorFilter?,
-    extension: AsyncImageContext,
+    context: AsyncImageContext,
 ): Modifier = clipToBounds()
     .semantics {
         if (contentDescription != null) {
@@ -60,7 +59,7 @@ internal fun Modifier.glidePainterNode(
     contentScale = contentScale,
     alpha = alpha,
     colorFilter = colorFilter,
-    extension = extension,
+    context = context,
 )
 
 private data class GlidePainterElement(
@@ -71,7 +70,7 @@ private data class GlidePainterElement(
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val extension: AsyncImageContext
+    val context: AsyncImageContext
 ) : ModifierNodeElement<GlidePainterNode>() {
 
     override fun create(): GlidePainterNode {
@@ -83,18 +82,16 @@ private data class GlidePainterElement(
             contentScale = contentScale,
             alpha = alpha,
             colorFilter = colorFilter,
-            extension = extension,
+            context = context,
         )
     }
 
     override fun update(node: GlidePainterNode) {
         node.alignment = alignment
-        node.contentScale = contentScale
         node.alpha = alpha
         node.colorFilter = colorFilter
-        node.extension = extension
 
-        node.update(requestModel, placeholderModel, failureModel, contentScale, extension)
+        node.update(requestModel, placeholderModel, failureModel, contentScale, context)
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -119,13 +116,13 @@ internal class GlidePainterNode(
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    extension: AsyncImageContext
+    context: AsyncImageContext
 ) : GlideRequestNode(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
     failureModel = failureModel,
     contentScale = contentScale,
-    extension = extension
+    context = context
 ), LayoutModifierNode, DrawModifierNode {
 
     override val shouldAutoInvalidate: Boolean
@@ -349,9 +346,9 @@ internal class GlidePainterNode(
         placeholderModel: PainterModel?,
         failureModel: ResModel?,
         contentScale: ContentScale,
-        extension: AsyncImageContext,
+        context: AsyncImageContext,
     ) {
-        super.update(requestModel, placeholderModel, failureModel, contentScale, extension)
+        super.update(requestModel, placeholderModel, failureModel, contentScale, context)
         invalidateMeasurement()
         invalidateDraw()
     }

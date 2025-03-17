@@ -46,7 +46,7 @@ internal fun Modifier.glideBackground(
     contentScale = contentScale,
     alpha = alpha,
     colorFilter = colorFilter,
-    extension = extension,
+    context = extension,
 )
 
 private data class GlideBackgroundElement(
@@ -56,7 +56,7 @@ private data class GlideBackgroundElement(
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val extension: AsyncImageContext
+    val context: AsyncImageContext
 ) : ModifierNodeElement<GlideBackgroundNode>() {
 
     override fun create(): GlideBackgroundNode {
@@ -67,18 +67,15 @@ private data class GlideBackgroundElement(
             contentScale = contentScale,
             alpha = alpha,
             colorFilter = colorFilter,
-            extension = extension,
+            context = context,
         )
     }
 
     override fun update(node: GlideBackgroundNode) {
         node.alignment = alignment
-        node.contentScale = contentScale
         node.alpha = alpha
         node.colorFilter = colorFilter
-        node.extension = extension
-
-        node.update(requestModel, placeholderModel, null, contentScale, extension)
+        node.update(requestModel, placeholderModel, null, contentScale, context)
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -101,13 +98,13 @@ private class GlideBackgroundNode(
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    extension: AsyncImageContext
+    context: AsyncImageContext
 ) : GlideRequestNode(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
     failureModel = null,
     contentScale = contentScale,
-    extension = extension
+    context = context
 ), LayoutModifierNode, DrawModifierNode {
 
     override fun onCollectResult(result: GlideLoadResult<Drawable>) {
@@ -115,7 +112,7 @@ private class GlideBackgroundNode(
         invalidateDraw()
     }
 
-    private fun drawPadding() = if (!extension.ignoreImagePadding) {
+    private fun drawPadding() = if (!context.ignoreImagePadding) {
         (painter as? HasPaddingPainter)?.padding ?: Rect()
     } else Rect()
 
@@ -209,9 +206,9 @@ private class GlideBackgroundNode(
         placeholderModel: PainterModel?,
         failureModel: ResModel?,
         contentScale: ContentScale,
-        extension: AsyncImageContext,
+        context: AsyncImageContext,
     ) {
-        super.update(requestModel, placeholderModel, failureModel, contentScale, extension)
+        super.update(requestModel, placeholderModel, failureModel, contentScale, context)
         if (!drawPadding().isEmpty) invalidateMeasurement()
         invalidateDraw()
     }

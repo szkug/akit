@@ -25,9 +25,13 @@ internal abstract class GlideRequestNode(
     private var requestModel: RequestModel,
     private var placeholderModel: PainterModel?,
     private var failureModel: ResModel?,
-    var contentScale: ContentScale,
-    var extension: AsyncImageContext,
+    context: AsyncImageContext,
+    contentScale: ContentScale,
 ) : Modifier.Node() {
+    var context: AsyncImageContext = context
+        private set
+    var contentScale: ContentScale = contentScale
+        private set
 
     // Shared extension functions
     protected fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.isFinite()
@@ -49,7 +53,7 @@ internal abstract class GlideRequestNode(
     }
 
     private inline fun log(subtag: String? = null, crossinline message: () -> String) {
-        if (extension.enableLog) GlideDefaults.logger.info(TRACE_SECTION_NAME) {
+        if (context.enableLog) GlideDefaults.logger.info(TRACE_SECTION_NAME) {
             if (subtag == null) message()
             else "[$subtag] ${message()}"
         }
@@ -104,7 +108,7 @@ internal abstract class GlideRequestNode(
 
     private fun RequestBuilder<Drawable>.requestFlow(requestModel: RequestModel): Flow<GlideLoadResult<Drawable>> {
         return when (val model = requestModel.model) {
-            is Int -> return flowOfId(extension.context, model)
+            is Int -> return flowOfId(context.context, model)
             is File -> load(model)
             is Uri -> load(model)
             is String -> load(model)
@@ -127,9 +131,9 @@ internal abstract class GlideRequestNode(
     }
 
     private suspend fun flowRequest(requestModel: RequestModel) {
-        extension.requestBuilder(extension.context)
+        context.requestBuilder(context.context)
             .setupSize()
-            .setupTransforms(contentScale, extension)
+            .setupTransforms(contentScale, context)
             .setupFailure()
             .requestFlow(requestModel)
             .collectLatest {
@@ -189,7 +193,7 @@ internal abstract class GlideRequestNode(
         placeholderModel: PainterModel?,
         failureModel: ResModel?,
         contentScale: ContentScale,
-        extension: AsyncImageContext,
+        context: AsyncImageContext,
     ) {
         var hasModify = false
         if (requestModel != this.requestModel) {
@@ -208,8 +212,8 @@ internal abstract class GlideRequestNode(
             this.contentScale = contentScale
             hasModify = true
         }
-        if (extension != this.extension) {
-            this.extension = extension
+        if (context != this.context) {
+            this.context = context
             hasModify = true
         }
         if (!hasModify) return
