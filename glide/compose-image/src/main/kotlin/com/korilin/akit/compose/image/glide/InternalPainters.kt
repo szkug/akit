@@ -130,16 +130,27 @@ internal class DrawablePainter(
         drawable.getPadding(padding)
     }
 
+    // Cache the intrinsic size to avoid repeated calculations
+    private val initialIntrinsicSize = drawable.intrinsicSize
+    
+    // Use a more efficient approach for invalidation tracking
     private var drawInvalidateTick by mutableIntStateOf(0)
-    private var drawableIntrinsicSize by mutableStateOf(drawable.intrinsicSize)
+    
+    // Only update intrinsic size when it actually changes
+    private var drawableIntrinsicSize by mutableStateOf(initialIntrinsicSize)
 
+    // Lazy initialize callback to avoid unnecessary object creation for static drawables
     private val callback: Drawable.Callback by lazy {
         object : Drawable.Callback {
             override fun invalidateDrawable(d: Drawable) {
                 // Update the tick so that we get re-drawn
                 drawInvalidateTick++
-                // Update our intrinsic size too
-                drawableIntrinsicSize = drawable.intrinsicSize
+                
+                // Only update intrinsic size if it has changed
+                val newSize = drawable.intrinsicSize
+                if (newSize != drawableIntrinsicSize) {
+                    drawableIntrinsicSize = newSize
+                }
             }
 
             override fun scheduleDrawable(d: Drawable, what: Runnable, time: Long) {
@@ -153,19 +164,28 @@ internal class DrawablePainter(
     }
 
     override fun startAnimation() {
-        drawable.callback = callback
-        drawable.setVisible(true, true)
-        if (drawable is Animatable) {
-           drawable.start()
+        // Only set callback if needed
+        if (drawable is Animatable || drawable.intrinsicWidth < 0 || drawable.intrinsicHeight < 0) {
+            drawable.callback = callback
+            drawable.setVisible(true, true)
+
+            if (drawable is Animatable) drawable.start()
         }
     }
 
     override fun stopAnimation() {
-        // Don't re-use memory instance if drawable is Webp animation
-        // https://github.com/bumptech/glide/issues/5176
-        if (drawable is Animatable) drawable.stop()
-        drawable.setVisible(false, false)
-        drawable.callback = null
+        // Only perform cleanup if we're actually animating
+        if (drawable is Animatable) {
+            // Don't re-use memory instance if drawable is Webp animation
+            // https://github.com/bumptech/glide/issues/5176
+            drawable.stop()
+        }
+        
+        // Clear callback to prevent memory leaks
+        if (drawable.callback != null) {
+            drawable.setVisible(false, false)
+            drawable.callback = null
+        }
     }
 
     override fun onRemembered() = startAnimation()
@@ -193,15 +213,20 @@ internal class DrawablePainter(
         )
     }
 
+    // Use cached value to avoid recalculation
     override val intrinsicSize: Size get() = drawableIntrinsicSize
 
     override fun DrawScope.onDraw() {
+        // Reading this ensures that we invalidate when invalidateDrawable() is called
+        drawInvalidateTick
+        
+        // Avoid creating new objects in the draw path
+        val width = size.width.roundToInt()
+        val height = size.height.roundToInt()
+        
         drawIntoCanvas { canvas ->
-            // Reading this ensures that we invalidate when invalidateDrawable() is called
-            drawInvalidateTick
-
             // Update the Drawable's bounds
-            drawable.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
+            drawable.setBounds(0, 0, width, height)
 
             canvas.withSave {
                 drawable.draw(canvas.nativeCanvas)
