@@ -14,13 +14,13 @@ val lastVersion = "1.0.5"
 
 dependencies {
     // Compose supports
-    implementation("io.github.korilin.akit.glide:compose-image:${lastVersion}")
+    implementation("cn.szkug.akit.glide:compose-image:${lastVersion}")
     
     // Blur decode libraryModule
-    implementation("io.github.korilin.akit.glide:extension-blur:${lastVersion}")
+    implementation("cn.szkug.akit.glide:extension-blur:${lastVersion}")
 
     // Ninepatch decode libraryModule
-    implementation("io.github.korilin.akit.glide:extension-ninepatch:${lastVersion}")
+    implementation("cn.szkug.akit.glide:extension-ninepatch:${lastVersion}")
 }
 ```
 
@@ -133,8 +133,8 @@ The relevant LibraryGlideModules will usually be registered automatically.
 ```kotlin
 dependencies {
     kapt(libs.glide.compiler)
-    implementation("io.github.korilin.akit.glide:extension-blur:${lastVersion}")
-    implementation("io.github.korilin.akit.glide:extension-ninepatch:${lastVersion}")
+    implementation("cn.szkug.akit.glide:extension-blur:${lastVersion}")
+    implementation("cn.szkug.akit.glide:extension-ninepatch:${lastVersion}")
 }
 ```
 
@@ -175,3 +175,16 @@ class GlideAppModuleImpl : AppGlideModule() {
     }
 }
 ```
+
+## Renderscript Toolkit
+
+Publish submodule [renderscript-intrinsics-replacement-toolkit](https://github.com/korilin/renderscript-intrinsics-replacement-toolkit) to maven central.
+
+```kotlin
+dependencies {
+    implementation("cn.szkug.akit:renderscript-toolkit:1.0.1")
+}
+```
+
+CHANGELOG:
+- 1.0.1: support 16KB page size
