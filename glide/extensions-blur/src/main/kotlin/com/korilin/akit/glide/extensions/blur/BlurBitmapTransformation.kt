@@ -1,6 +1,8 @@
 package com.korilin.akit.glide.extensions.blur
 
 import android.graphics.Bitmap
+import cn.szkug.renderscript.toolkit.BlurConfig
+import cn.szkug.renderscript.toolkit.BlurToolkit
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import java.security.MessageDigest

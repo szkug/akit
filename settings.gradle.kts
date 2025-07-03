@@ -40,4 +40,5 @@ include(":benchmark")
 include(":glide:compose-image")
 include(":glide:extensions-ninepatch")
 include(":glide:extensions-blur")
+include(":renderscript-toolkit-publish")
 

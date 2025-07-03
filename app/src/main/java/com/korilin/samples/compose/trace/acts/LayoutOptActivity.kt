@@ -11,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,13 +22,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -64,33 +71,70 @@ class LayoutOptActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
-
                 val scope = rememberCoroutineScope()
-                val state = rememberLazyListState()
 
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.weight(1f),
-                    state = state,
-                ) {
-                    items(100) {
-                        val color = when (it % 3) {
-                            1 -> Color.Green
-                            2 -> Color.Red
-                            else -> Color.Blue
-                        }
-                        Box(Modifier.height(100.dp).fillMaxWidth().background(color)) {
-                            Text("$it")
-                        }
-                    }
-                }
+                OptGrid()
 
                 Button(onClick = {
-                    scope.launch { state.animateScrollToItem(0) }
+                    data.value = data.value.take(9)
+                    // checkState.value = "A"
                 }) {
                     Text("Scroll to Top")
                 }
+            }
+        }
+    }
 
+    private val data = mutableStateOf(List(10) { "$it" })
+    private val checkState = mutableStateOf("")
+
+    @Composable
+    private fun ColumnScope.OptGrid() {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier
+                .padding(horizontal = 9.5.dp)
+                .fillMaxWidth()
+        ) {
+            items(data.value.size) {
+                Column {
+                    if (it > 3) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
+                    GridItem(data.value[it], checkState)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun GridItem(value: String, state: State<String>) {
+        Text(value + state.value)
+    }
+}
+
+@Composable
+private fun ColumnScope.OptList() {
+    val state = rememberLazyListState()
+
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.weight(1f),
+        state = state,
+    ) {
+        items(100) {
+            val color = when (it % 3) {
+                1 -> Color.Green
+                2 -> Color.Red
+                else -> Color.Blue
+            }
+            Box(
+                Modifier
+                    .height(100.dp)
+                    .fillMaxWidth()
+                    .background(color)
+            ) {
+                Text("$it")
             }
         }
     }

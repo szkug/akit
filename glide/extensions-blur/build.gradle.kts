@@ -6,18 +6,8 @@ plugins {
     kotlin("kapt")
 }
 
-val renderScriptDir = "../../submodules/renderscript-intrinsics-replacement-toolkit/renderscript-toolkit"
-val renderScriptSource = "$renderScriptDir/src/main"
-
 android {
-    namespace = "com.korilin.akit.glide.extensions.blur"
-
-    sourceSets["main"].apply {
-        java.srcDirs("$renderScriptSource/java")
-    }
-
-    defaultConfig.externalNativeBuild.cmake.cppFlags("-std=c++17")
-    externalNativeBuild.cmake.path = file("$renderScriptSource/cpp/CMakeLists.txt")
+    namespace = "cb.szkug.akit.glide.extensions.blur"
 }
 
 mavenPublishing {
@@ -42,6 +32,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     implementation(libs.glide.runtime)
+    api(projects.renderscriptToolkitPublish)
     compileOnly(libs.glide.annotations)
     kapt(libs.glide.compiler)
 
