@@ -29,12 +29,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
+import cn.szkug.renderscript.toolkit.BlurConfig
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.korilin.akit.compose.image.publics.AsyncImageContext
 import com.korilin.akit.compose.image.publics.GlideAsyncImage
 import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
 import com.korilin.akit.glide.extensions.blur.BlurBitmapConfigOption
-import com.korilin.akit.glide.extensions.blur.BlurConfig
 import com.korilin.samples.compose.trace.Stores
 
 
