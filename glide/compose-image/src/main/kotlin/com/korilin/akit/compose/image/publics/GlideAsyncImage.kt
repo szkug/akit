@@ -12,7 +12,8 @@ import androidx.compose.ui.util.trace
 import com.korilin.akit.compose.image.glide.GlideDefaults
 import com.korilin.akit.compose.image.glide.PainterModel
 import com.korilin.akit.compose.image.glide.RequestModel
-import com.korilin.akit.compose.image.glide.ResModel
+import com.korilin.akit.compose.image.glide.ResIdModel
+import com.korilin.akit.compose.image.glide.ResourceModel
 import com.korilin.akit.compose.image.glide.glidePainterNode
 
 /**
@@ -46,8 +47,8 @@ import com.korilin.akit.compose.image.glide.glidePainterNode
 @Composable
 fun GlideAsyncImage(
     model: Any?,
-    placeholder: Int? = null,
-    failureRes: Int? = null,
+    placeholder: PainterModel? = null,
+    failureRes: ResourceModel? = null,
     contentDescription: String?,
     modifier: Modifier,
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
@@ -61,8 +62,8 @@ fun GlideAsyncImage(
         modifier = modifier
             .glidePainterNode(
                 requestModel = RequestModel(model),
-                placeholderModel = PainterModel.fromId(placeholder, LocalContext.current),
-                failureModel = failureRes?.let { ResModel(it) },
+                placeholderModel = placeholder,
+                failureModel = failureRes,
                 contentDescription,
                 alignment,
                 contentScale,

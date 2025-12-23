@@ -24,7 +24,7 @@ private const val TRACE_SECTION_NAME = "GlideRequestNode"
 internal abstract class GlideRequestNode(
     private var requestModel: RequestModel,
     private var placeholderModel: PainterModel?,
-    private var failureModel: ResModel?,
+    private var failureModel: ResourceModel?,
     context: AsyncImageContext,
     contentScale: ContentScale,
 ) : Modifier.Node() {
@@ -118,8 +118,11 @@ internal abstract class GlideRequestNode(
 
     private fun <T> RequestBuilder<T>.setupFailure(): RequestBuilder<T> {
         return when (val model = failureModel) {
-            is ResModel -> error(model.resId)
-            else -> this
+            is ResIdModel -> error(model.resId)
+            is DrawableModel -> error(model.drawable)
+            is ComposeDrawableModel -> error(model.drawable)
+            is PainterModel -> this
+            null -> this
         }
     }
 
@@ -191,7 +194,7 @@ internal abstract class GlideRequestNode(
     open fun update(
         requestModel: RequestModel,
         placeholderModel: PainterModel?,
-        failureModel: ResModel?,
+        failureModel: ResourceModel?,
         contentScale: ContentScale,
         context: AsyncImageContext,
     ) {

@@ -38,7 +38,7 @@ import kotlin.math.roundToInt
 internal fun Modifier.glidePainterNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
-    failureModel: ResModel?,
+    failureModel: ResourceModel?,
     contentDescription: String?,
     alignment: Alignment,
     contentScale: ContentScale,
@@ -65,7 +65,7 @@ internal fun Modifier.glidePainterNode(
 private data class GlidePainterElement(
     val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
-    val failureModel: ResModel?,
+    val failureModel: ResourceModel?,
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
@@ -111,7 +111,7 @@ private const val TRACE_SECTION_NAME = "GlidePainterNode"
 internal class GlidePainterNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
-    failureModel: ResModel?,
+    failureModel: ResourceModel?,
     contentScale: ContentScale,
     var alignment: Alignment,
     var alpha: Float,
@@ -344,7 +344,7 @@ internal class GlidePainterNode(
     override fun update(
         requestModel: RequestModel,
         placeholderModel: PainterModel?,
-        failureModel: ResModel?,
+        failureModel: ResourceModel?,
         contentScale: ContentScale,
         context: AsyncImageContext,
     ) {

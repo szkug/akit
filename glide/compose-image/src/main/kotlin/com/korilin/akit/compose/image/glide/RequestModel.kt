@@ -1,14 +1,18 @@
 package com.korilin.akit.compose.image.glide
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.painter.Painter
+import org.jetbrains.compose.resources.DrawableResource
 
+
+sealed interface ResourceModel
 
 @JvmInline
 @Stable
-internal value class RequestModel(val model: Any?) {
+value class RequestModel(val model: Any?) {
     override fun toString(): String {
         return "GlideRequestModel($model)"
     }
@@ -16,7 +20,24 @@ internal value class RequestModel(val model: Any?) {
 
 @JvmInline
 @Stable
-internal value class ResModel(val resId: Int) {
+value class DrawableModel(val drawable: Drawable): ResourceModel {
+
+    override fun toString(): String {
+        return "DrawableModel($drawable)"
+    }
+}
+
+@JvmInline
+@Stable
+value class ComposeDrawableModel(val drawable: DrawableResource): ResourceModel {
+    override fun toString(): String {
+        return "DrawableModel($drawable)"
+    }
+}
+
+@JvmInline
+@Stable
+value class ResIdModel(val resId: Int): ResourceModel {
 
     override fun toString(): String {
         return "ResModel($resId)"
@@ -25,7 +46,7 @@ internal value class ResModel(val resId: Int) {
 
 @JvmInline
 @Stable
-internal value class PainterModel(val painter: Painter) {
+value class PainterModel(val painter: Painter): ResourceModel {
 
     override fun toString(): String {
         return "PainterModel($painter)"

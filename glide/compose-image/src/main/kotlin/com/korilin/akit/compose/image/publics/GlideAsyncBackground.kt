@@ -19,7 +19,7 @@ import com.korilin.akit.compose.image.glide.glideBackground
  */
 fun Modifier.glideBackground(
     model: Any?,
-    placeholder: Int? = null,
+    placeholder: PainterModel? = null,
     alignment: Alignment = GlideDefaults.DefaultAlignment,
     contentScale: ContentScale = GlideDefaults.DefaultContentScale,
     alpha: Float = GlideDefaults.DefaultAlpha,
@@ -28,7 +28,7 @@ fun Modifier.glideBackground(
 ): Modifier = composed {
     this.glideBackground(
         requestModel = RequestModel(model),
-        placeholderModel = PainterModel.fromId(placeholder, LocalContext.current),
+        placeholderModel = placeholder,
         alignment,
         contentScale,
         alpha,
