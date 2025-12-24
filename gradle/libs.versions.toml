@@ -2,7 +2,8 @@
 agp = "8.4.2"
 cloudy = "0.2.3"
 constraintlayoutCompose = "1.1.0"
-kotlin = "1.9.23"
+kotlin = "2.2.0"
+compose-mpp = "1.9.1"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 lifecycleRuntimeKtx = "2.7.0"
@@ -94,9 +95,12 @@ gradle-plugin-android = { group = "com.android.tools.build", name = "gradle", ve
 
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 android-test = { id = "com.android.test", version.ref = "agp" }
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-mpp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 project-alib = { id = "com.korilin.akit.alib" , version = "unspecified"}
 

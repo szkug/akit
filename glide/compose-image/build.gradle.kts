@@ -1,16 +1,51 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    alias(libs.plugins.project.alib)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.jetbrains.compose)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.project.alib)
+}
+
+kotlin {
+    androidTarget()
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.ui)
+        }
+        androidMain.dependencies {
+            implementation(libs.androidx.core.ktx)
+            implementation(libs.androidx.appcompat)
+            implementation(libs.bundles.glide)
+        }
+        iosMain.dependencies {
+            implementation(libs.coil.compose)
+        }
+    }
+
+    jvmToolchain(17)
 }
 
 android {
     namespace = "com.korilin.akit.glide.compose.image"
 
+    compileSdk = AndroidSdkVersions.COMPILE
+
+    defaultConfig {
+        minSdk = AndroidSdkVersions.MIN
+    }
+
     buildFeatures.compose = true
-    
-    composeOptions.kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 }
 
 mavenPublishing {
@@ -27,19 +62,4 @@ mavenPublishing {
         name = "Akit Glide Compose Image"
         description = "A Compose Image library base on Glide."
     }
-}
-
-dependencies {
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.compose.base)
-
-    implementation(libs.bundles.glide)
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
 }
