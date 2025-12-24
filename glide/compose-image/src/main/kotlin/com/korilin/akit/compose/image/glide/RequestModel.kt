@@ -3,8 +3,10 @@ package com.korilin.akit.compose.image.glide
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.DrawableResource
 
 
@@ -22,14 +24,6 @@ value class RequestModel(val model: Any?) {
 @Stable
 value class DrawableModel(val drawable: Drawable): ResourceModel {
 
-    override fun toString(): String {
-        return "DrawableModel($drawable)"
-    }
-}
-
-@JvmInline
-@Stable
-value class ComposeDrawableModel(val drawable: DrawableResource): ResourceModel {
     override fun toString(): String {
         return "DrawableModel($drawable)"
     }
@@ -55,6 +49,14 @@ value class PainterModel(val painter: Painter): ResourceModel {
     companion object {
         fun fromId(id: Int?, context: Context): PainterModel? {
             if (id == null) return null
+            val drawable = AppCompatResources.getDrawable(context, id) ?: return null
+            return PainterModel(drawable.toPainter())
+        }
+
+        @Composable
+        fun fromId(id: Int?): PainterModel? {
+            if (id == null) return null
+            val context = LocalContext.current
             val drawable = AppCompatResources.getDrawable(context, id) ?: return null
             return PainterModel(drawable.toPainter())
         }
