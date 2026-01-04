@@ -9,10 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.korilin.akit.compose.image.glide.PainterModel
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
 import com.korilin.akit.compose.image.publics.AsyncImageContext
@@ -41,7 +43,7 @@ class NinePatchActivity : ComponentActivity() {
         placeholder: Int? = null,
     ) = glideBackground(
         model = model,
-        placeholder = placeholder,
+        placeholder = PainterModel.fromId(placeholder),
         context = rememberAsyncImageContext(
             requestBuilder = {
                 Glide.with(it).asDrawable().skipMemoryCache(true)

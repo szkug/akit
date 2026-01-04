@@ -61,6 +61,7 @@ internal abstract class GlideRequestNode(
 
     protected val glideSize: ResolvableGlideSize = AsyncGlideSize()
 
+    private val caseFailurePainter get() = (failureModel as? PainterModel)?.painter
     private val placeablePainter get() = placeholderModel?.painter ?: EmptyPainter
 
     protected var painter = placeablePainter
@@ -120,7 +121,6 @@ internal abstract class GlideRequestNode(
         return when (val model = failureModel) {
             is ResIdModel -> error(model.resId)
             is DrawableModel -> error(model.drawable)
-            is ComposeDrawableModel -> error(model.drawable)
             is PainterModel -> this
             null -> this
         }
@@ -142,7 +142,7 @@ internal abstract class GlideRequestNode(
             .collectLatest {
                 log("startRequest") { "collectLatest $requestModel $it" }
                 val result = when (it) {
-                    is GlideLoadResult.Error -> it.drawable?.toPainter() ?: placeablePainter
+                    is GlideLoadResult.Error -> it.drawable?.toPainter() ?: caseFailurePainter ?: placeablePainter
                     is GlideLoadResult.Success -> it.drawable.toPainter()
                     is GlideLoadResult.Cleared -> placeablePainter
                 }
