@@ -36,7 +36,6 @@ dependencies {
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose.base)
-    implementation("org.jetbrains.compose.components:components-resources:1.8.2")
 
     implementation(libs.bundles.glide)
 
