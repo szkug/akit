@@ -204,7 +204,7 @@ private class GlideBackgroundNode(
     override fun update(
         requestModel: RequestModel,
         placeholderModel: PainterModel?,
-        failureModel: ResModel?,
+        failureModel: ResourceModel?,
         contentScale: ContentScale,
         context: AsyncImageContext,
     ) {
