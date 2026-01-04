@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.korilin.samples.compose.trace.benchmark"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 23
