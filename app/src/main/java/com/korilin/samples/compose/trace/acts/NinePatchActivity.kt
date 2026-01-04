@@ -19,6 +19,7 @@ import com.korilin.samples.compose.trace.Stores
 import com.korilin.akit.publics.glideBackground
 import com.korilin.akit.publics.rememberAsyncImageContext
 import com.korilin.akit.glide.extensions.ninepatch.NinepatchEnableOption
+import com.korilin.akit.publics.fromId
 import com.korilin.samples.compose.trace.sp
 
 class NinePatchActivity : ComponentActivity() {

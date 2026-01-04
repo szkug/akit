@@ -129,8 +129,7 @@ internal abstract class GlideRequestNode(
         return when (val model = failureModel) {
             is ResIdModel -> error(model.resId)
             is DrawableModel -> error(model.drawable)
-            is PainterModel -> this
-            null -> this
+            else -> this
         }
     }
 

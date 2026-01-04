@@ -2,6 +2,7 @@ package com.korilin.akit.publics
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.painter.Painter
+import kotlin.jvm.JvmInline
 
 interface ResourceModel
 
