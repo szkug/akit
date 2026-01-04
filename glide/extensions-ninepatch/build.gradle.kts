@@ -1,6 +1,7 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.project.alib)
     alias(libs.plugins.maven.publish)
     kotlin("kapt")

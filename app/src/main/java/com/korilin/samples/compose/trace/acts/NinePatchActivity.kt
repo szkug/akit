@@ -9,33 +9,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.korilin.akit.compose.image.glide.PainterModel
+import com.korilin.akit.publics.PainterModel
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.akit.compose.image.publics.AsyncImageContext
-import com.korilin.akit.compose.image.publics.glideBackground
-import com.korilin.akit.compose.image.publics.rememberAsyncImageContext
+import com.korilin.akit.publics.glideBackground
+import com.korilin.akit.publics.rememberAsyncImageContext
 import com.korilin.akit.glide.extensions.ninepatch.NinepatchEnableOption
 import com.korilin.samples.compose.trace.sp
 
 class NinePatchActivity : ComponentActivity() {
 
     private val url = Stores.ninePatchUrl
-    private val extension = AsyncImageContext(
-        this,
-        enableLog = true,
-        // drawableTransformations = listOf(NinePatchDrawableTranscoder),
-        requestBuilder = {
-            Glide.with(it).asDrawable().skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .set(NinepatchEnableOption, true)
-        }
-    )
 
     @Composable
     private fun Modifier.background2(

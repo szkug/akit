@@ -11,6 +11,5 @@ allprojects {
     }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
     }
 }

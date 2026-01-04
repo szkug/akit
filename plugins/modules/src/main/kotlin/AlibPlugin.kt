@@ -15,7 +15,6 @@ class AlibPlugin : Plugin<Project>  {
 
     private fun Project.configPlugin() = with(pluginManager) {
         apply("com.android.library")
-        apply("org.jetbrains.kotlin.android")
     }
 
     private fun Project.configExtension() = with(extensions) {
@@ -42,10 +41,6 @@ class AlibPlugin : Plugin<Project>  {
             sourceSets["main"].apply {
                 java.srcDirs("src/main/java", "src/main/kotlin")
             }
-        }
-
-        configure<KotlinAndroidProjectExtension> {
-            jvmToolchain(17)
         }
     }
 }
