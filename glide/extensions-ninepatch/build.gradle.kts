@@ -10,10 +10,6 @@ plugins {
 
 android {
     namespace = "com.korilin.akit.glide.extensions.ninepatch"
-
-    sourceSets["main"].apply {
-        java.srcDirs("../../submodules/NinePatchChunk/NinePatchChunk/Library/src/main/java")
-    }
 }
 
 mavenPublishing {
@@ -38,6 +34,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     implementation(libs.glide.runtime)
+    implementation(projects.akitNinepatch)
     compileOnly(libs.glide.annotations)
     kapt(libs.glide.compiler)
 

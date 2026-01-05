@@ -2,6 +2,8 @@ package com.korilin.akit.glide.extensions.ninepatch
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
 import com.bumptech.glide.load.Option
@@ -9,8 +11,9 @@ import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.SimpleResource
-import ua.anatolii.graphics.ninepatch.BitmapType
-import ua.anatolii.graphics.ninepatch.NinePatchChunk
+import cn.szkug.graphics.ninepatch.BitmapType
+import cn.szkug.graphics.ninepatch.NinePatchChunk
+import cn.szkug.graphics.ninepatch.create9PatchDrawable
 import java.io.InputStream
 
 val NinepatchEnableOption = Option.memory(NinePatchDrawableDecoder::class.qualifiedName!!, false)
@@ -39,7 +42,9 @@ class NinePatchDrawableDecoder<Input : Any>(
     ): Resource<Drawable> {
         val stream = toStream(source)
         val bitmap = BitmapFactory.decodeStream(stream)
-        return SimpleResource(NinePatchChunk.create9PatchDrawable(context, bitmap, null))
+            ?: return SimpleResource(ColorDrawable(0))
+        val drawable = NinePatchChunk.create9PatchDrawable(context, bitmap, null)
+            ?: BitmapDrawable(context.resources, bitmap)
+        return SimpleResource(drawable)
     }
 }
-

@@ -50,8 +50,8 @@ import coil3.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.akit.publics.GlideAsyncImage
-import com.korilin.akit.publics.glideBackground
+import cn.szkug.akit.publics.AkitAsyncImage
+import cn.szkug.akit.publics.akitAsyncBackground
 import com.korilin.samples.compose.trace.R
 
 class CompareActivity : ComponentActivity() {
@@ -76,7 +76,7 @@ class CompareActivity : ComponentActivity() {
 
 
                 Text("Long Width", modifier = Modifier.padding(top = 20.dp))
-                GlideAsyncImage(
+                AkitAsyncImage(
                     model = R.drawable.width_long,
                     modifier = Modifier
                         .wrapContentSize()
@@ -89,7 +89,7 @@ class CompareActivity : ComponentActivity() {
 
 
                 Text("Long Height", modifier = Modifier.padding(top = 20.dp))
-                GlideAsyncImage(
+                AkitAsyncImage(
                     model = R.drawable.height_long,
                     modifier = Modifier
                         .wrapContentSize()
@@ -102,7 +102,7 @@ class CompareActivity : ComponentActivity() {
 
 
                 Text("Long Height", modifier = Modifier.padding(top = 20.dp))
-                GlideAsyncImage(
+                AkitAsyncImage(
                     model = R.drawable.image_1,
                     modifier = Modifier
                         .wrapContentSize()
@@ -115,7 +115,7 @@ class CompareActivity : ComponentActivity() {
 
 
                 Text("Same Width Height", modifier = Modifier.padding(top = 20.dp))
-                GlideAsyncImage(
+                AkitAsyncImage(
                     model = R.drawable.compose,
                     modifier = Modifier
                         .wrapContentSize()
@@ -228,9 +228,9 @@ class CompareActivity : ComponentActivity() {
                 }
 
 
-                Text("GlideAsyncImage", modifier = Modifier.padding(top = 20.dp))
+                Text("AkitAsyncImage", modifier = Modifier.padding(top = 20.dp))
                 Row {
-                    GlideAsyncImage(
+                    AkitAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)
@@ -240,7 +240,7 @@ class CompareActivity : ComponentActivity() {
                         alignment = Alignment.CenterStart,
                         contentDescription = null
                     )
-                    GlideAsyncImage(
+                    AkitAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)
@@ -250,7 +250,7 @@ class CompareActivity : ComponentActivity() {
                         alignment = Alignment.CenterStart,
                         contentDescription = null
                     )
-                    GlideAsyncImage(
+                    AkitAsyncImage(
                         model = url,
                         modifier = Modifier
                             .height(50.dp)

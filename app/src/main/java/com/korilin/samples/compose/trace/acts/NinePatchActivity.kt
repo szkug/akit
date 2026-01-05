@@ -13,13 +13,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.korilin.akit.publics.PainterModel
+import cn.szkug.akit.publics.PainterModel
 import com.korilin.samples.compose.trace.R
 import com.korilin.samples.compose.trace.Stores
-import com.korilin.akit.publics.glideBackground
-import com.korilin.akit.publics.rememberAsyncImageContext
+import cn.szkug.akit.publics.akitAsyncBackground
+import cn.szkug.akit.publics.rememberAsyncImageContext
 import com.korilin.akit.glide.extensions.ninepatch.NinepatchEnableOption
-import com.korilin.akit.publics.fromId
+import cn.szkug.akit.publics.fromId
 import com.korilin.samples.compose.trace.sp
 
 class NinePatchActivity : ComponentActivity() {
@@ -30,7 +30,7 @@ class NinePatchActivity : ComponentActivity() {
     private fun Modifier.background2(
         model: Any?,
         placeholder: Int? = null,
-    ) = glideBackground(
+    ) = akitAsyncBackground(
         model = model,
         placeholder = PainterModel.fromId(placeholder),
         context = rememberAsyncImageContext(
@@ -117,7 +117,7 @@ fun Preview() {
         color = Color.White,
         fontSize = 8.dp.sp,
         modifier = Modifier
-            .glideBackground(
+            .akitAsyncBackground(
                 model = R.drawable.nine_patch_2,
                 context = rememberAsyncImageContext(
                 )

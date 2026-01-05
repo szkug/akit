@@ -31,11 +31,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.trace
 import cn.szkug.renderscript.toolkit.BlurConfig
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.korilin.akit.publics.AsyncImageContext
-import com.korilin.akit.publics.GlideAsyncImage
-import com.korilin.akit.publics.rememberAsyncImageContext
+import cn.szkug.akit.publics.AsyncImageContext
+import cn.szkug.akit.publics.AkitAsyncImage
+import cn.szkug.akit.publics.rememberAsyncImageContext
 import com.korilin.akit.glide.extensions.blur.BlurBitmapConfigOption
-import com.korilin.akit.publics.NormalGlideRequestBuilder
+import cn.szkug.akit.publics.NormalGlideRequestBuilder
 import com.korilin.samples.compose.trace.Stores
 
 
@@ -94,7 +94,7 @@ private fun RoomGridItem(info: RoomInfo) = trace("Compose:RoomGridItem") {
             .clip(RoundedCornerShape(12.dp))
     ) {
 
-        GlideAsyncImage(
+        AkitAsyncImage(
             modifier = Modifier.fillMaxSize(),
             model = info.cover,
             contentDescription = null,

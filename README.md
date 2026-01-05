@@ -14,7 +14,7 @@ val lastVersion = "1.0.5"
 
 dependencies {
     // Compose supports
-    implementation("cn.szkug.akit.glide:compose-image:${lastVersion}")
+    implementation("cn.szkug.akit.glide:akit-image:${lastVersion}")
     
     // Blur decode libraryModule
     implementation("cn.szkug.akit.glide:extension-blur:${lastVersion}")
@@ -24,13 +24,13 @@ dependencies {
 }
 ```
 
-### GlideAsyncImage Usage
+### AkitAsyncImage Usage
 
 For scenarios that display images from arbitrary resources, 
 such as networks, files or resource ids.
 
 ```kotlin
-GlideAsyncImage(
+AkitAsyncImage(
     modifier = Modifier.size(100.dp),
     model = model, // Any type supported by Glide
     contentDescription = null,
@@ -39,7 +39,7 @@ GlideAsyncImage(
 )
 ```
 
-### GlideBackground Usage
+### AkitAsyncBackground Usage
 
 For loading images as background.
 
@@ -51,7 +51,7 @@ Text(
     contentScale = ContentScale.Crop,
     alignment = Alignment.Center,
     modifier = Modifier
-        .glideBackground(
+        .akitAsyncBackground(
             model = model, // Any type supported by Glide
             placeholder = placeholder,
             context = rememberAsyncImageContext(
@@ -93,7 +93,7 @@ rememberAsyncImageContext(
             // Need to import extension-blur to use BlurBitmapConfigOption
             .set(BlurBitmapConfigOption, BlurConfig(15))
             
-            // If use glideBackground to load as the background,
+            // If use akitAsyncBackground to load as the background,
             // Import extension-ninepatch library to use NinepatchEnableOption,
             // to enable ninepatch loading support
             .set(NinepatchEnableOption, true)

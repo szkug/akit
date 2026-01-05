@@ -37,8 +37,8 @@ include(":app")
 include(":benchmark")
 
 // glide
-include(":glide:compose-image")
+include(":akit-image")
+include(":akit-ninepatch")
 include(":glide:extensions-ninepatch")
 include(":glide:extensions-blur")
 include(":renderscript-toolkit-publish")
-
