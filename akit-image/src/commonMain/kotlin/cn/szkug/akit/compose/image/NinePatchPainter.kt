@@ -2,6 +2,10 @@ package cn.szkug.akit.compose.image
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
@@ -130,6 +134,21 @@ internal class NinePatchPainter(
         }
         lengths[segments.lastIndex] += destLength - used
         return lengths
+    }
+}
+
+private fun DrawScope.drawImageRect(
+    image: ImageBitmap,
+    src: IntRect,
+    dst: IntRect,
+) {
+    val srcOffset = IntOffset(src.left, src.top)
+    val srcSize = IntSize(src.width, src.height)
+    val dstOffset = IntOffset(dst.left, dst.top)
+    val dstSize = IntSize(dst.width, dst.height)
+    val paint = Paint()
+    drawIntoCanvas { canvas ->
+        canvas.drawImageRect(image, srcOffset, srcSize, dstOffset, dstSize, paint)
     }
 }
 

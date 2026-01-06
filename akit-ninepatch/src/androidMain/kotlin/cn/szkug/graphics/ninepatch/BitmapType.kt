@@ -64,7 +64,7 @@ enum class BitmapType {
 
     internal open fun modifyBitmap(resources: Resources, bitmap: Bitmap, chunk: NinePatchChunk): Bitmap = bitmap
 
-    internal open fun createNinePatchDrawable(
+    public open fun createNinePatchDrawable(
         resources: Resources,
         bitmap: Bitmap?,
         srcName: String?

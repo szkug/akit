@@ -1,6 +1,7 @@
 package cn.szkug.akit.compose.image
 
 import androidx.compose.runtime.Stable
+import kotlin.jvm.JvmInline
 
 @JvmInline
 @Stable
