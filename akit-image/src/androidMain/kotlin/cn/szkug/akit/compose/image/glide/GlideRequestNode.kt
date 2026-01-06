@@ -13,10 +13,12 @@ import androidx.compose.ui.unit.Constraints
 import cn.szkug.akit.compose.image.AsyncRequestNode
 import cn.szkug.akit.compose.image.RequestModel
 import cn.szkug.akit.publics.AndroidAsyncImageContextData
+import cn.szkug.akit.publics.AnimatablePainter
 import cn.szkug.akit.publics.AsyncImageContext
 import cn.szkug.akit.publics.PainterModel
 import cn.szkug.akit.publics.ResIdModel
 import cn.szkug.akit.publics.ResourceModel
+import cn.szkug.akit.publics.toPainter
 import cn.szkug.graphics.ninepatch.BitmapType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

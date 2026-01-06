@@ -36,15 +36,18 @@ class CmpResourcesPlugin : Plugin<Project> {
         }
 
         pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
-            val kotlin = extensions.getByType<KotlinMultiplatformExtension>()
-            kotlin.sourceSets.named("commonMain") {
-                kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("commonMain") })
-            }
-            kotlin.sourceSets.named("androidMain") {
-                kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("androidMain") })
-            }
-            kotlin.sourceSets.matching { it.name == "iosMain" }.configureEach {
-                kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("iosMain") })
+            with(extensions.getByType<KotlinMultiplatformExtension>()) {
+                sourceSets.commonMain {
+                    kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("commonMain") })
+                }
+
+                sourceSets.androidMain {
+                    kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("androidMain") })
+                }
+
+                sourceSets.iosMain {
+                    kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("iosMain") })
+                }
             }
 
             tasks.withType(KotlinCompilationTask::class.java).configureEach {

@@ -1,4 +1,4 @@
-package cn.szkug.akit.compose.image.glide
+package cn.szkug.akit.publics
 
 import android.graphics.Rect
 import android.graphics.drawable.Animatable
@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.NinePatchDrawable
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
@@ -44,19 +45,19 @@ private val Drawable.intrinsicSize: Size
         else -> Size.Unspecified
     }
 
-internal fun Drawable.toPainter(): Painter = when (this) {
+fun Drawable.toPainter(): Painter = when (this) {
     is BitmapDrawable -> BitmapPainter(bitmap.asImageBitmap())
     is ColorDrawable -> ColorPainter(Color(color))
     is NinePatchDrawable -> AndroidNinePatchPainter(mutate())
     else -> DrawablePainter(mutate())
 }
 
-internal interface AnimatablePainter {
+interface AnimatablePainter {
     fun startAnimation()
     fun stopAnimation()
 }
 
-internal class AndroidNinePatchPainter(
+class AndroidNinePatchPainter(
     private val drawable: Drawable
 ) : HasPaddingPainter() {
 
@@ -107,7 +108,7 @@ internal class AndroidNinePatchPainter(
     }
 }
 
-internal class DrawablePainter(
+class DrawablePainter(
     private val drawable: Drawable
 ) : HasPaddingPainter(), RememberObserver, AnimatablePainter {
 

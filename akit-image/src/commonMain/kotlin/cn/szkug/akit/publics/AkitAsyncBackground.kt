@@ -3,6 +3,7 @@ package cn.szkug.akit.publics
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 
 /**
@@ -10,7 +11,8 @@ import androidx.compose.ui.layout.ContentScale
  */
 fun Modifier.akitAsyncBackground(
     model: Any?,
-    placeholder: PainterModel? = null,
+    placeholder: PainterModel? = if (model is PainterModel) model
+    else if (model is Painter) PainterModel(model) else null,
     alignment: Alignment = AsyncImageDefaults.DefaultAlignment,
     contentScale: ContentScale = AsyncImageDefaults.DefaultContentScale,
     alpha: Float = AsyncImageDefaults.DefaultAlpha,

@@ -31,21 +31,21 @@ fun AkitImageDemoScreen(
         DemoTextCard(
             text = Res.strings.sample_short(),
             modifier = Modifier
-                .paint(Res.drawable.nine_patch_2(), contentScale = ContentScale.FillBounds)
+                .akitAsyncBackground(Res.drawable.nine_patch_2(), contentScale = ContentScale.FillBounds)
                 .padding(8.dp),
         )
 
         DemoTextCard(
             text = Res.strings.sample_medium(),
             modifier = Modifier
-                .paint(Res.drawable.nine_patch_2(), contentScale = ContentScale.FillBounds)
+                .akitAsyncBackground(Res.drawable.nine_patch_2(), contentScale = ContentScale.FillBounds)
                 .padding(8.dp),
         )
 
         DemoTextCard(
             text = Res.strings.sample_long(),
             modifier = Modifier
-                .paint(Res.drawable.nine_patch_2(), contentScale = ContentScale.FillBounds)
+                .akitAsyncBackground(Res.drawable.nine_patch_2(), contentScale = ContentScale.FillBounds)
                 .padding(8.dp),
         )
 

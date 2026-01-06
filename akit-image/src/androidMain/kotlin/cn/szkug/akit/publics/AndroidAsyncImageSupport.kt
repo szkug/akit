@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
-import cn.szkug.akit.compose.image.glide.toPainter
 
 internal data class AndroidAsyncImageContextData(
     val context: Context,

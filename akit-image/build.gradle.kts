@@ -25,6 +25,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
+            api(libs.androidx.appcompat.resources)
             implementation(libs.bundles.glide)
         }
         iosMain.dependencies {
