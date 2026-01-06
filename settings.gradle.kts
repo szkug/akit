@@ -33,7 +33,9 @@ rootProject.name = "akit"
 includeBuild("plugins")
 
 // apps
-include(":app")
+include(":apps:android")
+include(":apps:cmp")
+include(":apps:ios")
 include(":benchmark")
 
 // glide

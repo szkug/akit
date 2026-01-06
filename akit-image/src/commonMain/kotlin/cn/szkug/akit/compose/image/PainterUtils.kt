@@ -4,7 +4,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 
-internal data class ImagePadding(
+data class ImagePadding(
     val left: Int = 0,
     val top: Int = 0,
     val right: Int = 0,
@@ -15,7 +15,7 @@ internal data class ImagePadding(
     val isEmpty: Boolean get() = left == 0 && top == 0 && right == 0 && bottom == 0
 }
 
-internal abstract class HasPaddingPainter : Painter() {
+abstract class HasPaddingPainter : Painter() {
     abstract val padding: ImagePadding
 }
 

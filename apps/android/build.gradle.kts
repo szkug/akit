@@ -96,6 +96,7 @@ dependencies {
     implementation(projects.akitImage)
     implementation(projects.glide.extensionsNinepatch)
     implementation(projects.glide.extensionsBlur)
+    implementation(projects.apps.cmp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)

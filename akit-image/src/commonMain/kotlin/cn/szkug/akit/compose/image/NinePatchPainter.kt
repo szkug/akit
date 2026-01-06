@@ -15,7 +15,7 @@ import cn.szkug.graphics.ninepatch.NinePatchChunk
 import cn.szkug.graphics.ninepatch.NinePatchImage
 import kotlin.math.roundToInt
 
-internal class NinePatchPainter(
+class NinePatchPainter(
     private val image: ImageBitmap,
     private val chunk: NinePatchChunk
 ) : HasPaddingPainter() {
@@ -152,7 +152,7 @@ private fun DrawScope.drawImageRect(
     }
 }
 
-internal class ImageBitmapNinePatchImage(
+class ImageBitmapNinePatchImage(
     private val image: ImageBitmap
 ) : NinePatchImage {
 
