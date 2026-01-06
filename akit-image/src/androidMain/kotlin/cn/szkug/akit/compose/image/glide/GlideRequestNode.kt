@@ -139,8 +139,8 @@ internal abstract class GlideRequestNode(
             else -> downloadFile(context, model) ?: return null
         }
 
-        if (isNinePatchCandidate(file)) {
-            val bitmap = decodeBitmap(file) ?: return null
+        val bitmap = decodeBitmap(file)
+        if (bitmap != null) {
             val type = BitmapType.determineBitmapType(bitmap)
             if (type == BitmapType.RawNinePatch || type == BitmapType.NinePatch) {
                 return type.createNinePatchDrawable(context.resources, bitmap, file.name)
@@ -148,7 +148,7 @@ internal abstract class GlideRequestNode(
             }
         }
 
-        return loadDrawableFromFile(context, file, size) ?: decodeBitmap(file)?.let {
+        return loadDrawableFromFile(context, file, size) ?: bitmap?.let {
             BitmapDrawable(context.resources, it)
         }
     }
@@ -189,10 +189,6 @@ internal abstract class GlideRequestNode(
         }
     }
 
-    private fun isNinePatchCandidate(file: File): Boolean {
-        val name = file.name.lowercase()
-        return name.endsWith(".9.png") || name.endsWith(".9.webp")
-    }
 
     private fun decodeBitmap(file: File): android.graphics.Bitmap? {
         val options = BitmapFactory.Options().apply {
