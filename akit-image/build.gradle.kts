@@ -37,7 +37,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.glide.compose.image"
+    namespace = "cn.szkug.akit.compose.image"
 
     compileSdk = AndroidSdkVersions.COMPILE
 
@@ -53,7 +53,7 @@ android {
 mavenPublishing {
 
     val version = properties["publish.version"] as String
-    val group = properties["publish.group"] as String + ".glide"
+    val group = properties["publish.group"] as String
 
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()

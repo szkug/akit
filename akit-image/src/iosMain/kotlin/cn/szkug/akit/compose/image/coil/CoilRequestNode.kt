@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import cn.szkug.akit.compose.image.AsyncRequestNode
 import cn.szkug.akit.compose.image.ImageBitmapNinePatchImage
 import cn.szkug.akit.compose.image.NinePatchPainter
@@ -25,6 +27,7 @@ import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -152,19 +155,11 @@ internal abstract class CoilRequestNode(
         )
         val canvas = Canvas(out)
         val paint = Paint()
-        val src = androidx.compose.ui.geometry.Rect(
-            left = 1f,
-            top = 1f,
-            right = (image.width - 1).toFloat(),
-            bottom = (image.height - 1).toFloat(),
-        )
-        val dst = androidx.compose.ui.geometry.Rect(
-            left = 0f,
-            top = 0f,
-            right = contentWidth.toFloat(),
-            bottom = contentHeight.toFloat(),
-        )
-        canvas.drawImageRect(image, src, dst, paint)
+        val srcOffset = IntOffset(1, 1)
+        val srcSize = IntSize(contentWidth, contentHeight)
+        val dstOffset = IntOffset(0, 0)
+        val dstSize = IntSize(contentWidth, contentHeight)
+        canvas.drawImageRect(image, srcOffset, srcSize, dstOffset, dstSize, paint)
         return out
     }
 

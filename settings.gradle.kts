@@ -35,7 +35,6 @@ includeBuild("plugins")
 // apps
 include(":apps:android")
 include(":apps:cmp")
-include(":apps:ios")
 include(":benchmark")
 
 // glide

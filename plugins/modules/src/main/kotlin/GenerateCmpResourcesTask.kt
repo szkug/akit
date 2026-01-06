@@ -223,6 +223,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
     ) {
         val file = outputDir.resolve("Res.ios.kt")
         file.writeText(buildString {
+            appendLine("@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)")
             appendLine("package $packageName")
             appendLine()
             appendLine("import androidx.compose.runtime.Composable")
@@ -231,7 +232,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import androidx.compose.ui.graphics.Color")
             appendLine("import androidx.compose.ui.graphics.ImageBitmap")
             appendLine("import androidx.compose.ui.graphics.Paint")
-            appendLine("import androidx.compose.ui.graphics.asImageBitmap")
+            appendLine("import androidx.compose.ui.graphics.toComposeImageBitmap")
             appendLine("import androidx.compose.ui.graphics.painter.BitmapPainter")
             appendLine("import androidx.compose.ui.graphics.painter.ColorPainter")
             appendLine("import androidx.compose.ui.graphics.painter.Painter")
@@ -306,7 +307,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("    val bytes = data.toByteArray()")
             appendLine("    if (bytes.isEmpty()) return null")
             appendLine("    val image = Image.makeFromEncoded(bytes)")
-            appendLine("    return image.asImageBitmap()")
+            appendLine("    return image.toComposeImageBitmap()")
             appendLine("}")
             appendLine()
             appendLine("private fun NSData.toByteArray(): ByteArray {")
