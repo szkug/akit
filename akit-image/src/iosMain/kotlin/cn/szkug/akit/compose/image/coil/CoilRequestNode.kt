@@ -93,30 +93,17 @@ internal abstract class CoilRequestNode(
     override fun flowRequest(requestModel: RequestModel): Flow<CoilLoadResult<IosCachedImage>> = flow {
         val model = requestModel.model ?: return@flow emit(CoilLoadResult.Cleared(Unit))
 
-        val size = coilSize.awaitSize()
-        val cacheKey = buildCacheKey(model, size)
-        val cache = iosData.memoryCache
-
-        val cached = cache.get(cacheKey)
-        if (cached != null) {
-            emit(CoilLoadResult.Success(cached))
-            return@flow
-        }
+        coilSize.awaitSize()
 
         val image = withContext(Dispatchers.IO) {
             loadImage(iosData.platformContext, iosData.imageLoader, model)
         }
 
         if (image != null) {
-            cache.put(cacheKey, image)
             emit(CoilLoadResult.Success(image))
         } else {
             emit(CoilLoadResult.Error(null))
         }
-    }
-
-    private fun buildCacheKey(model: Any, size: CoilSize): String {
-        return "${model}|${size.width}x${size.height}|$contentScale"
     }
 
     private suspend fun loadImage(

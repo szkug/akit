@@ -113,35 +113,16 @@ internal abstract class GlideRequestNode(
         val model = requestModel.model ?: return@flow emit(GlideLoadResult.Cleared(null))
 
         val size = glideSize.awaitSize()
-        val cacheKey = buildCacheKey(model, size)
-        val cache = AndroidImageMemoryCache.get(androidData.context)
-
-        val cached = cache.get(cacheKey)
-        if (cached != null) {
-            emit(GlideLoadResult.Success(cached))
-            return@flow
-        }
 
         val drawable = withContext(Dispatchers.IO) {
             loadDrawableForModel(androidData.context, model, size)
         }
 
         if (drawable != null) {
-            cache.put(cacheKey, drawable)
             emit(GlideLoadResult.Success(drawable))
         } else {
             emit(GlideLoadResult.Error(null))
         }
-    }
-
-    private fun buildCacheKey(model: Any, size: GlideSize): String {
-        val modelKey = when (model) {
-            is Int -> "res:$model"
-            is File -> "file:${model.absolutePath}"
-            is Uri -> "uri:$model"
-            else -> model.toString()
-        }
-        return "$modelKey|${size.width}x${size.height}|$contentScale"
     }
 
     private fun loadDrawableForModel(
