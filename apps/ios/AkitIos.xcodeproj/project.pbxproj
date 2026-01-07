@@ -3,16 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		36C9203109584247B1E23813 /* AkitIosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B7137BC5F68439E90C6727B /* AkitIosApp.swift */; };
-		AC8CD8FC98BC49768C702F5F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C2BECF9F70D4CE9B385A966 /* ContentView.swift */; };
-		411147D1DF5D46DC86727AD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BAC207B554DF4714993C9D4E /* Assets.xcassets */; };
-		8D6D0AB89FCF4DE5AF5645FA /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = E256D0671B464D21A6C996B0 /* Resources */; };
 		40FC87590FAD481DB064DA6F /* AkitCmp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9CD2D746C93405CB9D9F08D /* AkitCmp.framework */; };
+		411147D1DF5D46DC86727AD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BAC207B554DF4714993C9D4E /* Assets.xcassets */; };
 		752633569E1146DEA88CBF78 /* AkitCmp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C9CD2D746C93405CB9D9F08D /* AkitCmp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AC8CD8FC98BC49768C702F5F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C2BECF9F70D4CE9B385A966 /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,14 +29,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C5D1AD4CA96A49108D8CDED8 /* AkitIos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AkitIos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B7137BC5F68439E90C6727B /* AkitIosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AkitIosApp.swift; sourceTree = "<group>"; };
 		5C2BECF9F70D4CE9B385A966 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BAC207B554DF4714993C9D4E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F174E0DC25CB46ADA97B47AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E256D0671B464D21A6C996B0 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
+		C5D1AD4CA96A49108D8CDED8 /* AkitIos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AkitIos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9CD2D746C93405CB9D9F08D /* AkitCmp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AkitCmp.framework; path = "../cmp/build/xcode-frameworks/AkitCmp.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		68C1B1932F0E7E6E0092B7C5 /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resources; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		92DC08F5D7324B8BB3A0F19E /* Frameworks */ = {
@@ -51,14 +52,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A7546A80DFF340DD9B5D0B5B = {
+		3915E6F233E246E3A4E93D8A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5A500AF1217948ECB87947C2 /* AkitIos */,
-				B8E1BA24CFF543DFB32B7AEA /* Resources */,
-				5C7FBC85B1814EAC85771512 /* Frameworks */,
-				3915E6F233E246E3A4E93D8A /* Products */,
+				C5D1AD4CA96A49108D8CDED8 /* AkitIos.app */,
 			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		5A500AF1217948ECB87947C2 /* AkitIos */ = {
@@ -71,15 +70,6 @@
 			path = AkitIos;
 			sourceTree = "<group>";
 		};
-		B8E1BA24CFF543DFB32B7AEA /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				E256D0671B464D21A6C996B0 /* Resources */,
-				F174E0DC25CB46ADA97B47AB /* Info.plist */,
-			);
-			path = "";
-			sourceTree = "<group>";
-		};
 		5C7FBC85B1814EAC85771512 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -88,12 +78,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3915E6F233E246E3A4E93D8A /* Products */ = {
+		A7546A80DFF340DD9B5D0B5B = {
 			isa = PBXGroup;
 			children = (
-				C5D1AD4CA96A49108D8CDED8 /* AkitIos.app */,
+				68C1B1932F0E7E6E0092B7C5 /* Resources */,
+				5A500AF1217948ECB87947C2 /* AkitIos */,
+				5C7FBC85B1814EAC85771512 /* Frameworks */,
+				3915E6F233E246E3A4E93D8A /* Products */,
 			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +104,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				68C1B1932F0E7E6E0092B7C5 /* Resources */,
 			);
 			name = AkitIos;
 			productName = AkitIos;
@@ -157,7 +152,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				411147D1DF5D46DC86727AD8 /* Assets.xcassets in Resources */,
-				8D6D0AB89FCF4DE5AF5645FA /* Resources in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,19 +187,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		B8E1051FE7E446648B16E7AF /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				SDKROOT = iphoneos;
-			};
-			name = Debug;
-		};
 		24B8F5FEF86548ABB507EDAF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -224,8 +205,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -239,8 +221,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.szkug.akit.ios";
-				PRODUCT_NAME = "AkitIos";
+				PRODUCT_BUNDLE_IDENTIFIER = con.szkug.akit.ios;
+				PRODUCT_NAME = AkitIos;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -251,8 +234,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -266,30 +250,44 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "cn.szkug.akit.ios";
-				PRODUCT_NAME = "AkitIos";
+				PRODUCT_BUNDLE_IDENTIFIER = con.szkug.akit.ios;
+				PRODUCT_NAME = AkitIos;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
+		B8E1051FE7E446648B16E7AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D73103A1B1264AF5A2C39ED1 /* Build configuration list for PBXProject "AkitIos" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B8E1051FE7E446648B16E7AF /* Debug */,
-				24B8F5FEF86548ABB507EDAF /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		4ACC0348A2F4427A8751DAFD /* Build configuration list for PBXNativeTarget "AkitIos" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				24BFA29AB3874A8392A1B4D7 /* Debug */,
 				71B12F2DA6224DA391C97F53 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D73103A1B1264AF5A2C39ED1 /* Build configuration list for PBXProject "AkitIos" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B8E1051FE7E446648B16E7AF /* Debug */,
+				24B8F5FEF86548ABB507EDAF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
