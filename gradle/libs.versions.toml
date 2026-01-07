@@ -56,6 +56,8 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
+
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 # glide
@@ -70,7 +72,7 @@ glide-compose = { group = "com.github.bumptech.glide", name = "compose", version
 accompanist-drawablepainter = { group = "com.google.accompanist", name = "accompanist-drawablepainter", version.ref = "accompanist" }
 
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
-coil3 = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
+coil-coil3 = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
@@ -104,6 +106,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-kmp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 
 project-alib = { id = "com.korilin.akit.alib" , version = "unspecified"}
 

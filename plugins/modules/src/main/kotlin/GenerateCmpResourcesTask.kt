@@ -37,6 +37,9 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
     @get:Input
     abstract val iosResourcesPrefix: Property<String>
 
+    @get:Input
+    abstract val iosFrameworkName: Property<String>
+
     @TaskAction
     fun generate() {
         val resRoot = resDir.get().asFile
@@ -57,10 +60,11 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val pkg = packageName.get()
         val androidPkg = androidNamespace.get().ifBlank { pkg }
         val iosPrefix = iosResourcesPrefix.get()
+        val iosFrameworkName = iosFrameworkName.get()
 
         writeCommonRes(commonDir, pkg, strings, drawables)
         writeAndroidRes(androidDir, pkg, androidPkg, strings, drawables)
-        writeIosRes(iosDir, pkg, iosPrefix, strings, drawables)
+        writeIosRes(iosDir, pkg, iosPrefix, iosFrameworkName, strings, drawables)
     }
 
     private fun parseStrings(stringsFile: File): List<StringResource> {
@@ -218,6 +222,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         outputDir: File,
         packageName: String,
         iosPrefix: String,
+        iosFrameworkName: String,
         strings: List<StringResource>,
         drawables: List<DrawableResource>,
     ) {
@@ -248,6 +253,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import platform.Foundation.NSData")
             appendLine("import platform.Foundation.dataWithContentsOfFile")
             appendLine("import platform.posix.memcpy")
+            appendLine()
+            appendLine("private const val frameworkName = \"${iosFrameworkName}\"")
             appendLine()
             appendLine("private val stringTable = mapOf(")
             if (strings.isEmpty()) {
@@ -289,6 +296,13 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             }
             appendLine("}")
             appendLine()
+            appendLine("private fun resourceBundle(): NSBundle {")
+            appendLine("    if (frameworkName.isBlank()) return NSBundle.mainBundle")
+            appendLine("    val frameworksPath = NSBundle.mainBundle.privateFrameworksPath ?: return NSBundle.mainBundle")
+            appendLine("    val frameworkPath = \"\$frameworksPath/\$frameworkName.framework\"")
+            appendLine("    return NSBundle.bundleWithPath(frameworkPath) ?: NSBundle.mainBundle")
+            appendLine("}")
+            appendLine()
             appendLine("private fun loadPainter(name: String, extension: String, directory: String): Painter {")
             appendLine("    val bitmap = loadImageBitmap(name, extension, directory) ?: return ColorPainter(Color.Transparent)")
             appendLine("    val ninePatchImage = ImageBitmapNinePatchImage(bitmap)")
@@ -302,7 +316,14 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("}")
             appendLine()
             appendLine("private fun loadImageBitmap(name: String, extension: String, directory: String): ImageBitmap? {")
-            appendLine("    val path = NSBundle.mainBundle.pathForResource(name, extension, directory) ?: return null")
+            appendLine("    val bundle = resourceBundle()")
+            appendLine("    val path = if (directory.isNotBlank()) {")
+            appendLine("        bundle.pathForResource(name, extension, directory)")
+            appendLine("            ?: bundle.pathForResource(name, extension)")
+            appendLine("    } else {")
+            appendLine("        bundle.pathForResource(name, extension)")
+            appendLine("    }")
+            appendLine("    if (path == null) return null")
             appendLine("    val data = NSData.dataWithContentsOfFile(path) ?: return null")
             appendLine("    val bytes = data.toByteArray()")
             appendLine("    if (bytes.isEmpty()) return null")

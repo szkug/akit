@@ -138,7 +138,6 @@ internal abstract class CoilRequestNode(
                     log("loadImage") { "${model} ${result.throwable?.message}" }
                     null
                 }
-                else -> null
             }
         } catch (e: Exception) {
             log("loadImage") { "${model} ${e.message}" }
