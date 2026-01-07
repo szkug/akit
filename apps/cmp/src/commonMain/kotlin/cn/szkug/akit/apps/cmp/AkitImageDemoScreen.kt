@@ -22,7 +22,7 @@ fun AkitImageDemoScreen(
     val asyncContext = rememberAsyncImageContext()
 
     Column(
-        modifier = modifier.padding(10.dp)
+        modifier = modifier.padding(10.dp).padding(top = 44.dp)
     ) {
         Text(text = Res.strings.demo_title())
 

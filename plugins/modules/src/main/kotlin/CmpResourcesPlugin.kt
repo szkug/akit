@@ -55,6 +55,30 @@ class CmpResourcesPlugin : Plugin<Project> {
                 }
             }
 
+            val syncXcodeResourcesTask = tasks.register("syncCmpIosResourcesToXcode") {
+                outputs.upToDateWhen { false }
+                doLast {
+                    val resRoot = extension.resDir.get().asFile
+                    if (!resRoot.exists()) return@doLast
+                    val appBundle = resolveXcodeAppBundle() ?: return@doLast
+                    val prefix = extension.iosResourcesPrefix.get()
+                    val appDestDir = if (prefix.isBlank()) {
+                        appBundle
+                    } else {
+                        File(appBundle, prefix)
+                    }
+                    if (!prefix.isBlank()) {
+                        project.delete(appDestDir)
+                    }
+                    project.copy {
+                        from(resRoot)
+                        into(appDestDir)
+                    }
+                }
+            }
+            tasks.matching { it.name.startsWith("embedAndSignAppleFrameworkForXcode") }
+                .configureEach { dependsOn(syncXcodeResourcesTask) }
+
             kotlinExt.targets.withType(KotlinNativeTarget::class.java).configureEach {
                 binaries.withType(Framework::class.java).configureEach {
                     linkTaskProvider.configure {
@@ -67,12 +91,19 @@ class CmpResourcesPlugin : Plugin<Project> {
                             } else {
                                 File(outputDirectory, "${baseName}.framework")
                             }
-                            val resourcesDir = File(frameworkDir, "Resources")
+                            val destRoot = frameworkDir
                             val destDir = if (prefix.isBlank()) {
-                                resourcesDir
+                                destRoot
                             } else {
-                                File(resourcesDir, prefix)
+                                File(destRoot, prefix)
                             }
+                            val legacyRoot = File(frameworkDir, "Resources")
+                            val legacyDest = if (prefix.isBlank()) {
+                                legacyRoot
+                            } else {
+                                File(legacyRoot, prefix)
+                            }
+                            project.delete(legacyDest)
                             project.delete(destDir)
                             project.copy {
                                 from(resRoot)
@@ -99,6 +130,24 @@ class CmpResourcesPlugin : Plugin<Project> {
             }
         }
     }
+}
+
+private fun resolveXcodeAppBundle(): File? {
+    val targetBuildDir = System.getenv("TARGET_BUILD_DIR").orEmpty()
+    val resourcesFolderPath = System.getenv("UNLOCALIZED_RESOURCES_FOLDER_PATH").orEmpty()
+    if (targetBuildDir.isNotBlank() && resourcesFolderPath.isNotBlank()) {
+        return File(targetBuildDir, resourcesFolderPath)
+    }
+    val fullProductName = System.getenv("FULL_PRODUCT_NAME").orEmpty()
+    if (targetBuildDir.isNotBlank() && fullProductName.isNotBlank()) {
+        return File(targetBuildDir, fullProductName)
+    }
+    val builtProductsDir = System.getenv("BUILT_PRODUCTS_DIR").orEmpty()
+    val contentsFolderPath = System.getenv("CONTENTS_FOLDER_PATH").orEmpty()
+    if (builtProductsDir.isNotBlank() && contentsFolderPath.isNotBlank()) {
+        return File(builtProductsDir, contentsFolderPath)
+    }
+    return null
 }
 
 private fun patchFrameworkInfoPlist(

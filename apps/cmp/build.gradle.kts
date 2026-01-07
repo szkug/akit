@@ -20,6 +20,7 @@ kotlin {
         binaries.framework {
             baseName = "AkitCmp"
             isStatic = true
+
         }
     }
 
@@ -59,5 +60,5 @@ cmpResources {
     androidNamespace.set("cn.szkug.akit.apps.cmp")
     iosResourcesPrefix.set("cmp-res")
     iosFrameworkName.set("AkitCmp")
-    iosFrameworkBundleId.set("con.szkug.akit.apps.ios")
+    iosFrameworkBundleId.set("cn.szkug.akit.apps.cmp")
 }
