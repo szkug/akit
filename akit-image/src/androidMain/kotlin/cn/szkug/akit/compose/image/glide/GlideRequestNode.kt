@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.io.File
+import androidx.core.graphics.drawable.toDrawable
 
 private const val TRACE_SECTION_NAME = "GlideRequestNode"
 
@@ -144,13 +145,11 @@ internal abstract class GlideRequestNode(
             val type = BitmapType.determineBitmapType(bitmap)
             if (type == BitmapType.RawNinePatch || type == BitmapType.NinePatch) {
                 return type.createNinePatchDrawable(context.resources, bitmap, file.name)
-                    ?: BitmapDrawable(context.resources, bitmap)
+                    ?: bitmap.toDrawable(context.resources)
             }
         }
 
-        return loadDrawableFromFile(context, file, size) ?: bitmap?.let {
-            BitmapDrawable(context.resources, it)
-        }
+        return loadDrawableFromFile(context, file, size) ?: bitmap?.toDrawable(context.resources)
     }
 
     private fun loadDrawableFromFile(

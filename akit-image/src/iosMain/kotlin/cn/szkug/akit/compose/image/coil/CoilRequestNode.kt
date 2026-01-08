@@ -26,6 +26,7 @@ import coil3.PlatformContext
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import coil3.request.transformations
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -96,10 +97,10 @@ internal abstract class CoilRequestNode(
     override fun flowRequest(requestModel: RequestModel): Flow<CoilLoadResult<IosCachedImage>> = flow {
         val model = requestModel.model ?: return@flow emit(CoilLoadResult.Cleared(Unit))
 
-        coilSize.awaitSize()
+        val size = coilSize.awaitSize()
 
         val image = withContext(Dispatchers.IO) {
-            loadImage(iosData.platformContext, iosData.imageLoader, model)
+            loadImage(iosData.platformContext, iosData.imageLoader, model, size)
         }
 
         if (image != null) {
@@ -113,11 +114,13 @@ internal abstract class CoilRequestNode(
         platformContext: PlatformContext,
         imageLoader: ImageLoader,
         model: Any,
+        coilSize: CoilSize,
     ): IosCachedImage? {
         val request = when (model) {
             is ImageRequest -> model
             else -> ImageRequest.Builder(platformContext)
                 .data(model)
+                .size(width = coilSize.width, height = coilSize.height)
                 .build()
         }
 
@@ -135,12 +138,12 @@ internal abstract class CoilRequestNode(
                     }
                 }
                 is ErrorResult -> {
-                    log("loadImage") { "${model} ${result.throwable?.message}" }
+                    log("loadImage") { "ErrorResult $model ${result.throwable.message}" }
                     null
                 }
             }
         } catch (e: Exception) {
-            log("loadImage") { "${model} ${e.message}" }
+            log("loadImage") { "Exception $model ${e.stackTraceToString()}" }
             null
         }
     }
