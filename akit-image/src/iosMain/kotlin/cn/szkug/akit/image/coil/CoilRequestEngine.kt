@@ -13,7 +13,9 @@ import coil3.Image
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.compose.asPainter
+import coil3.request.ErrorResult
 import coil3.request.ImageRequest
+import coil3.request.SuccessResult
 import coil3.target.Target
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -57,6 +59,8 @@ class CoilRequestEngine(
 
         val request = builder
             .size(size.width, size.height)
+            .listener()
+            .listener(target)
             .target(target)
             .build()
 
@@ -74,22 +78,30 @@ class CoilRequestEngine(
 private class CoilFlowTarget(
     private val context: AsyncImageContext,
     private val scope: ProducerScope<AsyncLoadResult<PainterAsyncLoadData>>,
-) : Target {
+) : Target, ImageRequest.Listener {
+
+    override fun onStart(request: ImageRequest) {
+    }
+
+    override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+    }
+
+    override fun onError(request: ImageRequest, result: ErrorResult) {
+        val error = result.throwable
+        context.logger.error("CoilFlowTarget", "onError ${request.data}, ${error.stackTraceToString()}")
+    }
 
     override fun onStart(placeholder: Image?) {
-        super.onStart(placeholder)
         val painter = placeholder?.asPainter(context.context)
         scope.trySend(AsyncLoadResult.Cleared(painter?.toPainterAsyncLoadData()))
     }
 
     override fun onError(error: Image?) {
-        super.onError(error)
         val painter = error?.asPainter(context.context)
         scope.trySend(AsyncLoadResult.Error(painter?.toPainterAsyncLoadData()))
     }
 
     override fun onSuccess(result: Image) {
-        super.onSuccess(result)
         val painter = result.asPainter(context.context)
         scope.trySend(AsyncLoadResult.Success(painter.toPainterAsyncLoadData()))
     }

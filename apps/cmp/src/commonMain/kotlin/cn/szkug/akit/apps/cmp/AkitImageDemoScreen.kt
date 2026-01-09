@@ -25,6 +25,7 @@ fun AkitImageDemoScreen(
     url: String,
     modifier: Modifier = Modifier,
 ) {
+    DefaultPlatformAsyncImageLogger.setLevel(AsyncImageLogger.Level.DEBUG)
     val placeholder = PainterModel(Res.drawable.nine_patch_2())
     val asyncContext = rememberAsyncImageContext()
 
