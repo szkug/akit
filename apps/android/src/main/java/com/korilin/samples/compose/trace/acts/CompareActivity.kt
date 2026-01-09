@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import cn.szkug.akit.apps.cmp.DemoUrls
 import coil3.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -63,12 +64,24 @@ class CompareActivity : ComponentActivity() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 20.dp, vertical = 44.dp)
                     .verticalScroll(rememberScrollState())
                 ,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
+
+
+                AkitAsyncImage(
+                    model = DemoUrls.urls.first(),
+                    modifier = Modifier
+                        .height(50.dp)
+                        .wrapContentWidth()
+                        .background(Color.Red),
+                    contentScale = ContentScale.FillHeight,
+                    alignment = Alignment.CenterStart,
+                    contentDescription = null
+                )
 
 
                 Text("Long Width", modifier = Modifier.padding(top = 20.dp))

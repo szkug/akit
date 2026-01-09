@@ -130,8 +130,6 @@ internal class AsyncPainterNode<Data : AsyncLoadData>(
     engine = engine
 ), LayoutModifierNode, DrawModifierNode {
 
-    override val shouldAutoInvalidate: Boolean get() = false
-
     private var hasFixedSize: Boolean = false
 
     private fun Constraints.hasFixedSize() = hasFixedWidth && hasFixedHeight

@@ -30,7 +30,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            implementation(projects.akitImage)
+            api(projects.akitImage)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

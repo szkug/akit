@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.NinePatchDrawable
+import android.util.Log
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.MultiTransformation
@@ -47,9 +48,8 @@ private fun RequestBuilder<Drawable>.extendCenterCrop(
     bitmaps: List<Transformation<Bitmap>>,
     drawables: List<Transformation<Drawable>>,
 ) =
-    optionalTransforms(
-        DownsampleStrategy.CENTER_OUTSIDE,
-        CenterCrop() + bitmaps + LargeBitmapLimitTransformation,
+    optionalCenterCrop().optionalTransforms(
+        bitmaps + LargeBitmapLimitTransformation,
         drawables
     )
 
@@ -57,20 +57,18 @@ private fun RequestBuilder<Drawable>.extendCenterInside(
     bitmaps: List<Transformation<Bitmap>>,
     drawables: List<Transformation<Drawable>>,
 ) =
-    optionalTransforms(
-        DownsampleStrategy.CENTER_INSIDE,
-        CenterCrop() + bitmaps + LargeBitmapLimitTransformation,
+    optionalCenterInside().optionalTransforms(
+        bitmaps + LargeBitmapLimitTransformation,
         drawables
     )
 
 private fun <T> RequestBuilder<T>.optionalTransforms(
-    strategy: DownsampleStrategy,
     bitmaps: List<Transformation<Bitmap>>?,
     drawables: List<Transformation<Drawable>>?,
 ): RequestBuilder<T> {
 
     if (autoCloneEnabled) {
-        return clone().optionalTransforms(strategy, bitmaps, drawables)
+        return clone().optionalTransforms(bitmaps, drawables)
     }
 
     val outsideBitmap = bitmaps?.combineTransformations()
@@ -78,7 +76,7 @@ private fun <T> RequestBuilder<T>.optionalTransforms(
 
     if (outsideBitmap == null && outsideDrawable == null) return this
 
-    var builder = downsample(strategy)
+    var builder = this
     val insideDrawables = mutableListOf<Transformation<Drawable>>()
 
     if (outsideBitmap != null) {

@@ -9,6 +9,7 @@ expect abstract class PlatformContext
 expect val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext>
 
 expect object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
+    override fun setLevel(level: AsyncImageLogger.Level)
     override fun debug(tag: String, message: () -> String)
     override fun info(tag: String, message: () -> String)
     override fun warn(tag: String, message: String)
@@ -25,6 +26,11 @@ class AsyncImageContext(
 }
 
 interface AsyncImageLogger {
+
+    enum class Level {
+        DEBUG, INFO, WARN, ERROR
+    }
+    fun setLevel(level: Level)
     fun debug(tag: String, message: () -> String)
     fun info(tag: String, message: () -> String)
     fun warn(tag: String, message: String)

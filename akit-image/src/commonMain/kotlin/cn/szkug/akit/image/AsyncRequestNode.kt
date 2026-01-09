@@ -32,7 +32,7 @@ interface AsyncRequestEngine<Data : AsyncLoadData> {
 
 internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
     private val engine: AsyncRequestEngine<Data>,
-    private var requestModel: RequestModel,
+    protected var requestModel: RequestModel,
     private var placeholderModel: PainterModel?,
     private var failureModel: ResourceModel?,
     context: AsyncImageContext,

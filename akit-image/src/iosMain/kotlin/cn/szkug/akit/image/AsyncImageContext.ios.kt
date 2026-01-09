@@ -9,36 +9,35 @@ actual val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext> = L
 
 actual object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
 
-    const val DEBUG = 1
-    const val INFO = 2
-    const val WARN = 3
-    const val ERROR = 4
+    private var level = AsyncImageLogger.Level.ERROR
 
-    var level = ERROR
+    actual override fun setLevel(level: AsyncImageLogger.Level) {
+        this.level = level
+    }
 
     actual override fun debug(tag: String, message: () -> String) {
-        if (DEBUG < level) return
+        if (AsyncImageLogger.Level.DEBUG < level) return
         log(tag, "DEBUG", message())
     }
 
     actual override fun info(tag: String, message: () -> String) {
-        if (INFO < level) return
+        if (AsyncImageLogger.Level.INFO < level) return
         log(tag, "INFO", message())
     }
 
     actual override fun warn(tag: String, message: String) {
-        if (WARN < level) return
+        if (AsyncImageLogger.Level.WARN < level) return
         log(tag, "WARN", message)
     }
 
     actual override fun error(tag: String, exception: Exception?) {
-        if (ERROR < level || exception == null) return
+        if (AsyncImageLogger.Level.ERROR < level || exception == null) return
         log(tag, "ERROR", "${exception::class.simpleName}: ${exception.message.orEmpty()}")
         log(tag, "ERROR", exception.stackTraceToString())
     }
 
     actual override fun error(tag: String, message: String) {
-        if (ERROR < level) return
+        if (AsyncImageLogger.Level.ERROR < level) return
         log(tag, "ERROR", message)
     }
 

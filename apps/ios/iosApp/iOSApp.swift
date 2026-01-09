@@ -1,4 +1,5 @@
 import SwiftUI
+import AkitCmp
 
 @main
 struct iOSApp: App {

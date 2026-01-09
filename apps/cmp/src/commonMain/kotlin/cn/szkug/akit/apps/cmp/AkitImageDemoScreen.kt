@@ -1,13 +1,21 @@
 package cn.szkug.akit.apps.cmp
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import cn.szkug.akit.image.AkitAsyncImage
+import cn.szkug.akit.image.AsyncImageLogger
+import cn.szkug.akit.image.DefaultPlatformAsyncImageLogger
 import cn.szkug.akit.image.PainterModel
 import cn.szkug.akit.image.akitAsyncBackground
 import cn.szkug.akit.image.rememberAsyncImageContext
@@ -26,6 +34,19 @@ fun AkitImageDemoScreen(
         Text(text = Res.strings.demo_title())
 
         Text(text = Res.strings.section_res())
+
+        Row {
+            AkitAsyncImage(
+                model = DemoUrls.urls.first(),
+                modifier = Modifier
+                    .height(50.dp)
+                    .wrapContentWidth()
+                    .background(Color.Red),
+                contentScale = ContentScale.FillHeight,
+                alignment = Alignment.CenterStart,
+                contentDescription = null
+            )
+        }
 
         DemoTextCard(
             text = Res.strings.sample_short(),

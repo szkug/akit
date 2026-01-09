@@ -11,31 +11,35 @@ actual val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext> = L
 actual object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
 
     private const val TAG = "AkitAsyncImage"
-    var level = Log.ERROR
+    private var level = AsyncImageLogger.Level.ERROR
+
+    actual override fun setLevel(level: AsyncImageLogger.Level) {
+        this.level = level
+    }
 
     actual override fun debug(tag: String, message: () -> String) {
-        if (Log.DEBUG < level) return
-        Log.d("$TAG [$tag]", message())
+        if (AsyncImageLogger.Level.DEBUG < level) return
+        Log.d("$TAG[$tag]", message())
     }
 
     actual override fun info(tag: String, message: () -> String) {
-        if (Log.INFO < level) return
-        Log.i("$TAG [$tag]", message())
+        if (AsyncImageLogger.Level.INFO < level) return
+        Log.i("$TAG[$tag]", message())
     }
 
     actual override fun warn(tag: String, message: String) {
-        if (Log.WARN < level) return
-        Log.w("$TAG [$tag]", message)
+        if (AsyncImageLogger.Level.WARN < level) return
+        Log.w("$TAG[$tag]", message)
     }
 
     actual override fun error(tag: String, exception: Exception?) {
-        if (Log.ERROR < level || exception == null) return
-        Log.e("$TAG [$tag]", "${exception::class.simpleName}: ${exception.message.orEmpty()}")
-        Log.e("$TAG [$tag]", exception.stackTraceToString())
+        if (AsyncImageLogger.Level.ERROR < level || exception == null) return
+        Log.e("$TAG[$tag]", "${exception::class.simpleName}: ${exception.message.orEmpty()}")
+        Log.e("$TAG[$tag]", exception.stackTraceToString())
     }
 
     actual override fun error(tag: String, message: String) {
-        if (Log.ERROR < level) return
-        Log.e("$TAG [$tag]", message)
+        if (AsyncImageLogger.Level.ERROR < level) return
+        Log.e("$TAG[$tag]", message)
     }
 }
