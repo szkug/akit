@@ -27,6 +27,7 @@ kotlin {
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
             implementation(libs.bundles.glide)
+            api(projects.glide.extensionsNinepatch)
         }
         iosMain.dependencies {
             implementation(libs.coil.compose)

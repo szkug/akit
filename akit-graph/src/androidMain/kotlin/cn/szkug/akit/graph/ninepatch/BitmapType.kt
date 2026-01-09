@@ -2,8 +2,10 @@ package cn.szkug.akit.graph.ninepatch
 
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.NinePatch as AndroidNinePatch
 import android.graphics.drawable.NinePatchDrawable
+import kotlin.math.roundToInt
 
 enum class BitmapType {
     NinePatch {
@@ -30,15 +32,15 @@ enum class BitmapType {
             val targetDensity = resources.displayMetrics.densityDpi
             val densityChange = targetDensity.toFloat() / bitmap.density
             if (densityChange != 1f) {
-                val dstWidth = Math.round(content.width * densityChange)
-                val dstHeight = Math.round(content.height * densityChange)
+                val dstWidth = (content.width * densityChange).roundToInt()
+                val dstHeight = (content.height * densityChange).roundToInt()
                 content = Bitmap.createScaledBitmap(content, dstWidth, dstHeight, true)
                 content.density = targetDensity
                 chunk.padding = NinePatchRect(
-                    Math.round(chunk.padding.left * densityChange),
-                    Math.round(chunk.padding.top * densityChange),
-                    Math.round(chunk.padding.right * densityChange),
-                    Math.round(chunk.padding.bottom * densityChange)
+                    (chunk.padding.left * densityChange).roundToInt(),
+                    (chunk.padding.top * densityChange).roundToInt(),
+                    (chunk.padding.right * densityChange).roundToInt(),
+                    (chunk.padding.bottom * densityChange).roundToInt()
                 )
 
                 recalculateDivs(densityChange, chunk.xDivs)
@@ -110,3 +112,14 @@ enum class BitmapType {
             determineBitmapType(bitmap).createNinePatchDrawable(resources, bitmap, srcName)
     }
 }
+
+
+private fun NinePatchChunk.Companion.createChunkFromRawBitmap(
+    bitmap: Bitmap,
+    checkBitmap: Boolean
+): NinePatchChunk = createChunkFromRawImage(bitmap.asNinePatchImage(), checkBitmap)
+
+
+fun NinePatchRect.toAndroidRect() = Rect(
+    left, top, right, bottom
+)

@@ -38,7 +38,7 @@ private val MAIN_HANDLER by lazy(LazyThreadSafetyMode.NONE) {
 fun Drawable.toPainter(): Painter = when (this) {
     is BitmapDrawable -> BitmapPainter(bitmap.asImageBitmap())
     is ColorDrawable -> ColorPainter(Color(color))
-    is NinePatchDrawable -> AndroidNinePatchPainter(this)
+    is NinePatchDrawable -> AndroidNinePatchPainter(mutate())
     else -> DrawablePainter(mutate())
 }
 
@@ -53,7 +53,7 @@ private val Drawable.intrinsicSize: Size
 
 
 class AndroidNinePatchPainter(
-    private val drawable: NinePatchDrawable
+    private val drawable: Drawable
 ) : HasPaddingPainter() {
 
     override val padding: ImagePadding = Rect().let { rect ->

@@ -105,7 +105,7 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
         }
     }
 
-    protected open fun onCollectResult(result: AsyncLoadResult<Data>) {}
+    protected open fun onCollectResult(painter: Painter?) {}
 
     @OptIn(ExperimentalComposeUiApi::class)
     protected fun startRequest(requestModel: RequestModel) =
@@ -123,13 +123,17 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
                     val failurePainter = (failureModel as? PainterModel)?.painter
                     val placeholderPainter = placeablePainter
 
-                    engine.flowRequest(context, size, contentScale, requestModel, failureModel).collectLatest { result ->
+                    val model = requestModel.model
+                    if (model is Painter) {
+                        painter = model
+                        onCollectResult(model)
+                    } else engine.flowRequest(context, size, contentScale, requestModel, failureModel).collectLatest { result ->
                         context.logger.debug("collectLatest") { "$requestModel $result" }
 
                         val nextPainter = resolvePainter(result, failurePainter, placeholderPainter)
 
                         painter = nextPainter
-                        onCollectResult(result)
+                        onCollectResult(nextPainter)
                     }
                 }
             }

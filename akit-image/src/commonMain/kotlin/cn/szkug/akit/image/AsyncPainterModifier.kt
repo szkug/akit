@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -337,7 +338,7 @@ internal class AsyncPainterNode<Data : AsyncLoadData>(
         drawContent()
     }
 
-    override fun onCollectResult(result: AsyncLoadResult<Data>) {
+    override fun onCollectResult(painter: Painter?) {
         if (!hasFixedSize) {
             invalidateMeasurement()
         }

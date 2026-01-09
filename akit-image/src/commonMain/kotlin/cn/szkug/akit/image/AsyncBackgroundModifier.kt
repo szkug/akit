@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.withSave
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Measurable
@@ -112,7 +113,7 @@ private class AsyncBackgroundNode<Data : AsyncLoadData>(
     engine = engine
 ), LayoutModifierNode, DrawModifierNode {
 
-    override fun onCollectResult(result: AsyncLoadResult<Data>) {
+    override fun onCollectResult(painter: Painter?) {
         invalidateMeasurement()
         invalidateDraw()
     }

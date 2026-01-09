@@ -30,7 +30,7 @@ class NinePatchDrawableDecoder<Input : Any>(
         val bitmap = BitmapFactory.decodeStream(stream)
         val type = BitmapType.determineBitmapType(bitmap)
         val isNinepatch = type == BitmapType.NinePatch || type == BitmapType.RawNinePatch
-        Log.d("NinePatchDrawableDecoder", "handles isNinepatch=$isNinepatch")
+        Log.d("NinePatchDrawableDecoder", "handles type=$type")
         return isNinepatch
     }
 
@@ -42,9 +42,9 @@ class NinePatchDrawableDecoder<Input : Any>(
     ): Resource<Drawable> {
         val stream = toStream(source)
         val bitmap = BitmapFactory.decodeStream(stream)
-            ?: return SimpleResource(ColorDrawable(0))
         val drawable = NinePatchChunk.create9PatchDrawable(context, bitmap, null)
             ?: BitmapDrawable(context.resources, bitmap)
+        Log.d("NinePatchDrawableDecoder", "decode drawable=$drawable")
         return SimpleResource(drawable)
     }
 }
