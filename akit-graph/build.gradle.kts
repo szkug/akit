@@ -20,17 +20,13 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.ui)
-            api(projects.akitGraph)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
-            implementation(libs.bundles.glide)
         }
         iosMain.dependencies {
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor3)
         }
     }
 
@@ -38,13 +34,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.compose.image"
-
-    compileSdk = AndroidSdkVersions.COMPILE
-
-    defaultConfig {
-        minSdk = AndroidSdkVersions.MIN
-    }
+    namespace = "cn.szkug.akit.graph"
 
     buildFeatures.compose = true
 
@@ -59,10 +49,10 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates(group, "akit-image", version)
+    coordinates(group, "akit-graph", version)
 
     pom {
-        name = "Akit Image"
-        description = "A Compose Image library base on Glide."
+        name = "Akit Graph"
+        description = "Akit Multiplatform Graph"
     }
 }

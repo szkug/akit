@@ -183,7 +183,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import androidx.compose.ui.graphics.painter.Painter")
             appendLine("import androidx.compose.ui.platform.LocalContext")
             appendLine("import androidx.compose.ui.res.stringResource")
-            appendLine("import cn.szkug.akit.publics.toPainter")
+            appendLine("import cn.szkug.akit.graph.toPainter")
             appendLine("import $androidNamespace.R")
             appendLine()
             appendLine("actual object Res {")

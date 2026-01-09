@@ -34,7 +34,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     implementation(libs.glide.runtime)
-    implementation(projects.akitNinepatch)
+    implementation(projects.akitGraph)
     compileOnly(libs.glide.annotations)
     kapt(libs.glide.compiler)
 

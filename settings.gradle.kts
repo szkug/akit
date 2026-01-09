@@ -39,7 +39,7 @@ include(":benchmark")
 
 // glide
 include(":akit-image")
-include(":akit-ninepatch")
+include(":akit-graph")
 include(":glide:extensions-ninepatch")
 include(":glide:extensions-blur")
 include(":renderscript-toolkit-publish")

@@ -1,0 +1,50 @@
+package cn.szkug.akit.image
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.remember
+
+
+expect abstract class PlatformContext
+expect val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext>
+
+expect object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
+    override fun debug(tag: String, message: () -> String)
+    override fun info(tag: String, message: () -> String)
+    override fun warn(tag: String, message: String)
+    override fun error(tag: String, exception: Exception?)
+    override fun error(tag: String, message: String)
+}
+
+class AsyncImageContext(
+    val context: PlatformContext,
+    val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
+    val ignoreImagePadding: Boolean = false,
+) {
+    companion object
+}
+
+interface AsyncImageLogger {
+    fun debug(tag: String, message: () -> String)
+    fun info(tag: String, message: () -> String)
+    fun warn(tag: String, message: String)
+    fun error(tag: String, exception: Exception?)
+    fun error(tag: String, message: String)
+}
+
+@Composable
+fun rememberAsyncImageContext(
+    vararg keys: Any?,
+    ignoreImagePadding: Boolean = false,
+    logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
+): AsyncImageContext {
+
+    val platformContext = LocalPlatformContext.current
+    return remember(ignoreImagePadding, *keys) {
+        AsyncImageContext(
+            context = platformContext,
+            ignoreImagePadding = ignoreImagePadding,
+            logger = logger,
+        )
+    }
+}
