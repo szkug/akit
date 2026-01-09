@@ -12,7 +12,9 @@ import cn.szkug.akit.image.ResourceModel
 import coil3.Image
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
+import coil3.Uri
 import coil3.compose.asPainter
+import coil3.decode.Decoder
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
@@ -35,6 +37,8 @@ private val NormalCoilImageLoaderBuilder: CoilImageLoaderBuilder
         SingletonImageLoader.get(context = context.context)
     }
 
+private val NinePatchFactory = NinePatchDecoder.Factory()
+
 class CoilRequestEngine(
     private val loader: CoilImageLoaderBuilder = NormalCoilImageLoaderBuilder,
 ) : AsyncRequestEngine<PainterAsyncLoadData> {
@@ -53,6 +57,11 @@ class CoilRequestEngine(
             is ImageRequest -> model.newBuilder(context.context)
             else -> ImageRequest.Builder(context.context)
                 .data(model)
+        }
+
+        if (context.supportNinepatch) {
+            builder.decoderFactory(NinePatchFactory)
+            builder.extras[NinePatchDecodeEnabled] = true
         }
 
         val target = CoilFlowTarget(context, this)
@@ -92,19 +101,26 @@ private class CoilFlowTarget(
     }
 
     override fun onStart(placeholder: Image?) {
-        val painter = placeholder?.asPainter(context.context)
+        val painter = placeholder?.toAkitPainter(context)
         scope.trySend(AsyncLoadResult.Cleared(painter?.toPainterAsyncLoadData()))
     }
 
     override fun onError(error: Image?) {
-        val painter = error?.asPainter(context.context)
+        val painter = error?.toAkitPainter(context)
         scope.trySend(AsyncLoadResult.Error(painter?.toPainterAsyncLoadData()))
     }
 
     override fun onSuccess(result: Image) {
-        val painter = result.asPainter(context.context)
+        val painter = result.toAkitPainter(context)
         scope.trySend(AsyncLoadResult.Success(painter.toPainterAsyncLoadData()))
     }
 }
 
 private fun Painter.toPainterAsyncLoadData() = PainterAsyncLoadData(this)
+
+private fun Image.toAkitPainter(context: AsyncImageContext): Painter {
+    return when (this) {
+        is NinePatchCoilImage -> toPainter()
+        else -> asPainter(context.context)
+    }
+}

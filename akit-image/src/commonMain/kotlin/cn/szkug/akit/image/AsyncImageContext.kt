@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 
 
 expect abstract class PlatformContext
+
 expect val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext>
 
 expect object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
@@ -17,19 +18,12 @@ expect object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
     override fun error(tag: String, message: String)
 }
 
-class AsyncImageContext(
-    val context: PlatformContext,
-    val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
-    val ignoreImagePadding: Boolean = false,
-) {
-    companion object
-}
-
 interface AsyncImageLogger {
 
     enum class Level {
         DEBUG, INFO, WARN, ERROR
     }
+
     fun setLevel(level: Level)
     fun debug(tag: String, message: () -> String)
     fun info(tag: String, message: () -> String)
@@ -38,11 +32,25 @@ interface AsyncImageLogger {
     fun error(tag: String, message: String)
 }
 
+class AsyncImageContext(
+    val context: PlatformContext,
+    val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
+    val ignoreImagePadding: Boolean = false,
+
+    // extension support
+    val supportNinepatch: Boolean = false,
+) {
+    companion object
+}
+
 @Composable
 fun rememberAsyncImageContext(
     vararg keys: Any?,
     ignoreImagePadding: Boolean = false,
     logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
+
+    // extension support
+    supportNinepatch: Boolean = false,
 ): AsyncImageContext {
 
     val platformContext = LocalPlatformContext.current
@@ -51,6 +59,7 @@ fun rememberAsyncImageContext(
             context = platformContext,
             ignoreImagePadding = ignoreImagePadding,
             logger = logger,
+            supportNinepatch = supportNinepatch
         )
     }
 }

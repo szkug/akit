@@ -27,7 +27,6 @@ fun AkitImageDemoScreen(
 ) {
     DefaultPlatformAsyncImageLogger.setLevel(AsyncImageLogger.Level.DEBUG)
     val placeholder = PainterModel(Res.drawable.nine_patch_2())
-    val asyncContext = rememberAsyncImageContext()
 
     Column(
         modifier = modifier.padding(10.dp).padding(top = 44.dp)
@@ -77,7 +76,6 @@ fun AkitImageDemoScreen(
             modifier = Modifier.akitAsyncBackground(
                 model = url,
                 placeholder = placeholder,
-                context = asyncContext,
             ),
         )
 
@@ -86,7 +84,6 @@ fun AkitImageDemoScreen(
             modifier = Modifier.akitAsyncBackground(
                 model = url,
                 placeholder = placeholder,
-                context = asyncContext,
             ),
         )
 
@@ -95,7 +92,6 @@ fun AkitImageDemoScreen(
             modifier = Modifier.akitAsyncBackground(
                 model = url,
                 placeholder = placeholder,
-                context = asyncContext,
             ),
         )
     }

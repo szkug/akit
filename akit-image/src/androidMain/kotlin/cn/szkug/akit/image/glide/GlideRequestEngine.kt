@@ -51,10 +51,16 @@ class GlideRequestEngine(
             contentScale,
             bitmapTransformations,
             drawableTransformations
-        )
+        ).setupContext(context)
             .setupSize(size)
             .setupFailure(failureModel)
             .flowOfRequest(context, requestModel, size)
+    }
+
+    private fun <T> RequestBuilder<T>.setupContext(context: AsyncImageContext): RequestBuilder<T> {
+        var builder = this.set(NinepatchEnableOption, context.supportNinepatch)
+
+        return builder
     }
 
     private fun <T> RequestBuilder<T>.setupSize(size: ResolvableImageSize): RequestBuilder<T> {
@@ -93,7 +99,7 @@ class GlideRequestEngine(
 
         val NormalGlideRequestBuilder: GlideRequestBuilder
             get() = { context ->
-                Glide.with(context.context).asDrawable().set(NinepatchEnableOption, true)
+                Glide.with(context.context).asDrawable()
             }
     }
 }

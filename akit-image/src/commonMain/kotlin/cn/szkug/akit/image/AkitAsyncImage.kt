@@ -71,7 +71,9 @@ fun Modifier.akitAsyncBackground(
     contentScale: ContentScale = AsyncImageDefaults.DefaultContentScale,
     alpha: Float = AsyncImageDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = AsyncImageDefaults.DefaultColorFilter,
-    context: AsyncImageContext = rememberAsyncImageContext(),
+    context: AsyncImageContext = rememberAsyncImageContext(
+        supportNinepatch = true
+    ),
     engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
 ): Modifier = composed {
 
