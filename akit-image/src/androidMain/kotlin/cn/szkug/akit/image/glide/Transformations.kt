@@ -1,17 +1,21 @@
 package cn.szkug.akit.image.glide
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.NinePatchDrawable
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.Transformation
+import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.load.resource.bitmap.DrawableTransformation
 import com.bumptech.glide.request.autoCloneEnabled
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import java.security.MessageDigest
 
 internal fun RequestBuilder<Drawable>.setupTransforms(
     contentScale: ContentScale,
@@ -86,7 +90,9 @@ private fun <T> RequestBuilder<T>.optionalTransforms(
     // So the Bitmap transformations are used first, and then apply Drawable transformations
     if (outsideDrawable != null) insideDrawables += outsideDrawable
 
-    val insideDrawable = insideDrawables.combineTransformations()
+    val insideDrawable = insideDrawables.combineTransformations()?.let {
+        SkipNinePatchDrawableTransformation(it)
+    }
 
     if (insideDrawable != null) {
         builder = builder.optionalTransform(Drawable::class.java, insideDrawable)
