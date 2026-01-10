@@ -337,6 +337,7 @@ internal class AsyncPainterNode<Data : AsyncLoadData>(
     }
 
     override fun onCollectResult(painter: Painter?) {
+        super.onCollectResult(painter)
         if (!hasFixedSize) {
             invalidateMeasurement()
         }

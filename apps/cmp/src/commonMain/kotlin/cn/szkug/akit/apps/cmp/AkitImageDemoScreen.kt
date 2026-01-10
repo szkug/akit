@@ -18,7 +18,6 @@ import cn.szkug.akit.image.AsyncImageLogger
 import cn.szkug.akit.image.DefaultPlatformAsyncImageLogger
 import cn.szkug.akit.image.PainterModel
 import cn.szkug.akit.image.akitAsyncBackground
-import cn.szkug.akit.image.rememberAsyncImageContext
 
 @Composable
 fun AkitImageDemoScreen(
@@ -29,7 +28,7 @@ fun AkitImageDemoScreen(
     val placeholder = PainterModel(Res.drawable.nine_patch_2())
 
     Column(
-        modifier = modifier.padding(10.dp).padding(top = 44.dp)
+        modifier = modifier.padding(16.dp)
     ) {
         Text(text = Res.strings.demo_title())
 

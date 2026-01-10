@@ -12,9 +12,7 @@ import cn.szkug.akit.image.ResourceModel
 import coil3.Image
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import coil3.Uri
 import coil3.compose.asPainter
-import coil3.decode.Decoder
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
@@ -32,12 +30,19 @@ class PainterAsyncLoadData(val painter: Painter) : AsyncLoadData {
 
 
 typealias CoilImageLoaderBuilder = (AsyncImageContext) -> ImageLoader
+
+
+
+private val NinePatchFactory = NinePatchDecoder.Factory()
+private val GifFactory = GifDecoder.Factory()
 private val NormalCoilImageLoaderBuilder: CoilImageLoaderBuilder
     get() = { context ->
         SingletonImageLoader.get(context = context.context)
+            .newBuilder().components {
+                add(NinePatchFactory)
+                add(GifFactory)
+            }.build()
     }
-
-private val NinePatchFactory = NinePatchDecoder.Factory()
 
 class CoilRequestEngine(
     private val loader: CoilImageLoaderBuilder = NormalCoilImageLoaderBuilder,
@@ -60,7 +65,6 @@ class CoilRequestEngine(
         }
 
         if (context.supportNinepatch) {
-            builder.decoderFactory(NinePatchFactory)
             builder.extras[NinePatchDecodeEnabled] = true
         }
 
@@ -121,6 +125,7 @@ private fun Painter.toPainterAsyncLoadData() = PainterAsyncLoadData(this)
 private fun Image.toAkitPainter(context: AsyncImageContext): Painter {
     return when (this) {
         is NinePatchCoilImage -> toPainter()
+        is GifCoilImage -> toPainter()
         else -> asPainter(context.context)
     }
 }

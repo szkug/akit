@@ -1,0 +1,119 @@
+package cn.szkug.akit.apps.cmp
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import cn.szkug.akit.image.AkitAsyncImage
+
+private enum class DemoPage {
+    Home,
+    ImageDemo,
+    AnimatedImageList,
+}
+
+@Composable
+fun AkitCmpApp() {
+    Box(
+        modifier = Modifier.padding(vertical = 44.dp)
+    ) {
+        var page by remember { mutableStateOf(DemoPage.Home) }
+        when (page) {
+            DemoPage.Home -> HomeScreen(onNavigate = { page = it })
+            DemoPage.ImageDemo -> ImageDemoPage(onBack = { page = DemoPage.Home })
+            DemoPage.AnimatedImageList -> AnimatedImageListPage(onBack = { page = DemoPage.Home })
+        }
+    }
+}
+
+@Composable
+private fun HomeScreen(onNavigate: (DemoPage) -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(text = "Akit CMP Demo")
+        Text(text = "Select a page:")
+        Button(onClick = { onNavigate(DemoPage.ImageDemo) }) {
+            Text(text = "Image Demo")
+        }
+        Button(onClick = { onNavigate(DemoPage.AnimatedImageList) }) {
+            Text(text = "Animated Image List")
+        }
+    }
+}
+
+@Composable
+private fun ImageDemoPage(onBack: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        PageHeader(title = "Image Demo", onBack = onBack)
+        AkitImageDemoScreen(
+            url = DemoUrls.ninePatchUrl,
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+}
+
+@Composable
+private fun AnimatedImageListPage(onBack: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        PageHeader(title = "Animated Image List", onBack = onBack)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            itemsIndexed(DemoUrls.gifUrls) { index, url ->
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(text = "GIF #${index + 1}")
+                    AkitAsyncImage(
+                        model = url,
+                        contentDescription = "gif-$index",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun PageHeader(
+    title: String,
+    onBack: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Button(onClick = onBack) {
+            Text(text = "Back")
+        }
+        Text(text = title)
+    }
+}

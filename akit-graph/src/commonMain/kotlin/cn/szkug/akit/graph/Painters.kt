@@ -3,6 +3,7 @@ package cn.szkug.akit.graph
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
+import kotlin.coroutines.CoroutineContext
 
 data class ImagePadding(
     val left: Int = 0,
@@ -20,7 +21,7 @@ abstract class HasPaddingPainter : Painter() {
 }
 
 interface AnimatablePainter {
-    fun startAnimation()
+    fun startAnimation(coroutineContext: CoroutineContext)
     fun stopAnimation()
 }
 

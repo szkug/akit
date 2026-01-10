@@ -3,6 +3,8 @@ package cn.szkug.akit.image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlin.coroutines.CoroutineContext
 
 
 expect abstract class PlatformContext
@@ -34,6 +36,8 @@ interface AsyncImageLogger {
 
 class AsyncImageContext(
     val context: PlatformContext,
+    val coroutineContext: CoroutineContext,
+
     val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
     val ignoreImagePadding: Boolean = false,
 
@@ -48,17 +52,18 @@ fun rememberAsyncImageContext(
     vararg keys: Any?,
     ignoreImagePadding: Boolean = false,
     logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
-
+    animationContext: CoroutineContext = rememberCoroutineScope().coroutineContext,
     // extension support
     supportNinepatch: Boolean = false,
 ): AsyncImageContext {
 
     val platformContext = LocalPlatformContext.current
-    return remember(ignoreImagePadding, *keys) {
+    return remember(ignoreImagePadding, supportNinepatch, animationContext, *keys) {
         AsyncImageContext(
             context = platformContext,
             ignoreImagePadding = ignoreImagePadding,
             logger = logger,
+            coroutineContext = animationContext,
             supportNinepatch = supportNinepatch
         )
     }

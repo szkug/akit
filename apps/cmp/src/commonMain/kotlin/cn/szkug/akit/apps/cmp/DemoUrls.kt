@@ -12,4 +12,12 @@ object DemoUrls {
         "https://i0.hdslb.com/bfs/article/a2f8dedc4d4800a8e78f69ab57a07bd061d7023f.jpg@1256w_1780h_!web-article-pic.jpg",
         "https://i0.hdslb.com/bfs/article/e83e19239675ee0886c3085c19fed66955894fa3.jpg@1256w_1792h_!web-article-pic.jpg"
     )
+
+    val gifUrls = listOf(
+        "https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif",
+        "https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif",
+        "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
+        "https://media.giphy.com/media/26BRQTezZrKak4BeE/giphy.gif",
+        "https://media.giphy.com/media/5VKbvrjxpVJCM/giphy.gif"
+    )
 }

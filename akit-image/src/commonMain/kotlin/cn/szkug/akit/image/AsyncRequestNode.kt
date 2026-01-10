@@ -84,7 +84,7 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
 
     protected open fun onPainterChanged(old: Painter, new: Painter) {
         if (old is AnimatablePainter) old.stopAnimation()
-        if (new is AnimatablePainter) new.startAnimation()
+        if (new is AnimatablePainter) new.startAnimation(context.coroutineContext)
     }
 
     protected open fun onStopRequest() {
@@ -127,7 +127,13 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
                     if (model is Painter) {
                         painter = model
                         onCollectResult(model)
-                    } else engine.flowRequest(context, size, contentScale, requestModel, failureModel).collectLatest { result ->
+                    } else engine.flowRequest(
+                        context,
+                        size,
+                        contentScale,
+                        requestModel,
+                        failureModel
+                    ).collectLatest { result ->
                         context.logger.debug("collectLatest") { "$requestModel $result" }
 
                         val nextPainter = resolvePainter(result, failurePainter, placeholderPainter)
@@ -152,7 +158,7 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
      */
     open fun setup() {
         val current = painter
-        if (current is AnimatablePainter) current.startAnimation()
+        if (current is AnimatablePainter) current.startAnimation(context.coroutineContext)
         startRequest(requestModel)
     }
 

@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.withSave
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.compareTo
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 
 
@@ -148,7 +149,7 @@ class DrawablePainter(
         }
     }
 
-    override fun startAnimation() {
+    override fun startAnimation(coroutineContext: CoroutineContext) {
         if (drawable is Animatable || drawable.intrinsicWidth < 0 || drawable.intrinsicHeight < 0) {
             drawable.callback = callback
             drawable.setVisible(true, true)
@@ -166,7 +167,7 @@ class DrawablePainter(
         }
     }
 
-    override fun onRemembered() = startAnimation()
+    override fun onRemembered() {}
 
     override fun onAbandoned() = stopAnimation()
 

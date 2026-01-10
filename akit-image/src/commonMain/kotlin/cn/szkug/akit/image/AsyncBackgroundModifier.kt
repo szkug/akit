@@ -114,6 +114,7 @@ private class AsyncBackgroundNode<Data : AsyncLoadData>(
 ), LayoutModifierNode, DrawModifierNode {
 
     override fun onCollectResult(painter: Painter?) {
+        super.onCollectResult(painter)
         invalidateMeasurement()
         invalidateDraw()
     }
