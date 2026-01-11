@@ -6,9 +6,11 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
-import cn.szkug.akit.graph.ninepatch.BitmapType
 import cn.szkug.akit.graph.ninepatch.NinePatchChunk
-import cn.szkug.akit.graph.ninepatch.create9PatchDrawable
+import cn.szkug.akit.graph.ninepatch.NinePatchType
+import cn.szkug.akit.graph.ninepatch.createNinePatchDrawable
+import cn.szkug.akit.graph.ninepatch.determineNinePatchType
+import cn.szkug.akit.graph.ninepatch.asNinePatchSource
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
@@ -28,8 +30,8 @@ class NinePatchDrawableDecoder<Input : Any>(
         if (!enable) return false
         val stream = toStream(source)
         val bitmap = BitmapFactory.decodeStream(stream)
-        val type = BitmapType.determineBitmapType(bitmap)
-        val isNinepatch = type == BitmapType.NinePatch || type == BitmapType.RawNinePatch
+        val type = determineNinePatchType(bitmap.asNinePatchSource(), bitmap.ninePatchChunk)
+        val isNinepatch = type == NinePatchType.Chunk || type == NinePatchType.Raw
         Log.d("NinePatchDrawableDecoder", "handles type=$type")
         return isNinepatch
     }
@@ -42,7 +44,7 @@ class NinePatchDrawableDecoder<Input : Any>(
     ): Resource<Drawable> {
         val stream = toStream(source)
         val bitmap = BitmapFactory.decodeStream(stream)
-        val drawable = NinePatchChunk.create9PatchDrawable(context, bitmap, null)
+        val drawable = NinePatchChunk.createNinePatchDrawable(context, bitmap, null)
             ?: BitmapDrawable(context.resources, bitmap)
         Log.d("NinePatchDrawableDecoder", "decode drawable=$drawable")
         return SimpleResource(drawable)

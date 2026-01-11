@@ -2,35 +2,41 @@ package cn.szkug.akit.graph.ninepatch
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.NinePatchDrawable
-import java.io.InputStream
+import androidx.core.graphics.drawable.toDrawable
 
-private class AndroidNinePatchImage(private val bitmap: Bitmap) : NinePatchImage {
-    override val width: Int
-        get() = bitmap.width
-    override val height: Int
-        get() = bitmap.height
-
-    override fun getPixel(x: Int, y: Int): Int = bitmap.getPixel(x, y)
-}
-
-internal fun Bitmap.asNinePatchImage(): NinePatchImage = AndroidNinePatchImage(this)
-
-fun NinePatchChunk.Companion.create9PatchDrawable(
+fun NinePatchChunk.Companion.createNinePatchDrawable(
     context: Context,
     bitmap: Bitmap?,
     srcName: String?
 ): Drawable? {
     if (bitmap == null) return null
-    return BitmapType.getNinePatchDrawable(context.resources, bitmap, srcName)
-        ?: BitmapDrawable(context.resources, bitmap)
+    val resources = context.resources
+    val parsed = parseNinePatch(bitmap.asNinePatchSource(), bitmap.ninePatchChunk)
+    return when (parsed.type) {
+        NinePatchType.Chunk -> {
+            val chunk = parsed.chunk ?: return bitmap.toDrawable(resources)
+            NinePatchDrawable(
+                resources,
+                bitmap,
+                chunk.toBytes(),
+                chunk.padding.toAndroidRect(),
+                srcName
+            )
+        }
+
+        NinePatchType.Raw -> {
+            val chunk = parsed.chunk ?: return bitmap.toDrawable(resources)
+            RawNinePatchProcessor.createDrawable(resources, bitmap, chunk, srcName)
+        }
+
+        NinePatchType.None -> bitmap.toDrawable(resources)
+    }
 }
 
-fun NinePatchChunk.Companion.isRawNinePatchBitmap(bitmap: Bitmap?): Boolean {
+fun NinePatchChunk.Companion.isRawNinePatch(bitmap: Bitmap?): Boolean {
     if (bitmap == null) return false
-    return isRawNinePatchImage(bitmap.asNinePatchImage())
+    return isRawNinePatch(bitmap.asNinePatchSource(), bitmap.ninePatchChunk)
 }

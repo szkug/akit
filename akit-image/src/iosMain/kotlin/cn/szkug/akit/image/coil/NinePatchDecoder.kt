@@ -4,9 +4,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import cn.szkug.akit.graph.ninepatch.ImageBitmapNinePatchImage
+import cn.szkug.akit.graph.ninepatch.ImageBitmapNinePatchSource
 import cn.szkug.akit.graph.ninepatch.NinePatchChunk
 import cn.szkug.akit.graph.ninepatch.NinePatchPainter
+import cn.szkug.akit.graph.ninepatch.NinePatchType
+import cn.szkug.akit.graph.ninepatch.parseNinePatch
 import coil3.BitmapImage
 import coil3.Extras
 import coil3.Image
@@ -68,9 +70,10 @@ internal class NinePatchDecoder(
         try {
             val ninePatch = if (image.width >= 3 && image.height >= 3) {
                 val imageBitmap = image.toComposeImageBitmap()
-                val ninePatchImage = ImageBitmapNinePatchImage(imageBitmap)
-                if (NinePatchChunk.isRawNinePatchImage(ninePatchImage)) {
-                    val chunk = NinePatchChunk.createChunkFromRawImage(ninePatchImage)
+                val ninePatchSource = ImageBitmapNinePatchSource(imageBitmap)
+                val parsed = parseNinePatch(ninePatchSource, null)
+                if (parsed.type == NinePatchType.Raw) {
+                    val chunk = parsed.chunk ?: NinePatchChunk.createEmptyChunk()
                     val croppedBitmap = cropNinePatch(image)
                     croppedBitmap.setImmutable()
                     val content = croppedBitmap.asComposeImageBitmap()

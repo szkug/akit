@@ -151,9 +151,9 @@ private fun DrawScope.drawImageRect(
     }
 }
 
-class ImageBitmapNinePatchImage(
+class ImageBitmapNinePatchSource(
     private val image: ImageBitmap
-) : NinePatchImage {
+) : NinePatchPixelSource {
 
     private val pixelMap by lazy { image.toPixelMap() }
 

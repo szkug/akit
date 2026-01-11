@@ -102,31 +102,31 @@ class NinePatchChunk(
             return IntArray(xRegions.size * yRegions.size) { NO_COLOR }
         }
 
-        fun isRawNinePatchImage(image: NinePatchImage?): Boolean {
-            if (image == null) return false
-            if (image.width < 3 || image.height < 3) return false
-            if (!isCornerPixelsTransparent(image)) return false
-            if (!hasNinePatchBorder(image)) return false
+        internal fun isRawNinePatchSource(source: NinePatchPixelSource?): Boolean {
+            if (source == null) return false
+            if (source.width < 3 || source.height < 3) return false
+            if (!isCornerPixelsTransparent(source)) return false
+            if (!hasNinePatchBorder(source)) return false
             return true
         }
 
-        fun createChunkFromRawImage(image: NinePatchImage?): NinePatchChunk {
-            if (image == null) return createEmptyChunk()
+        internal fun createChunkFromRawSource(source: NinePatchPixelSource?): NinePatchChunk {
+            if (source == null) return createEmptyChunk()
             return try {
-                createChunkFromRawImage(image, true)
+                createChunkFromRawSource(source, true)
             } catch (e: Exception) {
                 createEmptyChunk()
             }
         }
 
-        internal fun createChunkFromRawImage(image: NinePatchImage, checkImage: Boolean): NinePatchChunk {
-            if (checkImage && !isRawNinePatchImage(image)) {
+        internal fun createChunkFromRawSource(source: NinePatchPixelSource, checkSource: Boolean): NinePatchChunk {
+            if (checkSource && !isRawNinePatchSource(source)) {
                 return createEmptyChunk()
             }
             val out = NinePatchChunk()
-            setupStretchableRegions(image, out)
-            setupPadding(image, out)
-            setupColors(image, out)
+            setupStretchableRegions(source, out)
+            setupPadding(source, out)
+            setupColors(source, out)
             return out
         }
 
@@ -142,9 +142,9 @@ class NinePatchChunk(
             }
         }
 
-        private fun setupColors(image: NinePatchImage, out: NinePatchChunk) {
-            val bitmapWidth = image.width - 2
-            val bitmapHeight = image.height - 2
+        private fun setupColors(source: NinePatchPixelSource, out: NinePatchChunk) {
+            val bitmapWidth = source.width - 2
+            val bitmapHeight = source.height - 2
             val xRegions = getRegions(out.xDivs, bitmapWidth)
             val yRegions = getRegions(out.yDivs, bitmapHeight)
             out.colors = IntArray(xRegions.size * yRegions.size)
@@ -154,8 +154,8 @@ class NinePatchChunk(
                 for (xDiv in xRegions) {
                     val startX = xDiv.start + 1
                     val startY = yDiv.start + 1
-                    if (hasSameColor(image, startX, xDiv.stop + 1, startY, yDiv.stop + 1)) {
-                        var pixel = image.getPixel(startX, startY)
+                    if (hasSameColor(source, startX, xDiv.stop + 1, startY, yDiv.stop + 1)) {
+                        var pixel = source.getPixel(startX, startY)
                         if (isTransparent(pixel)) {
                             pixel = TRANSPARENT_COLOR
                         }
@@ -168,24 +168,24 @@ class NinePatchChunk(
             }
         }
 
-        private fun hasSameColor(image: NinePatchImage, startX: Int, stopX: Int, startY: Int, stopY: Int): Boolean {
-            val color = image.getPixel(startX, startY)
+        private fun hasSameColor(source: NinePatchPixelSource, startX: Int, stopX: Int, startY: Int, stopY: Int): Boolean {
+            val color = source.getPixel(startX, startY)
             for (x in startX..stopX) {
                 for (y in startY..stopY) {
-                    if (color != image.getPixel(x, y)) return false
+                    if (color != source.getPixel(x, y)) return false
                 }
             }
             return true
         }
 
-        private fun setupPadding(image: NinePatchImage, out: NinePatchChunk) {
-            val maxXPixels = image.width - 2
-            val maxYPixels = image.height - 2
-            val xPaddings = getXDivs(image, image.height - 1)
+        private fun setupPadding(source: NinePatchPixelSource, out: NinePatchChunk) {
+            val maxXPixels = source.width - 2
+            val maxYPixels = source.height - 2
+            val xPaddings = getXDivs(source, source.height - 1)
             if (xPaddings.size > 1) {
                 throw WrongPaddingException("Raw padding is wrong. Should be only one horizontal padding region")
             }
-            val yPaddings = getYDivs(image, image.width - 1)
+            val yPaddings = getYDivs(source, source.width - 1)
             if (yPaddings.size > 1) {
                 throw WrongPaddingException("Column padding is wrong. Should be only one vertical padding region")
             }
@@ -198,12 +198,12 @@ class NinePatchChunk(
             out.padding.bottom = maxYPixels - yPaddings[0].stop
         }
 
-        private fun setupStretchableRegions(image: NinePatchImage, out: NinePatchChunk) {
-            out.xDivs = getXDivs(image, 0)
+        private fun setupStretchableRegions(source: NinePatchPixelSource, out: NinePatchChunk) {
+            out.xDivs = getXDivs(source, 0)
             if (out.xDivs.isEmpty()) {
                 throw DivLengthException("must be at least one horizontal stretchable region")
             }
-            out.yDivs = getYDivs(image, 0)
+            out.yDivs = getYDivs(source, 0)
             if (out.yDivs.isEmpty()) {
                 throw DivLengthException("must be at least one vertical stretchable region")
             }
@@ -228,20 +228,20 @@ class NinePatchChunk(
             return out
         }
 
-        private fun getYDivs(image: NinePatchImage, column: Int): MutableList<NinePatchDiv> {
+        private fun getYDivs(source: NinePatchPixelSource, column: Int): MutableList<NinePatchDiv> {
             val yDivs = ArrayList<NinePatchDiv>()
             var tmpDiv: NinePatchDiv? = null
-            for (i in 1 until image.height) {
-                tmpDiv = processChunk(image.getPixel(column, i), tmpDiv, i - 1, yDivs)
+            for (i in 1 until source.height) {
+                tmpDiv = processChunk(source.getPixel(column, i), tmpDiv, i - 1, yDivs)
             }
             return yDivs
         }
 
-        private fun getXDivs(image: NinePatchImage, row: Int): MutableList<NinePatchDiv> {
+        private fun getXDivs(source: NinePatchPixelSource, row: Int): MutableList<NinePatchDiv> {
             val xDivs = ArrayList<NinePatchDiv>()
             var tmpDiv: NinePatchDiv? = null
-            for (i in 1 until image.width) {
-                tmpDiv = processChunk(image.getPixel(i, row), tmpDiv, i - 1, xDivs)
+            for (i in 1 until source.width) {
+                tmpDiv = processChunk(source.getPixel(i, row), tmpDiv, i - 1, xDivs)
             }
             return xDivs
         }
@@ -263,37 +263,37 @@ class NinePatchChunk(
             return currentDiv
         }
 
-        private fun hasNinePatchBorder(image: NinePatchImage): Boolean {
-            val width = image.width
-            val height = image.height
+        private fun hasNinePatchBorder(source: NinePatchPixelSource): Boolean {
+            val width = source.width
+            val height = source.height
             val lastXPixel = width - 1
             val lastYPixel = height - 1
             for (i in 1 until lastXPixel) {
-                if (!isBorderPixel(image.getPixel(i, 0)) || !isBorderPixel(image.getPixel(i, lastYPixel))) {
+                if (!isBorderPixel(source.getPixel(i, 0)) || !isBorderPixel(source.getPixel(i, lastYPixel))) {
                     return false
                 }
             }
             for (i in 1 until lastYPixel) {
-                if (!isBorderPixel(image.getPixel(0, i)) || !isBorderPixel(image.getPixel(lastXPixel, i))) {
+                if (!isBorderPixel(source.getPixel(0, i)) || !isBorderPixel(source.getPixel(lastXPixel, i))) {
                     return false
                 }
             }
-            if (getXDivs(image, 0).isEmpty()) return false
-            if (getXDivs(image, lastYPixel).size > 1) return false
-            if (getYDivs(image, 0).isEmpty()) return false
-            if (getYDivs(image, lastXPixel).size > 1) return false
+            if (getXDivs(source, 0).isEmpty()) return false
+            if (getXDivs(source, lastYPixel).size > 1) return false
+            if (getYDivs(source, 0).isEmpty()) return false
+            if (getYDivs(source, lastXPixel).size > 1) return false
             return true
         }
 
         private fun isBorderPixel(pixel: Int): Boolean = isTransparent(pixel) || isBlack(pixel)
 
-        private fun isCornerPixelsTransparent(image: NinePatchImage): Boolean {
-            val lastYPixel = image.height - 1
-            val lastXPixel = image.width - 1
-            return isTransparent(image.getPixel(0, 0)) &&
-                isTransparent(image.getPixel(0, lastYPixel)) &&
-                isTransparent(image.getPixel(lastXPixel, 0)) &&
-                isTransparent(image.getPixel(lastXPixel, lastYPixel))
+        private fun isCornerPixelsTransparent(source: NinePatchPixelSource): Boolean {
+            val lastYPixel = source.height - 1
+            val lastXPixel = source.width - 1
+            return isTransparent(source.getPixel(0, 0)) &&
+                isTransparent(source.getPixel(0, lastYPixel)) &&
+                isTransparent(source.getPixel(lastXPixel, 0)) &&
+                isTransparent(source.getPixel(lastXPixel, lastYPixel))
         }
 
         private fun isTransparent(color: Int): Boolean = ((color ushr 24) and 0xFF) == 0

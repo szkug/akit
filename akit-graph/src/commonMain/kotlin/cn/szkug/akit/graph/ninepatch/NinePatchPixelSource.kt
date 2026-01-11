@@ -1,6 +1,6 @@
 package cn.szkug.akit.graph.ninepatch
 
-interface NinePatchImage {
+interface NinePatchPixelSource {
     val width: Int
     val height: Int
     fun getPixel(x: Int, y: Int): Int
