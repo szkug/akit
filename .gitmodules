@@ -1,6 +1,3 @@
-[submodule "submodules/NinePatchChunk"]
-	path = submodules/NinePatchChunk
-	url = https://github.com/Anatolii/NinePatchChunk.git
 [submodule "submodules/renderscript-intrinsics-replacement-toolkit"]
 	path = submodules/renderscript-intrinsics-replacement-toolkit
 	url = https://github.com/korilin/renderscript-intrinsics-replacement-toolkit
