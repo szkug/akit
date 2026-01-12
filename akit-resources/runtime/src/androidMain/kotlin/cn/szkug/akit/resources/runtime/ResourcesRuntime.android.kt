@@ -1,5 +1,6 @@
 package cn.szkug.akit.resources.runtime
 
+import android.content.Context
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -10,8 +11,8 @@ import cn.szkug.akit.graph.toPainter
 actual typealias ResourceId = Int
 
 @Composable
-actual fun stringResource(id: ResourceId, vararg formatArgs: Any?): String {
-    return androidx.compose.ui.res.stringResource(id, formatArgs)
+actual fun stringResource(id: ResourceId, vararg formatArgs: Any): String {
+    return androidx.compose.ui.res.stringResource(id, *formatArgs)
 }
 
 @Composable

@@ -11,10 +11,12 @@ struct ComposeView: UIViewControllerRepresentable {
 }
 
 struct ContentView: View {
+    @AppStorage("akit.app.language") private var appLanguage: String = ""
+
     var body: some View {
         ComposeView()
+            .id(appLanguage.isEmpty ? "system" : appLanguage)
             .ignoresSafeArea()
     }
 }
-
 

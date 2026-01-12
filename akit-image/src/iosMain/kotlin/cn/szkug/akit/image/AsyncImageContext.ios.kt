@@ -3,9 +3,9 @@ package cn.szkug.akit.image
 import androidx.compose.runtime.ProvidableCompositionLocal
 import coil3.compose.LocalPlatformContext
 
-actual typealias PlatformContext = coil3.PlatformContext
+actual typealias PlatformImageContext = coil3.PlatformContext
 
-actual val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext> = LocalPlatformContext
+actual val LocalPlatformImageContext: ProvidableCompositionLocal<PlatformImageContext> = LocalPlatformContext
 
 actual object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
 

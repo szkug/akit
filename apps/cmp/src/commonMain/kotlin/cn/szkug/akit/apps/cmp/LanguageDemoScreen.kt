@@ -13,17 +13,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import cn.szkug.akit.resources.runtime.ResourceLocaleManager
 import cn.szkug.akit.resources.runtime.painterResource
 import cn.szkug.akit.resources.runtime.stringResource
 
 @Composable
 fun LanguageDemoPage(onBack: () -> Unit) {
-    val languageCode = ResourceLocaleManager.locale.languageCode
+    val languageManager = rememberAppLanguageManager()
+    var languageCode by rememberSaveable { mutableStateOf(languageManager.getAppLanguage()) }
     Column(modifier = Modifier.fillMaxSize()) {
         PageHeader(title = stringResource(Res.strings.language_demo_title), onBack = onBack)
         Column(
@@ -37,13 +41,22 @@ fun LanguageDemoPage(onBack: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Button(onClick = { ResourceLocaleManager.update(null) }) {
+                Button(onClick = {
+                    languageManager.setAppLanguage(null)
+                    languageCode = languageManager.getAppLanguage()
+                }) {
                     Text(text = stringResource(Res.strings.language_demo_button_system))
                 }
-                Button(onClick = { ResourceLocaleManager.update("en") }) {
+                Button(onClick = {
+                    languageManager.setAppLanguage("en")
+                    languageCode = languageManager.getAppLanguage()
+                }) {
                     Text(text = stringResource(Res.strings.language_demo_button_en))
                 }
-                Button(onClick = { ResourceLocaleManager.update("ar") }) {
+                Button(onClick = {
+                    languageManager.setAppLanguage("ar")
+                    languageCode = languageManager.getAppLanguage()
+                }) {
                     Text(text = stringResource(Res.strings.language_demo_button_ar))
                 }
             }
@@ -52,7 +65,7 @@ fun LanguageDemoPage(onBack: () -> Unit) {
                 null -> stringResource(Res.strings.language_demo_button_system)
                 "en" -> stringResource(Res.strings.language_demo_button_en)
                 "ar" -> stringResource(Res.strings.language_demo_button_ar)
-                else -> languageCode
+                else -> languageCode ?: ""
             }
             Text(text = stringResource(Res.strings.language_demo_current, currentLabel))
             Text(text = stringResource(Res.strings.language_demo_sample))

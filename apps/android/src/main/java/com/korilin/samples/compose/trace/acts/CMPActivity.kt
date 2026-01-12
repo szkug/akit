@@ -1,11 +1,17 @@
 package com.korilin.samples.compose.trace.acts
 
+import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import cn.szkug.akit.apps.cmp.AkitCmpApp
+import cn.szkug.akit.apps.cmp.AndroidAppLanguageStore
 
-class CMPActivity : ComponentActivity() {
+class CMPActivity : AppCompatActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AndroidAppLanguageStore.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

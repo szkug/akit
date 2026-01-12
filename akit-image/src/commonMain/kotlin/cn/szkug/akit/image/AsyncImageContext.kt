@@ -7,9 +7,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.coroutines.CoroutineContext
 
 
-expect abstract class PlatformContext
+expect abstract class PlatformImageContext
 
-expect val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext>
+expect val LocalPlatformImageContext: ProvidableCompositionLocal<PlatformImageContext>
 
 expect object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
     override fun setLevel(level: AsyncImageLogger.Level)
@@ -35,7 +35,7 @@ interface AsyncImageLogger {
 }
 
 class AsyncImageContext(
-    val context: PlatformContext,
+    val context: PlatformImageContext,
     val coroutineContext: CoroutineContext,
 
     val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
@@ -57,7 +57,7 @@ fun rememberAsyncImageContext(
     supportNinepatch: Boolean = false,
 ): AsyncImageContext {
 
-    val platformContext = LocalPlatformContext.current
+    val platformContext = LocalPlatformImageContext.current
     return remember(ignoreImagePadding, supportNinepatch, animationContext, *keys) {
         AsyncImageContext(
             context = platformContext,

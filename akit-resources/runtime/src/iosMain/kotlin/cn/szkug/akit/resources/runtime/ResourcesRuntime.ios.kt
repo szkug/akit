@@ -23,6 +23,7 @@ import org.jetbrains.skia.Image
 import platform.Foundation.NSBundle
 import platform.Foundation.NSData
 import platform.Foundation.NSURL
+import platform.Foundation.NSUserDefaults
 import platform.Foundation.dataWithContentsOfFile
 import platform.posix.memcpy
 import platform.UIKit.UIScreen
@@ -41,11 +42,15 @@ private data class ResourcePath(
     val extension: String,
 )
 
+private val bundleCache = mutableMapOf<String, NSBundle>()
+private val preferredLocalesCache = mutableMapOf<String, List<String>>()
+private val scaleCandidatesCache = mutableMapOf<String, List<String>>()
+
 @Composable
-actual fun stringResource(id: ResourceId, vararg formatArgs: Any?): String {
+actual fun stringResource(id: ResourceId, vararg formatArgs: Any): String {
     val info = decodeResourceId(id)
     val bundle = resourceBundle(info.frameworkName)
-    val localeOverride = LocalResourceLocale.current.languageCode ?: ResourceLocaleManager.locale.languageCode
+    val localeOverride = userDefaultsLanguage()
     val locales = preferredLocales(bundle, localeOverride)
     val raw = loadLocalizedString(bundle, info.prefix, info.value, locales)
     return formatString(raw, formatArgs)
@@ -53,7 +58,7 @@ actual fun stringResource(id: ResourceId, vararg formatArgs: Any?): String {
 
 @Composable
 actual fun painterResource(id: ResourceId): Painter {
-    val localeOverride = LocalResourceLocale.current.languageCode ?: ResourceLocaleManager.locale.languageCode
+    val localeOverride = userDefaultsLanguage()
     return remember(id, localeOverride) {
         val info = decodeResourceId(id)
         val path = parseResourcePath(info.value)
@@ -87,9 +92,11 @@ private fun parseResourcePath(value: String): ResourcePath {
 
 private fun resourceBundle(frameworkName: String): NSBundle {
     if (frameworkName.isBlank()) return NSBundle.mainBundle
-    val frameworksPath = NSBundle.mainBundle.privateFrameworksPath ?: return NSBundle.mainBundle
-    val frameworkPath = "$frameworksPath/$frameworkName.framework"
-    return NSBundle.bundleWithPath(frameworkPath) ?: NSBundle.mainBundle
+    return bundleCache.getOrPut(frameworkName) {
+        val frameworksPath = NSBundle.mainBundle.privateFrameworksPath ?: return@getOrPut NSBundle.mainBundle
+        val frameworkPath = "$frameworksPath/$frameworkName.framework"
+        NSBundle.bundleWithPath(frameworkPath) ?: NSBundle.mainBundle
+    }
 }
 
 private fun loadLocalizedString(
@@ -107,6 +114,19 @@ private fun loadLocalizedString(
 }
 
 private val stringTableCache = mutableMapOf<String, Map<String, String>>()
+
+private const val appLanguageKey = "akit.app.language"
+private const val appleLanguagesKey = "AppleLanguages"
+
+private fun userDefaultsLanguage(): String? {
+    val defaults = NSUserDefaults.standardUserDefaults
+    val direct = defaults.stringForKey(appLanguageKey)?.trim()?.takeIf { it.isNotEmpty() }
+    if (direct != null) return direct
+    val languages = defaults.objectForKey(appleLanguagesKey) as? List<*>
+    val first = languages?.firstOrNull() as? String
+    val trimmed = first?.trim()?.takeIf { it.isNotEmpty() }
+    return trimmed
+}
 
 private fun loadStringTable(bundle: NSBundle, prefix: String, locale: String): Map<String, String>? {
     val directory = when {
@@ -132,24 +152,31 @@ private fun localizationDirectory(prefix: String, locale: String): String {
 }
 
 private fun preferredLocales(bundle: NSBundle, overrideLocale: String?): List<String> {
-    val locales = if (overrideLocale.isNullOrBlank()) {
-        bundle.preferredLocalizations.mapNotNull { it as? String }
-    } else {
-        listOf(overrideLocale)
+    val key = buildString {
+        append(bundle.bundlePath)
+        append('|')
+        append(overrideLocale.orEmpty())
     }
-    val out = mutableListOf<String>()
-    for (locale in locales) {
-        val normalized = locale.replace('_', '-').trim()
-        if (normalized.isBlank()) continue
-        out += normalized
-        val base = normalized.substringBefore('-')
-        if (base.isNotBlank() && base != normalized) {
-            out += base
+    return preferredLocalesCache.getOrPut(key) {
+        val locales = if (overrideLocale.isNullOrBlank()) {
+            bundle.preferredLocalizations.mapNotNull { it as? String }
+        } else {
+            listOf(overrideLocale)
         }
+        val out = mutableListOf<String>()
+        for (locale in locales) {
+            val normalized = locale.replace('_', '-').trim()
+            if (normalized.isBlank()) continue
+            out += normalized
+            val base = normalized.substringBefore('-')
+            if (base.isNotBlank() && base != normalized) {
+                out += base
+            }
+        }
+        out += "Base"
+        out += ""
+        out.distinct()
     }
-    out += "Base"
-    out += ""
-    return out.distinct()
 }
 
 private val formatRegex = Regex("%(\\d+\\$)?[@sdif]")
@@ -311,16 +338,18 @@ private fun pathForResource(bundle: NSBundle, name: String, extension: String, d
 }
 
 private fun buildScaleCandidates(name: String): List<String> {
-    val (baseName, hasScaleSuffix) = splitScaleSuffix(name)
-    if (hasScaleSuffix) {
-        return listOf(name, baseName).distinct()
+    return scaleCandidatesCache.getOrPut(name) {
+        val (baseName, hasScaleSuffix) = splitScaleSuffix(name)
+        if (hasScaleSuffix) {
+            return@getOrPut listOf(name, baseName).distinct()
+        }
+        val candidates = mutableListOf<String>()
+        for (scale in preferredScales()) {
+            candidates += applyScaleSuffix(baseName, scale)
+        }
+        candidates += baseName
+        candidates.distinct()
     }
-    val candidates = mutableListOf<String>()
-    for (scale in preferredScales()) {
-        candidates += applyScaleSuffix(baseName, scale)
-    }
-    candidates += baseName
-    return candidates.distinct()
 }
 
 private fun splitScaleSuffix(name: String): Pair<String, Boolean> {

@@ -5,8 +5,8 @@ import android.util.Log
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.ui.platform.LocalContext
 
-actual typealias PlatformContext = Context
-actual val LocalPlatformContext: ProvidableCompositionLocal<PlatformContext> = LocalContext
+actual typealias PlatformImageContext = Context
+actual val LocalPlatformImageContext: ProvidableCompositionLocal<PlatformImageContext> = LocalContext
 
 actual object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
 

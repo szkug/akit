@@ -82,6 +82,7 @@ class CmpResourcesPlugin : Plugin<Project> {
                             from(resRoot)
                             into(appDestDir)
                             exclude("drawable*/**")
+                            exclude("values*/**")
                         }
                     }
                     if (generatedRoot.exists()) {
@@ -128,6 +129,7 @@ class CmpResourcesPlugin : Plugin<Project> {
                                     from(resRoot)
                                     into(destDir)
                                     exclude("drawable*/**")
+                                    exclude("values*/**")
                                 }
                             }
                             if (generatedRoot.exists()) {

@@ -29,7 +29,7 @@
         </receiver>
 
         <activity
-            android:name=".acts.MainActivity"
+            android:name=".acts.CMPActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Composetrace">
@@ -39,18 +39,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".acts.RoomGridListActivity"
-            android:exported="true" />
-        <activity
-            android:name=".acts.CompareActivity"
-            android:exported="true" />
-        <activity
-            android:name=".acts.CMPActivity"
-            android:exported="true" />
-        <activity
-            android:name=".acts.LayoutOptActivity"
-            android:exported="true" />
 
     </application>
 

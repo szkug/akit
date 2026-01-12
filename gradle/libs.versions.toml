@@ -31,11 +31,10 @@ androidx-test-uiautomator = "2.3.0"
 androidx-benchmark-macroJunit4 = "1.3.3"
 androidx-tracing-perfetto = "1.0.0"
 androidx-runtime-tracing = "1.7.6"
-appcompat = "1.7.0"
+appcompat = "1.7.1"
 material = "1.12.0"
 
 maven-public = "0.29.0"
-appcompatResources = "1.7.1"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -96,7 +95,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 
 gradle-plugin-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 gradle-plugin-android = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
-androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompatResources" }
+androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompat" }
 
 [plugins]
 
