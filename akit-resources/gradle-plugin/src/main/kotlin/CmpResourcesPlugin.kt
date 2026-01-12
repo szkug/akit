@@ -41,9 +41,14 @@ class CmpResourcesPlugin : Plugin<Project> {
                 extension.iosFrameworkName.convention(inferredFrameworkName)
             }
 
+            val runtimeDependency = resolveRuntimeDependency()
+
             with(kotlinExt) {
                 sourceSets.commonMain {
                     kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("commonMain") })
+                    dependencies {
+                        implementation(runtimeDependency)
+                    }
                 }
 
                 sourceSets.androidMain {
@@ -57,9 +62,11 @@ class CmpResourcesPlugin : Plugin<Project> {
 
             val syncXcodeResourcesTask = tasks.register("syncCmpIosResourcesToXcode") {
                 outputs.upToDateWhen { false }
+                dependsOn(generateTask)
                 doLast {
                     val resRoot = extension.resDir.get().asFile
-                    if (!resRoot.exists()) return@doLast
+                    val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
+                    if (!resRoot.exists() && !generatedRoot.exists()) return@doLast
                     val appBundle = resolveXcodeAppBundle() ?: return@doLast
                     val prefix = extension.iosResourcesPrefix.get()
                     val appDestDir = if (prefix.isBlank()) {
@@ -70,9 +77,18 @@ class CmpResourcesPlugin : Plugin<Project> {
                     if (!prefix.isBlank()) {
                         project.delete(appDestDir)
                     }
-                    project.copy {
-                        from(resRoot)
-                        into(appDestDir)
+                    if (resRoot.exists()) {
+                        project.copy {
+                            from(resRoot)
+                            into(appDestDir)
+                            exclude("drawable*/**")
+                        }
+                    }
+                    if (generatedRoot.exists()) {
+                        project.copy {
+                            from(generatedRoot)
+                            into(appDestDir)
+                        }
                     }
                 }
             }
@@ -82,9 +98,11 @@ class CmpResourcesPlugin : Plugin<Project> {
             kotlinExt.targets.withType(KotlinNativeTarget::class.java).configureEach {
                 binaries.withType(Framework::class.java).configureEach {
                     linkTaskProvider.configure {
+                        dependsOn(generateTask)
                         doLast {
                             val resRoot = extension.resDir.get().asFile
-                            if (!resRoot.exists()) return@doLast
+                            val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
+                            if (!resRoot.exists() && !generatedRoot.exists()) return@doLast
                             val prefix = extension.iosResourcesPrefix.get()
                             val frameworkDir = if (outputDirectory.name.endsWith(".framework")) {
                                 outputDirectory
@@ -105,9 +123,18 @@ class CmpResourcesPlugin : Plugin<Project> {
                             }
                             project.delete(legacyDest)
                             project.delete(destDir)
-                            project.copy {
-                                from(resRoot)
-                                into(destDir)
+                            if (resRoot.exists()) {
+                                project.copy {
+                                    from(resRoot)
+                                    into(destDir)
+                                    exclude("drawable*/**")
+                                }
+                            }
+                            if (generatedRoot.exists()) {
+                                project.copy {
+                                    from(generatedRoot)
+                                    into(destDir)
+                                }
                             }
                             patchFrameworkInfoPlist(
                                 frameworkDir,
@@ -130,6 +157,14 @@ class CmpResourcesPlugin : Plugin<Project> {
             }
         }
     }
+}
+
+private fun Project.resolveRuntimeDependency(): Any {
+    val runtimeProject = rootProject.findProject(":akit-resources:runtime")
+    if (runtimeProject != null) return runtimeProject
+    val group = rootProject.findProperty("publish.group") as? String ?: "cn.szkug.akit"
+    val version = rootProject.findProperty("publish.version") as? String ?: "unspecified"
+    return "$group:akit-resources-runtime:$version"
 }
 
 private fun resolveXcodeAppBundle(): File? {

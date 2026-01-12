@@ -1,7 +1,7 @@
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            from(files("../gradle/libs.versions.toml"))
+            from(files("../../gradle/libs.versions.toml"))
         }
     }
     repositories {
@@ -19,8 +19,4 @@ pluginManagement {
     }
 }
 
-// gradle feature
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-
-include("modules")

@@ -1,8 +1,16 @@
 <resources>
-    <string name="demo_title">Akit Image Demo</string>
+    <string name="ninepatch_demo_title">NinePatch Demo</string>
     <string name="section_res">======= Res =======</string>
     <string name="section_url">======= URL =======</string>
     <string name="sample_short">Kotlin &amp; Compose &amp; Kotlin &amp; Compose</string>
     <string name="sample_medium">Kotlin &amp; Compose &amp; Kotlin &amp; Compose &amp; Kotlin &amp; Compose</string>
     <string name="sample_long">Kotlin &amp; Compose &amp; Kotlin &amp; Compose &amp; Kotlin &amp; Compose &amp; Kotlin &amp; Compose &amp; Kotlin &amp; Compose &amp; Kotlin &amp; Compose</string>
+    <string name="language_demo_title">Language Demo</string>
+    <string name="language_demo_desc">Toggle the app language to preview localized text and images.</string>
+    <string name="language_demo_current">Current language: %s</string>
+    <string name="language_demo_button_system">System</string>
+    <string name="language_demo_button_en">English</string>
+    <string name="language_demo_button_ar">Arabic</string>
+    <string name="language_demo_sample">This is a localized sample sentence.</string>
+    <string name="language_demo_image_label">Localized image</string>
 </resources>

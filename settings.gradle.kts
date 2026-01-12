@@ -31,6 +31,7 @@ rootProject.name = "akit"
 
 // build logic
 includeBuild("plugins")
+includeBuild("akit-resources/gradle-plugin")
 
 // apps
 include(":apps:android")
@@ -40,6 +41,7 @@ include(":benchmark")
 // glide
 include(":akit-image")
 include(":akit-graph")
+include(":akit-resources:runtime")
 include(":glide:extensions-ninepatch")
 include(":glide:extensions-blur")
 include(":renderscript-toolkit-publish")

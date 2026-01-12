@@ -46,7 +46,7 @@
             android:name=".acts.CompareActivity"
             android:exported="true" />
         <activity
-            android:name=".acts.NinePatchActivity"
+            android:name=".acts.CMPActivity"
             android:exported="true" />
         <activity
             android:name=".acts.LayoutOptActivity"

@@ -11,4 +11,5 @@ private class AndroidNinePatchSource(private val bitmap: Bitmap) : NinePatchPixe
     override fun getPixel(x: Int, y: Int): Int = bitmap.getPixel(x, y)
 }
 
-internal fun Bitmap.asNinePatchSource(): NinePatchPixelSource = AndroidNinePatchSource(this)
+
+fun Bitmap.asNinePatchSource(): NinePatchPixelSource = AndroidNinePatchSource(this)

@@ -28,6 +28,7 @@ private enum class DemoPage {
     Home,
     ImageDemo,
     AnimatedImageList,
+    LocalizedDemo,
 }
 
 @Composable
@@ -38,8 +39,9 @@ fun AkitCmpApp() {
         var page by remember { mutableStateOf(DemoPage.Home) }
         when (page) {
             DemoPage.Home -> HomeScreen(onNavigate = { page = it })
-            DemoPage.ImageDemo -> ImageDemoPage(onBack = { page = DemoPage.Home })
+            DemoPage.ImageDemo -> ImageNinePatchPage(onBack = { page = DemoPage.Home })
             DemoPage.AnimatedImageList -> AnimatedImageListPage(onBack = { page = DemoPage.Home })
+            DemoPage.LocalizedDemo -> LanguageDemoPage(onBack = { page = DemoPage.Home })
         }
     }
 }
@@ -53,18 +55,21 @@ private fun HomeScreen(onNavigate: (DemoPage) -> Unit) {
         Text(text = "Akit CMP Demo")
         Text(text = "Select a page:")
         Button(onClick = { onNavigate(DemoPage.ImageDemo) }) {
-            Text(text = "Image Demo")
+            Text(text = "NinePatch Demo")
         }
         Button(onClick = { onNavigate(DemoPage.AnimatedImageList) }) {
             Text(text = "Animated Image List")
+        }
+        Button(onClick = { onNavigate(DemoPage.LocalizedDemo) }) {
+            Text(text = "Language Demo")
         }
     }
 }
 
 @Composable
-private fun ImageDemoPage(onBack: () -> Unit) {
+private fun ImageNinePatchPage(onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
-        PageHeader(title = "Image Demo", onBack = onBack)
+        PageHeader(title = "NinePatch", onBack = onBack)
         AkitImageDemoScreen(
             url = DemoUrls.ninePatchUrl,
             modifier = Modifier.fillMaxSize(),
@@ -102,7 +107,7 @@ private fun AnimatedImageListPage(onBack: () -> Unit) {
 }
 
 @Composable
-private fun PageHeader(
+fun PageHeader(
     title: String,
     onBack: () -> Unit,
 ) {

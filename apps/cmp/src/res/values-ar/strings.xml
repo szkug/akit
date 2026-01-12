@@ -1,0 +1,16 @@
+<resources>
+    <string name="ninepatch_demo_title">عرض رقعة NinePatch</string>
+    <string name="section_res">======= الموارد =======</string>
+    <string name="section_url">======= الروابط =======</string>
+    <string name="sample_short">كوتلن و كومبوز و كوتلن و كومبوز</string>
+    <string name="sample_medium">كوتلن و كومبوز و كوتلن و كومبوز و كوتلن و كومبوز</string>
+    <string name="sample_long">كوتلن و كومبوز و كوتلن و كومبوز و كوتلن و كومبوز و كوتلن و كومبوز و كوتلن و كومبوز و كوتلن و كومبوز</string>
+    <string name="language_demo_title">عرض اللغات</string>
+    <string name="language_demo_desc">بدّل لغة التطبيق لمعاينة النصوص والصور المترجمة.</string>
+    <string name="language_demo_current">اللغة الحالية: %s</string>
+    <string name="language_demo_button_system">النظام</string>
+    <string name="language_demo_button_en">الإنجليزية</string>
+    <string name="language_demo_button_ar">العربية</string>
+    <string name="language_demo_sample">هذه جملة تجريبية مترجمة.</string>
+    <string name="language_demo_image_label">صورة مترجمة</string>
+</resources>

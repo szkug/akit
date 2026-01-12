@@ -17,9 +17,5 @@ gradlePlugin {
             id = "com.korilin.akit.alib"
             implementationClass = "AlibPlugin"
         }
-        register("CmpResourcesPlugin") {
-            id = "com.korilin.akit.cmp-resources"
-            implementationClass = "CmpResourcesPlugin"
-        }
     }
 }
