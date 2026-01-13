@@ -31,16 +31,16 @@ rootProject.name = "akit"
 
 // build logic
 includeBuild("plugins")
-includeBuild("akit-libraries/resources/gradle-plugin")
+includeBuild("akit-libraries/resources-gradle-plugin")
 
 // libraries
 includeBuild("akit-libraries") {
     dependencySubstitution {
-        substitute(module("cn.szkug.akit:akit-graph")).using(project(":graph"))
-        substitute(module("cn.szkug.akit:akit-image")).using(project(":image"))
-        substitute(module("cn.szkug.akit:akit-resources-runtime")).using(project(":resources:runtime"))
-        substitute(module("cn.szkug.akit.glide:extension-ninepatch")).using(project(":glide-ninepatch-module"))
-        substitute(module("cn.szkug.akit.glide:extension-blur")).using(project(":glide-blur-module"))
+        substitute(module("cn.szkug.akit:akit-graph")).using(project(":akit-graph"))
+        substitute(module("cn.szkug.akit:akit-image")).using(project(":akit-image"))
+        substitute(module("cn.szkug.akit:akit-resources-runtime")).using(project(":resources-runtime"))
+        substitute(module("cn.szkug.akit:glide-ninepatch-module")).using(project(":glide-ninepatch-module"))
+        substitute(module("cn.szkug.akit:glide-blur-module")).using(project(":glide-blur-module"))
     }
 }
 
@@ -48,6 +48,3 @@ includeBuild("akit-libraries") {
 include(":apps:android")
 include(":apps:cmp")
 include(":benchmark")
-
-// renderscript
-include(":renderscript-toolkit-publish")

@@ -9,9 +9,6 @@ plugins {
     id("cn.szkug.akit.resources")
 }
 
-val publishVersion = properties["publish.version"] as String
-val publishGroup = properties["publish.group"] as String
-
 kotlin {
     androidTarget()
 
@@ -33,7 +30,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            api("$publishGroup:akit-image:$publishVersion")
+            api("cn.szkug.akit:akit-image")
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

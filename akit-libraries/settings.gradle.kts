@@ -35,8 +35,9 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "akit-libraries"
 
-include(":graph")
-include(":image")
+include(":akit-graph")
+include(":akit-image")
 include(":glide-blur-module")
 include(":glide-ninepatch-module")
-include(":resources:runtime")
+include(":resources-runtime")
+include(":renderscript-toolkit-publish")

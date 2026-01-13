@@ -5,10 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-val publishVersion = properties["publish.version"] as String
-val publishGroup = properties["publish.group"] as String
-val glideGroup = "$publishGroup.glide"
-
 android {
     signingConfigs {
         val debug = getByName("debug") {
@@ -99,13 +95,12 @@ dependencies {
 
     // project modules
     implementation("cn.szkug.akit:akit-image")
-    implementation("$glideGroup:extension-ninepatch:$publishVersion")
-    implementation("$glideGroup:extension-blur:$publishVersion")
+    implementation("cn.szkug.akit:glide-ninepatch-module")
+    implementation("cn.szkug.akit:glide-blur-module")
     implementation(projects.apps.cmp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
