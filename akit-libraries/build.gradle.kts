@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
+import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
@@ -32,6 +33,8 @@ val manager = VersionManager()
 
 val mavenPublishPluginId = libs.plugins.maven.publish.get().pluginId
 
+
+// ./gradlew -p akit-libraries publishAllPublicationsToMavenCentralRepository
 allprojects {
 
     pluginManager.apply(mavenPublishPluginId)
@@ -41,6 +44,9 @@ allprojects {
     project.extensions.findByType(MavenPublishBaseExtension::class.java)?.apply {
         group = manager.group
         version = manager.version
+
+        publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+        signAllPublications()
 
         coordinates(group as String, name, version as String)
 
