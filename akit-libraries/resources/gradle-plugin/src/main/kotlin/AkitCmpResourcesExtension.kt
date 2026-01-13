@@ -1,7 +1,7 @@
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 
-abstract class CmpResourcesExtension {
+abstract class AkitCmpResourcesExtension {
     abstract val packageName: Property<String>
     abstract val androidNamespace: Property<String>
     abstract val resDir: DirectoryProperty

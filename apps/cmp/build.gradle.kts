@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.project.alib)
-    id("cn.szkug.akit.cmp-resources")
+    id("cn.szkug.akit.resources")
 }
 
 val publishVersion = properties["publish.version"] as String

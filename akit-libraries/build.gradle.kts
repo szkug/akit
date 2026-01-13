@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.cocoapods) apply false
+    alias(libs.plugins.maven.publish) apply false
 }
 
 allprojects {

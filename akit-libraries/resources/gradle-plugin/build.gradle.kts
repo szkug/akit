@@ -1,8 +1,7 @@
-import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.maven.publish)
+    id("com.gradle.plugin-publish") version "2.0.0"
 }
 
 kotlin {
@@ -14,27 +13,21 @@ dependencies {
     compileOnly(libs.gradle.plugin.android)
 }
 
+
+version = properties["publish.version"] as String
+group = "cn.szkug.akit.resources"
+
 gradlePlugin {
+    website.set("https://github.com/szkug/akit")
+    vcsUrl.set("https://github.com/szkug/akit")
+
     plugins {
-        register("CmpResourcesPlugin") {
-            id = "cn.szkug.akit.cmp-resources"
-            implementationClass = "CmpResourcesPlugin"
+        register("AkitCmpResourcesPlugin") {
+            id = "cn.szkug.akit.resources"
+            implementationClass = "AkitCmpResourcesPlugin"
+            displayName = "Akit Compose Multiplatform Resources Plugin"
+            description = "Mange multiplatform resource & generate ResourceId"
+            tags.set(listOf("kotlin", "Compose", "Kotlin Multiplatform"))
         }
-    }
-}
-
-mavenPublishing {
-
-    val version = properties["publish.version"] as String
-    val group = properties["publish.group"] as String
-
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
-
-    coordinates(group, "akit-resources-plugin", version)
-
-    pom {
-        name = "Akit Resources Plugin"
-        description = "Akit Multiplatform Resources Gradle Plugin"
     }
 }

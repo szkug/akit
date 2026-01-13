@@ -10,9 +10,9 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
 
-class CmpResourcesPlugin : Plugin<Project> {
+class AkitCmpResourcesPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
-        val extension = extensions.create<CmpResourcesExtension>("cmpResources")
+        val extension = extensions.create<AkitCmpResourcesExtension>("cmpResources")
         extension.packageName.convention("")
         extension.androidNamespace.convention("")
         extension.resDir.convention(layout.projectDirectory.dir("src/res"))
