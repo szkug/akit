@@ -1,3 +1,5 @@
+import java.util.Properties
+import kotlin.apply
 
 plugins {
     `kotlin-dsl`
@@ -13,8 +15,12 @@ dependencies {
     compileOnly(libs.gradle.plugin.android)
 }
 
+private val versionManager by lazy {
+    val file = project.file("../version.properties")
+    Properties().apply { load(file.inputStream()) }
+}
 
-version = properties["publish.version"] as String
+version = versionManager["publish.version"] as String
 group = "cn.szkug.akit.resources"
 
 gradlePlugin {

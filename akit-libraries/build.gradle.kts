@@ -35,7 +35,7 @@ val mavenPublishPluginId = libs.plugins.maven.publish.get().pluginId
 
 
 // ./gradlew -p akit-libraries publishAllPublicationsToMavenCentralRepository
-allprojects {
+subprojects {
 
     pluginManager.apply(mavenPublishPluginId)
 
