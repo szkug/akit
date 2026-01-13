@@ -39,6 +39,8 @@ includeBuild("akit-libraries") {
         substitute(module("cn.szkug.akit:akit-graph")).using(project(":graph"))
         substitute(module("cn.szkug.akit:akit-image")).using(project(":image"))
         substitute(module("cn.szkug.akit:akit-resources-runtime")).using(project(":resources:runtime"))
+        substitute(module("cn.szkug.akit.glide:extension-ninepatch")).using(project(":glide-ninepatch-module"))
+        substitute(module("cn.szkug.akit.glide:extension-blur")).using(project(":glide-blur-module"))
     }
 }
 
@@ -47,7 +49,5 @@ include(":apps:android")
 include(":apps:cmp")
 include(":benchmark")
 
-// glide
-include(":glide:extensions-ninepatch")
-include(":glide:extensions-blur")
+// renderscript
 include(":renderscript-toolkit-publish")

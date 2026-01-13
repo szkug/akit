@@ -7,19 +7,20 @@ plugins {
     kotlin("kapt")
 }
 
+val publishVersion = properties["publish.version"] as String
+val publishGroup = properties["publish.group"] as String
+val glideGroup = "$publishGroup.glide"
+val renderScriptVersion = properties["renderscript.toolkit.version"] as? String ?: "1.0.1"
+
 android {
     namespace = "cb.szkug.akit.glide.extensions.blur"
 }
 
 mavenPublishing {
-
-    val version = properties["publish.version"] as String
-    val group = properties["publish.group"] as String + ".glide"
-
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates(group, "extension-blur", version)
+    coordinates(glideGroup, "extension-blur", publishVersion)
 
     pom {
         name = "Akit Glide Blur Extension"
@@ -33,7 +34,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     implementation(libs.glide.runtime)
-    api(projects.renderscriptToolkitPublish)
+    api("$publishGroup:renderscript-toolkit:$renderScriptVersion")
     compileOnly(libs.glide.annotations)
     kapt(libs.glide.compiler)
 

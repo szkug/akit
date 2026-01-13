@@ -7,6 +7,7 @@ plugins {
 
 val publishVersion = properties["publish.version"] as String
 val publishGroup = properties["publish.group"] as String
+val glideGroup = "$publishGroup.glide"
 
 android {
     signingConfigs {
@@ -97,9 +98,9 @@ dependencies {
     implementation(libs.androidx.runtime.tracing)
 
     // project modules
-    implementation("$publishGroup:akit-image:$publishVersion")
-    implementation(projects.glide.extensionsNinepatch)
-    implementation(projects.glide.extensionsBlur)
+    implementation("cn.szkug.akit:akit-image")
+    implementation("$glideGroup:extension-ninepatch:$publishVersion")
+    implementation("$glideGroup:extension-blur:$publishVersion")
     implementation(projects.apps.cmp)
 
     testImplementation(libs.junit)

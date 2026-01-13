@@ -10,7 +10,6 @@ plugins {
 
 val publishVersion = properties["publish.version"] as String
 val publishGroup = properties["publish.group"] as String
-val glideGroup = "$publishGroup.glide"
 
 kotlin {
     androidTarget()
@@ -31,7 +30,7 @@ kotlin {
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
             implementation(libs.bundles.glide)
-            api("$glideGroup:extension-ninepatch:$publishVersion")
+            implementation(projects.glideNinepatchModule)
         }
         iosMain.dependencies {
             implementation(libs.coil.compose)

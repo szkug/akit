@@ -34,7 +34,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     implementation(libs.glide.runtime)
-    implementation("$publishGroup:akit-graph:$publishVersion")
+    implementation(projects.graph)
     compileOnly(libs.glide.annotations)
     kapt(libs.glide.compiler)
 

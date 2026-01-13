@@ -37,4 +37,6 @@ rootProject.name = "akit-libraries"
 
 include(":graph")
 include(":image")
+include(":glide-blur-module")
+include(":glide-ninepatch-module")
 include(":resources:runtime")

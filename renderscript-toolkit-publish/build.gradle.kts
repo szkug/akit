@@ -8,8 +8,9 @@ plugins {
 
 val renderScriptDir = "../submodules/renderscript-intrinsics-replacement-toolkit/renderscript-toolkit"
 val renderScriptSource = "$renderScriptDir/src/main"
+val renderScriptVersion = properties["renderscript.toolkit.version"] as? String ?: "1.0.1"
 
-version = "1.0.1"
+version = renderScriptVersion
 group = properties["publish.group"] as String
 
 android {
@@ -28,7 +29,7 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates(group as String, "renderscript-toolkit", version as String)
+    coordinates(group as String, "renderscript-toolkit", renderScriptVersion)
 
     pom {
         name = "Akit renderscript toolkit"
