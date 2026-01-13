@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.benchmark
+package cn.szkug.samples.compose.trace.benchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode

@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.stash
+package cn.szkug.samples.compose.trace.stash
 
 import android.os.Build
 import android.view.View

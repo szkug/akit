@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace
+package cn.szkug.samples.compose.trace
 
 import android.graphics.Rect
 import android.graphics.drawable.NinePatchDrawable

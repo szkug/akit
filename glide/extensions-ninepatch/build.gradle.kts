@@ -9,7 +9,7 @@ plugins {
 
 
 android {
-    namespace = "com.korilin.akit.glide.extensions.ninepatch"
+    namespace = "cn.szkug.akit.glide.extensions.ninepatch"
 }
 
 mavenPublishing {

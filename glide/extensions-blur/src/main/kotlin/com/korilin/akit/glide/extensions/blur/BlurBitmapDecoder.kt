@@ -1,4 +1,4 @@
-package com.korilin.akit.glide.extensions.blur
+package cn.szkug.akit.glide.extensions.blur
 
 import android.content.Context
 import android.graphics.Bitmap

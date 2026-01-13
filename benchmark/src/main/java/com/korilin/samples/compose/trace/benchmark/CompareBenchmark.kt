@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.benchmark
+package cn.szkug.samples.compose.trace.benchmark
 
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric

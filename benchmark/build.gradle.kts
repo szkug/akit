@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.korilin.samples.compose.trace.benchmark"
+    namespace = "cn.szkug.samples.compose.trace.benchmark"
     compileSdk = 35
 
     defaultConfig {

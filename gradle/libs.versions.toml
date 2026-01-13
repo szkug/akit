@@ -109,7 +109,7 @@ jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-kmp" 
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 
-project-alib = { id = "com.korilin.akit.alib" , version = "unspecified"}
+project-alib = { id = "cn.szkug.akit.alib" , version = "unspecified"}
 
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-public" }
 

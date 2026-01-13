@@ -14,7 +14,7 @@ dependencies {
 gradlePlugin {
     plugins {
         register("AlibPlugin") {
-            id = "com.korilin.akit.alib"
+            id = "cn.szkug.akit.alib"
             implementationClass = "AlibPlugin"
         }
     }

@@ -20,8 +20,8 @@ import cn.szkug.akit.image.ResolvableImageSize
 import cn.szkug.akit.image.ResourceModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
-import com.korilin.akit.glide.extensions.ninepatch.NinePatchDrawableDecoder
-import com.korilin.akit.glide.extensions.ninepatch.NinepatchEnableOption
+import cn.szkug.akit.glide.extensions.ninepatch.NinePatchDrawableDecoder
+import cn.szkug.akit.glide.extensions.ninepatch.NinepatchEnableOption
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 

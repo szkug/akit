@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.benchmark
+package cn.szkug.samples.compose.trace.benchmark
 
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
@@ -16,7 +16,7 @@ class ExampleStartupBenchmark {
 
     @Test
     fun startup() = benchmarkRule.measureRepeated(
-        packageName = "com.korilin.samples.compose.trace",
+        packageName = "cn.szkug.samples.compose.trace",
         metrics = listOf(StartupTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.COLD,

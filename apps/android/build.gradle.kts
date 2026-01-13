@@ -17,12 +17,12 @@ android {
             initWith(debug)
         }
     }
-    namespace = "com.korilin.samples.compose.trace"
+    namespace = "cn.szkug.samples.compose.trace"
     compileSdk = 35
 
 
     defaultConfig {
-        applicationId = "com.korilin.samples.compose.trace"
+        applicationId = "cn.szkug.samples.compose.trace"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

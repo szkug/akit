@@ -17,7 +17,7 @@ dependencies {
 gradlePlugin {
     plugins {
         register("CmpResourcesPlugin") {
-            id = "com.korilin.akit.cmp-resources"
+            id = "cn.szkug.akit.cmp-resources"
             implementationClass = "CmpResourcesPlugin"
         }
     }

@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.acts
+package cn.szkug.samples.compose.trace.acts
 
 import android.content.Context
 import android.os.Bundle

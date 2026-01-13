@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.benchmark
+package cn.szkug.samples.compose.trace.benchmark
 
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMacrobenchmarkApi
@@ -27,7 +27,7 @@ abstract class AbstractComposeBenchmark(
     @OptIn(ExperimentalMacrobenchmarkApi::class)
     fun benchmark() {
         rule.measureRepeated(
-            packageName = "com.korilin.samples.compose.trace",
+            packageName = "cn.szkug.samples.compose.trace",
             metrics = metrics,
             startupMode = startupMode,
             compilationMode = CompilationMode.Ignore(),

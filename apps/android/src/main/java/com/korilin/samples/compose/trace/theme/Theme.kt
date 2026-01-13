@@ -1,4 +1,4 @@
-package com.korilin.samples.compose.trace.theme
+package cn.szkug.samples.compose.trace.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

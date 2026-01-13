@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Composetrace"
-        android:name="com.korilin.samples.compose.trace.App"
+        android:name="cn.szkug.samples.compose.trace.App"
         tools:targetApi="31">
         <profileable
             android:shell="true"
