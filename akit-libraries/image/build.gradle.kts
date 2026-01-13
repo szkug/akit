@@ -8,6 +8,10 @@ plugins {
     alias(libs.plugins.project.alib)
 }
 
+val publishVersion = properties["publish.version"] as String
+val publishGroup = properties["publish.group"] as String
+val glideGroup = "$publishGroup.glide"
+
 kotlin {
     androidTarget()
 
@@ -20,14 +24,14 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.ui)
-            api(projects.akitGraph)
+            api(projects.graph)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
             implementation(libs.bundles.glide)
-            api(projects.glide.extensionsNinepatch)
+            api("$glideGroup:extension-ninepatch:$publishVersion")
         }
         iosMain.dependencies {
             implementation(libs.coil.compose)
@@ -54,14 +58,10 @@ android {
 }
 
 mavenPublishing {
-
-    val version = properties["publish.version"] as String
-    val group = properties["publish.group"] as String
-
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates(group, "akit-image", version)
+    coordinates(publishGroup, "akit-image", publishVersion)
 
     pom {
         name = "Akit Image"

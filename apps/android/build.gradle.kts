@@ -5,6 +5,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val publishVersion = properties["publish.version"] as String
+val publishGroup = properties["publish.group"] as String
+
 android {
     signingConfigs {
         val debug = getByName("debug") {
@@ -94,7 +97,7 @@ dependencies {
     implementation(libs.androidx.runtime.tracing)
 
     // project modules
-    implementation(projects.akitImage)
+    implementation("$publishGroup:akit-image:$publishVersion")
     implementation(projects.glide.extensionsNinepatch)
     implementation(projects.glide.extensionsBlur)
     implementation(projects.apps.cmp)

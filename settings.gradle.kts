@@ -31,7 +31,16 @@ rootProject.name = "akit"
 
 // build logic
 includeBuild("plugins")
-includeBuild("akit-resources/gradle-plugin")
+includeBuild("akit-libraries/resources/gradle-plugin")
+
+// libraries
+includeBuild("akit-libraries") {
+    dependencySubstitution {
+        substitute(module("cn.szkug.akit:akit-graph")).using(project(":graph"))
+        substitute(module("cn.szkug.akit:akit-image")).using(project(":image"))
+        substitute(module("cn.szkug.akit:akit-resources-runtime")).using(project(":resources:runtime"))
+    }
+}
 
 // apps
 include(":apps:android")
@@ -39,9 +48,6 @@ include(":apps:cmp")
 include(":benchmark")
 
 // glide
-include(":akit-image")
-include(":akit-graph")
-include(":akit-resources:runtime")
 include(":glide:extensions-ninepatch")
 include(":glide:extensions-blur")
 include(":renderscript-toolkit-publish")

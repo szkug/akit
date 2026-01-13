@@ -162,7 +162,7 @@ class CmpResourcesPlugin : Plugin<Project> {
 }
 
 private fun Project.resolveRuntimeDependency(): Any {
-    val runtimeProject = rootProject.findProject(":akit-resources:runtime")
+    val runtimeProject = rootProject.findProject(":resources:runtime")
     if (runtimeProject != null) return runtimeProject
     val group = rootProject.findProperty("publish.group") as? String ?: "cn.szkug.akit"
     val version = rootProject.findProperty("publish.version") as? String ?: "unspecified"
