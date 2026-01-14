@@ -48,6 +48,7 @@ fun rememberAsyncImageContext(
     vararg keys: Any?,
     ignoreImagePadding: Boolean = false,
     logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
+    listener: AsyncImageLoadListener? = null,
     animationContext: CoroutineContext = rememberCoroutineScope().coroutineContext,
     // extension support
     supportNinepatch: Boolean = false,
@@ -59,6 +60,7 @@ fun rememberAsyncImageContext(
             context = platformContext,
             ignoreImagePadding = ignoreImagePadding,
             logger = logger,
+            listener = listener,
             coroutineContext = animationContext,
             supportNinepatch = supportNinepatch
         )

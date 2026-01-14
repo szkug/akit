@@ -1,29 +1,29 @@
 # AKit
 
-Compose Multiplatform helpers for image loading, NinePatch rendering, and resource access.
+Compose Multiplatform 的图片加载、NinePatch 渲染、资源访问辅助库。
 
-Current version: 2.0.0-CMP-08
+当前版本：2.0.0-CMP-08
 
-Artifacts (group `cn.szkug.akit`):
-- `akit-image`: Compose Multiplatform async image loader (Glide on Android, Coil 3 on iOS).
-- `akit-graph`: shared graphics helpers (NinePatch parsing/painter).
-- `resources-runtime`: Compose Multiplatform ResourceId runtime.
-- `glide-ninepatch-module`: Glide decoder for NinePatch (Android only).
-- `glide-blur-module`: Glide Gaussian blur extension backed by RenderScript toolkit (Android only).
-- `renderscript-toolkit-publish`: RenderScript intrinsics replacement (Android only).
+组件（group `cn.szkug.akit`）：
+- `akit-image`：Compose Multiplatform 异步图片加载（Android 使用 Glide，iOS 使用 Coil 3）。
+- `akit-graph`：共享图形辅助（NinePatch 解析/绘制）。
+- `resources-runtime`：Compose Multiplatform 的 ResourceId 运行时。
+- `glide-ninepatch-module`：NinePatch 的 Glide 解码器（仅 Android）。
+- `glide-blur-module`：基于 RenderScript toolkit 的 Glide 高斯模糊扩展（仅 Android）。
+- `renderscript-toolkit-publish`：RenderScript intrinsics 替代实现（仅 Android）。
 
-Gradle plugin: `cn.szkug.akit.resources` (group `cn.szkug.akit.resources`).
+Gradle 插件：`cn.szkug.akit.resources`（group `cn.szkug.akit.resources`）。
 
-## Akit Image (Compose Multiplatform)
+## Akit Image（Compose Multiplatform）
 
-Akit Image provides `AkitAsyncImage` and `Modifier.akitAsyncBackground`. It bridges platform image
-loaders into a Compose `Painter` via `AsyncRequestEngine`.
+Akit Image 提供 `AkitAsyncImage` 和 `Modifier.akitAsyncBackground`，它通过
+`AsyncRequestEngine` 将平台图片加载器桥接为 Compose `Painter`。
 
-Additional supported image types:
-- .9 images
-- GIF animations
+额外支持图片类型：
+- .9 图加载
+- GIF 动图加载
 
-### Usage
+### 用法
 
 ```kotlin
 kotlin {
@@ -35,8 +35,7 @@ kotlin {
 }
 ```
 
-`AsyncImageContext` works as the image loading context and provides logging, listeners, and
-extension switches.
+`AsyncImageContext` 作为图片库的上下文，提供了日志、监听器、扩展开关等配置。
 
 ```kotlin
 @Composable
@@ -71,12 +70,11 @@ AkitAsyncImage(
     modifier = Modifier.size(120.dp),
     contentScale = ContentScale.Crop,
     context = rememberAsyncImageContext(),
-    engine = YourCustomEngine // You can customize the engine. Android uses Glide, iOS uses Coil.
+    engine = YourCustomEngine // 可以自定义加载引擎，Android 默认使用 Glide，iOS 使用 Coil
 )
 ```
 
-`akitAsyncBackground` enables .9 support by default and adapts to the .9 content padding. If you
-want the layout size to ignore .9 padding, set `ignoreImagePadding = true`.
+`akitAsyncBackground` 默认 Context 会开启.9 图支持，并会适配 .9 图显示内容边距，若希望布局尺寸 不受 .9 图内边距影响，请设置 `ignoreImagePadding = true`。
 
 ```kotlin
 Text(
@@ -95,17 +93,16 @@ Text(
 )
 ```
 
-### Custom Glide engine (Android)
+### 自定义 Glide 引擎（Android）
 
-You can pass a custom engine to the image API, or configure it via CompositionLocal. The parameter
-version has higher priority.
+图片库传入支持自定义引擎参数，也支持使用 CompositionLocal 的方式配置引擎，前者优先级更高
 
 ```kotlin
 val engine = GlideRequestEngine(
     requestBuilder = { ctx ->
         GlideApp.with(ctx.context)
             .asDrawable()
-            // `BlurBitmapConfigOption` comes from `glide-blur-module` and depends on RenderScript toolkit.
+            // `BlurBitmapConfigOption` 来自 `glide-blur-module`，该模块依赖 RenderScript toolkit。
             .set(BlurBitmapConfigOption, BlurConfig(radius = 12))
     },
 )
@@ -121,16 +118,15 @@ AkitAsyncImage(
 ```kotlin
 @Composable
 fun ScreenContent(...) = CompositionLocalProvider(
-    LocalPlatformAsyncRequestEngine provides engine
+        LocalPlatformAsyncRequestEngine provides engine
 ) {
-    AkitAsyncImage(...)
+        AkitAsyncImage(...)
 }
 ```
 
-### Large bitmap guard (Android)
+### Android 侧大图防护
 
-Akit includes a size guard to avoid `draw too large bitmap` crashes. Customize the limit via Glide
-default options:
+Akit 内置了尺寸保护以避免 `draw too large bitmap` 崩溃。可通过 Glide 默认选项来自定义限制：
 
 ```kotlin
 @GlideModule
@@ -147,10 +143,9 @@ class GlideAppModuleImpl : AppGlideModule() {
 }
 ```
 
-## Glide extension modules (Android, optional)
+## Glide 扩展模块（Android，可选）
 
-If you want to use Glide extensions directly (or you are not depending on them transitively via
-`akit-image`), add them explicitly:
+如果你需要直接使用 Glide 扩展功能（或未通过 `akit-image` 间接依赖），请显式添加：
 
 ```kotlin
 dependencies {
@@ -160,7 +155,7 @@ dependencies {
 }
 ```
 
-If the annotation processor does not register the LibraryGlideModules, register them manually:
+如果注解处理器没有注册 LibraryGlideModules，可手动注册：
 
 ```kotlin
 import com.bumptech.glide.annotation.Excludes
@@ -175,7 +170,7 @@ class GlideAppModuleImpl : AppGlideModule() {
 }
 ```
 
-If `@Excludes` cannot be used, guard with `registerCount` to avoid duplicate registration:
+如果无法使用 `@Excludes`，可以改用 `registerCount` 做防重复注册判断：
 
 ```kotlin
 @GlideModule
@@ -191,14 +186,13 @@ class GlideAppModuleImpl : AppGlideModule() {
 }
 ```
 
-## Compose Multiplatform Resources Plugin
+## Compose Multiplatform 资源插件
 
-The resources plugin generates a shared `Res` object and platform `ResourceId` from `src/res`:
-- Android: access resources via Android `R`, and `ResourceId` is the `R` id.
-- iOS: `ResourceId` is a file URL pointing to resources bundled in the framework/app; density
-  qualifiers become `@2x`/`@3x` variants.
+resources 插件会将 `src/res` 生成统一的 `Res` 对象与平台 `ResourceId`：
+- Android：以 Android R 的方式引入资源，`ResourceId` 即 `R` id。
+- iOS：`ResourceId` 是指向 framework/app 内资源的文件 URL，密度限定符会转成 `@2x`/`@3x` 变体。
 
-### Plugin + runtime
+### 插件 + 运行时
 
 ```kotlin
 
@@ -214,32 +208,30 @@ kotlin {
     }
 }
 
-// Configure your resource rules
+// 配置你的处理规则
 cmpResources {
-    resDir.set(layout.projectDirectory.dir("src/res")) // Resource root, default src/res
-    packageName.set("com.example.app") // Package name for Res in common
+    resDir.set(layout.projectDirectory.dir("src/res")) // 资源路径，默认 src/res
+    packageName.set("com.example.app") // common Res 文件包名
     androidNamespace.set("com.example.app")
-    iosResourcesPrefix.set("cmp-res") // iOS bundle path
+    iosResourcesPrefix.set("cmp-res") // iOS 资源 bundle 路径
     iosFrameworkName.set("MyFramework")
     iosFrameworkBundleId.set("com.example.app")
 }
 ```
 
-### Usage
+### 使用
 
-Resource example:
+资源例子：
 res/values/strings.xml -> `<string name="hello">Hello</string>`
 - commonMain: `expect Res.strings.hello: ResourceId`
 - androidMain: `Res.strings.hello = R.strings.hello`
 - iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$frameworkName|$resourcesPrefix|hello")`
 
-When calling `stringResource` / `painterResource` from the runtime library, locale handling is
-automatic:
-- Android: uses `androidx.compose.ui.res.stringResource` and depends on the `Context` locale.
-- iOS: reads `AppleLanguages` from `NSUserDefaults.standardUserDefaults` and loads the matching
-  `NSBundle`.
+使用 runtime 库的 `stringResource` / `painterResource` 时会根据 App 语言自动处理多语言：
+- Android 侧为 `androidx.compose.ui.res.stringResource` 实现，依赖 `android.content.Context` 的语言配置
+- iOS 侧根据 `NSUserDefaults.standardUserDefaults` 的 `AppleLanguages` 来识别当前语言，并获取对应的 NSBundle
 
-Additionally, `painterResource` handles local .9 resources automatically.
+此外 `painterResource` 还会自动处理本地的 .9 资源
 
 ```kotlin
 Text(text = stringResource(Res.strings.hello))
@@ -250,10 +242,9 @@ Image(
 )
 ```
 
-## RenderScript Toolkit (Android)
+## RenderScript 工具包（Android）
 
-This is a republished `renderscript-intrinsics-replacement-toolkit` used by the blur extension and
-adapted for 16KB page size.
+这是 `renderscript-intrinsics-replacement-toolkit` 的重新发布版本，供模糊扩展使用，适配了 16KB page size
 
 ```kotlin
 dependencies {
