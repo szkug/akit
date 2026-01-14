@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import kotlin.math.roundToInt
 
-expect val SDK_SIZE_ORIGINAL: Int
-
 private fun Float.roundFiniteToInt() = if (isFinite()) roundToInt() else SDK_SIZE_ORIGINAL
 
 data class ImageSize(val width: Int, val height: Int)

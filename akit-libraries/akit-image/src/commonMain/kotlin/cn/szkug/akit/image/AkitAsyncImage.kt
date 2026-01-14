@@ -12,16 +12,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 
-
-expect class PlatformAsyncLoadData: AsyncLoadData { override fun painter(): Painter }
-expect val LocalPlatformAsyncRequestEngine: ProvidableCompositionLocal<AsyncRequestEngine<PlatformAsyncLoadData>>
-
-@Composable
-expect fun Any?.toResourceModel(): ResourceModel?
-@Composable
-expect fun Any?.toPainterModel(): PainterModel?
-
-
 /**
  * Async image load node base on platform-specific image loader.
  */

@@ -7,19 +7,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.coroutines.CoroutineContext
 
 
-expect abstract class PlatformImageContext
-
-expect val LocalPlatformImageContext: ProvidableCompositionLocal<PlatformImageContext>
-
-expect object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
-    override fun setLevel(level: AsyncImageLogger.Level)
-    override fun debug(tag: String, message: () -> String)
-    override fun info(tag: String, message: () -> String)
-    override fun warn(tag: String, message: String)
-    override fun error(tag: String, exception: Exception?)
-    override fun error(tag: String, message: String)
-}
-
 interface AsyncImageLogger {
 
     enum class Level {
@@ -34,11 +21,20 @@ interface AsyncImageLogger {
     fun error(tag: String, message: String)
 }
 
+
+interface AsyncImageLoadListener {
+    fun onStart(model: Any?) {}
+    fun onSuccess(model: Any?) {}
+    fun onFailure(model: Any?, exception: Throwable) {}
+    fun onCancel(model: Any?) {}
+}
+
 class AsyncImageContext(
     val context: PlatformImageContext,
     val coroutineContext: CoroutineContext,
 
     val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
+    val listener: AsyncImageLoadListener? = null,
     val ignoreImagePadding: Boolean = false,
 
     // extension support

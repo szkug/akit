@@ -18,12 +18,11 @@ plugins {
     alias(libs.plugins.maven.publish) apply false
 }
 
-val akitLibrariesDir = file("akit-libraries").toPath()
-val akitVersionProperties = Properties().apply {
+val versionProperties = Properties().apply {
     file("akit-libraries/version.properties").inputStream().use { load(it) }
 }
-val akitPublishGroup = akitVersionProperties.getProperty("publish.group")
-val akitPublishVersion = akitVersionProperties.getProperty("publish.version")
+val publishGroup = versionProperties.getProperty("publish.group")
+val publishVersion = versionProperties.getProperty("publish.version")
 val mavenPublishPluginId = libs.plugins.maven.publish.get().pluginId
 
 allprojects {
@@ -36,10 +35,11 @@ allprojects {
 }
 
 subprojects {
-    if (!projectDir.toPath().startsWith(akitLibrariesDir)) return@subprojects
 
-    extensions.extraProperties["publish.group"] = akitPublishGroup
-    extensions.extraProperties["publish.version"] = akitPublishVersion
+    if (parent?.name != "akit-libraries") return@subprojects
+
+    extensions.extraProperties["publish.group"] = publishGroup
+    extensions.extraProperties["publish.version"] = publishVersion
 
     pluginManager.apply(mavenPublishPluginId)
 
@@ -48,8 +48,8 @@ subprojects {
     println("Config Publish: ${project.name}")
 
     extensions.configure<MavenPublishBaseExtension> {
-        group = akitPublishGroup
-        version = akitPublishVersion
+        group = publishGroup
+        version = publishVersion
 
         publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
         signAllPublications()

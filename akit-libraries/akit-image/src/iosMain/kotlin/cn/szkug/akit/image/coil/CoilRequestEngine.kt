@@ -13,10 +13,12 @@ import coil3.Image
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.compose.asPainter
+import coil3.decode.Decoder
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.target.Target
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -29,23 +31,42 @@ class PainterAsyncLoadData(val painter: Painter) : AsyncLoadData {
 }
 
 
-typealias CoilImageLoaderBuilder = (AsyncImageContext) -> ImageLoader
+interface CoilImageLoaderFactory {
 
-
+    fun get(context: AsyncImageContext): ImageLoader
+}
 
 private val NinePatchFactory = NinePatchDecoder.Factory()
 private val GifFactory = GifDecoder.Factory()
-private val NormalCoilImageLoaderBuilder: CoilImageLoaderBuilder
-    get() = { context ->
-        SingletonImageLoader.get(context = context.context)
-            .newBuilder().components {
-                add(NinePatchFactory)
-                add(GifFactory)
-            }.build()
+
+open class CoilImageLoaderSingletonFactory : CoilImageLoaderFactory {
+
+    private val reference = atomic<ImageLoader?>(null)
+
+    final override fun get(context: AsyncImageContext): ImageLoader {
+        return reference.value ?: create(
+            context,
+            listOf(NinePatchFactory, GifFactory)
+        ).also {
+            reference.value = it
+        }
     }
 
+    open fun create(
+        context: AsyncImageContext,
+        internalFactories: List<Decoder.Factory>
+    ): ImageLoader {
+        return SingletonImageLoader.get(context = context.context)
+            .newBuilder().components {
+                for (factory in internalFactories) add(factory)
+            }.build()
+    }
+}
+
+private val NormalCoilImageLoaderFactory = CoilImageLoaderSingletonFactory()
+
 class CoilRequestEngine(
-    private val loader: CoilImageLoaderBuilder = NormalCoilImageLoaderBuilder,
+    private val factory: CoilImageLoaderFactory = NormalCoilImageLoaderFactory,
 ) : AsyncRequestEngine<PainterAsyncLoadData> {
 
     override suspend fun flowRequest(
@@ -72,12 +93,11 @@ class CoilRequestEngine(
 
         val request = builder
             .size(size.width, size.height)
-            .listener()
             .listener(target)
             .target(target)
             .build()
 
-        val disposable = loader(context).enqueue(request)
+        val disposable = factory.get(context).enqueue(request)
 
         awaitClose { disposable.dispose() }
     }
@@ -94,14 +114,25 @@ private class CoilFlowTarget(
 ) : Target, ImageRequest.Listener {
 
     override fun onStart(request: ImageRequest) {
+        context.listener?.onStart(request.data)
     }
 
     override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+        context.listener?.onSuccess(request.data)
     }
 
     override fun onError(request: ImageRequest, result: ErrorResult) {
         val error = result.throwable
-        context.logger.error("CoilFlowTarget", "onError ${request.data}, ${error.stackTraceToString()}")
+        context.listener?.onFailure(request.data, error)
+        context.logger.error(
+            "CoilFlowTarget",
+            "onError ${request.data}, ${error.stackTraceToString()}"
+        )
+    }
+
+    override fun onCancel(request: ImageRequest) {
+        super.onCancel(request)
+        context.listener?.onCancel(request.data)
     }
 
     override fun onStart(placeholder: Image?) {
