@@ -1,5 +1,7 @@
 # AKit
 
+[中文文档](./README.md)
+
 Compose Multiplatform helpers for image loading, NinePatch rendering, and resource access.
 
 Current version: 2.0.0-CMP-08
@@ -95,12 +97,13 @@ Text(
 )
 ```
 
-### Custom Glide engine (Android)
+### Custom engine
 
 You can pass a custom engine to the image API, or configure it via CompositionLocal. The parameter
 version has higher priority.
 
 ```kotlin
+// Android
 val engine = GlideRequestEngine(
     requestBuilder = { ctx ->
         GlideApp.with(ctx.context)
@@ -110,12 +113,27 @@ val engine = GlideRequestEngine(
     },
 )
 
+
+// iOS
+val engine = CoilRequestEngine(
+    factory = CoilImageLoaderSingletonFactory(),
+)
+
+// parameter passing
 AkitAsyncImage(
     model = url,
     contentDescription = null,
     modifier = Modifier.size(120.dp),
     engine = engine,
 )
+
+// or CompositionLocal
+@Composable
+fun ScreenContent(...) = CompositionLocalProvider(
+    LocalPlatformAsyncRequestEngine provides engine
+) {
+    AkitAsyncImage(...)
+}
 ```
 
 ```kotlin

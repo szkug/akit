@@ -93,11 +93,12 @@ Text(
 )
 ```
 
-### 自定义 Glide 引擎（Android）
+### 自定义引擎
 
 图片库传入支持自定义引擎参数，也支持使用 CompositionLocal 的方式配置引擎，前者优先级更高
 
 ```kotlin
+// Android
 val engine = GlideRequestEngine(
     requestBuilder = { ctx ->
         GlideApp.with(ctx.context)
@@ -107,20 +108,25 @@ val engine = GlideRequestEngine(
     },
 )
 
+// iOS
+val engine = CoilRequestEngine(
+    factory = CoilImageLoaderSingletonFactory(),
+)
+
+// parameter passing
 AkitAsyncImage(
     model = url,
     contentDescription = null,
     modifier = Modifier.size(120.dp),
     engine = engine,
 )
-```
 
-```kotlin
+// or CompositionLocal
 @Composable
 fun ScreenContent(...) = CompositionLocalProvider(
-        LocalPlatformAsyncRequestEngine provides engine
+    LocalPlatformAsyncRequestEngine provides engine
 ) {
-        AkitAsyncImage(...)
+    AkitAsyncImage(...)
 }
 ```
 
