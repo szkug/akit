@@ -94,9 +94,9 @@ dependencies {
     implementation(libs.androidx.runtime.tracing)
 
     // project modules
-    implementation("cn.szkug.akit:akit-image")
-    implementation("cn.szkug.akit:glide-ninepatch-module")
-    implementation("cn.szkug.akit:glide-blur-module")
+    implementation(projects.akitLibraries.akitImage)
+    implementation(projects.akitLibraries.glideNinepatchModule)
+    implementation(projects.akitLibraries.glideBlurModule)
     implementation(projects.apps.cmp)
 
     testImplementation(libs.junit)

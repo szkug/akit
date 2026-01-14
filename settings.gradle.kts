@@ -33,15 +33,18 @@ includeBuild("plugins")
 includeBuild("akit-libraries/resources-gradle-plugin")
 
 // libraries
-includeBuild("akit-libraries") {
-    dependencySubstitution {
-        substitute(module("cn.szkug.akit:akit-graph")).using(project(":akit-graph"))
-        substitute(module("cn.szkug.akit:akit-image")).using(project(":akit-image"))
-        substitute(module("cn.szkug.akit:akit-resources-runtime")).using(project(":resources-runtime"))
-        substitute(module("cn.szkug.akit:glide-ninepatch-module")).using(project(":glide-ninepatch-module"))
-        substitute(module("cn.szkug.akit:glide-blur-module")).using(project(":glide-blur-module"))
-    }
+fun includeAkitLibraries(vararg module: String) {
+    include(module.map { ":akit-libraries$it" })
 }
+
+includeAkitLibraries(
+    ":akit-graph",
+    ":akit-image",
+    ":glide-blur-module",
+    ":glide-ninepatch-module",
+    ":resources-runtime",
+    ":renderscript-toolkit-publish",
+)
 
 // apps
 include(":apps:android")

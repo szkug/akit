@@ -30,7 +30,8 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            api("cn.szkug.akit:akit-image")
+            api(projects.akitLibraries.akitImage)
+            api(projects.akitLibraries.resourcesRuntime)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

@@ -41,14 +41,10 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 extension.iosFrameworkName.convention(inferredFrameworkName)
             }
 
-            val runtimeDependency = resolveRuntimeDependency()
 
             with(kotlinExt) {
                 sourceSets.commonMain {
                     kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("commonMain") })
-                    dependencies {
-                        implementation(runtimeDependency)
-                    }
                 }
 
                 sourceSets.androidMain {
@@ -159,14 +155,6 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             }
         }
     }
-}
-
-private fun Project.resolveRuntimeDependency(): Any {
-    val runtimeProject = rootProject.findProject(":resources-runtime")
-    if (runtimeProject != null) return runtimeProject
-    val group = rootProject.findProperty("publish.group") as? String ?: "cn.szkug.akit"
-    val version = rootProject.findProperty("publish.version") as? String ?: "unspecified"
-    return "$group:akit-resources-runtime:$version"
 }
 
 private fun resolveXcodeAppBundle(): File? {

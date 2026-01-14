@@ -16,7 +16,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.ui)
-            api(projects.akitGraph)
+            api(projects.akitLibraries.akitGraph)
         }
         androidMain.dependencies {
             implementation(libs.androidx.appcompat)

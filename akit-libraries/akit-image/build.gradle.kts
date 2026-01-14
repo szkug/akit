@@ -17,14 +17,14 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.ui)
-            api(projects.akitGraph)
+            api(projects.akitLibraries.akitGraph)
         }
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
             implementation(libs.bundles.glide)
-            implementation(projects.glideNinepatchModule)
+            implementation(projects.akitLibraries.glideNinepatchModule)
         }
         iosMain.dependencies {
             implementation(libs.coil.compose)

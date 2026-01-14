@@ -15,7 +15,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
 
     implementation(libs.glide.runtime)
-    api(projects.renderscriptToolkitPublish)
+    api(projects.akitLibraries.renderscriptToolkitPublish)
     compileOnly(libs.glide.annotations)
     kapt(libs.glide.compiler)
 
