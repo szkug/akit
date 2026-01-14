@@ -1,6 +1,6 @@
 # AKit
 
-[中文文档](./README.md)
+[中文文档](./README_CN.md)
 
 Compose Multiplatform helpers for image loading, NinePatch rendering, and resource access.
 
