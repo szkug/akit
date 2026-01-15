@@ -219,9 +219,11 @@ cmpResources {
     resDir.set(layout.projectDirectory.dir("src/res")) // 资源路径，默认 src/res
     packageName.set("com.example.app") // common Res 文件包名
     androidNamespace.set("com.example.app")
+    androidExtraResDir.set(layout.projectDirectory.dir("src/android-res"))
     iosResourcesPrefix.set("cmp-res") // iOS 资源 bundle 路径
     iosFrameworkName.set("MyFramework")
     iosFrameworkBundleId.set("com.example.app")
+    iosExtraResDir.set(layout.projectDirectory.dir("src/ios-res"))
     whitelistEnabled.set(false) // 开启后仅保留白名单资源
     stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))
     drawablesWhitelistFile.set(layout.projectDirectory.file("res-whitelist/drawables.txt"))
@@ -229,6 +231,8 @@ cmpResources {
 ```
 
 白名单文件为纯文本，一行一个资源 id；以 `#` 或 `//` 开头的行会被忽略。
+
+额外资源目录使用与主资源相同的目录结构，只会生成对应平台的 Res 字段，目录不存在会被忽略。
 
 ### 使用
 

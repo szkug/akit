@@ -51,11 +51,19 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
     @get:Input
     abstract val androidNamespace: Property<String>
 
+    @get:InputDirectory
+    @get:Optional
+    abstract val androidExtraResDir: DirectoryProperty
+
     @get:Input
     abstract val iosResourcesPrefix: Property<String>
 
     @get:Input
     abstract val iosFrameworkName: Property<String>
+
+    @get:InputDirectory
+    @get:Optional
+    abstract val iosExtraResDir: DirectoryProperty
 
     @get:Input
     abstract val whitelistEnabled: Property<Boolean>
@@ -85,25 +93,73 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             emptySet()
         }
 
-        val rawStringsByLocale = parseStringsByLocale(resRoot)
-        val stringsByLocale = if (whitelistOn) {
-            rawStringsByLocale.mapValues { (_, items) ->
-                items.filter { it.name in stringsWhitelist }
-            }.filterValues { it.isNotEmpty() }
-        } else {
-            rawStringsByLocale
-        }
-        val strings = stringsByLocale.values.flatten()
+        val commonStringsByLocale = filterStringsByWhitelist(
+            parseStringsByLocale(resRoot),
+            stringsWhitelist,
+            whitelistOn,
+        )
+        val commonStrings = commonStringsByLocale.values.flatten()
             .distinctBy { it.name }
             .sortedBy { it.name }
 
-        val rawDrawableSources = parseDrawableSources(resRoot)
-        val drawableSources = if (whitelistOn) {
-            rawDrawableSources.filter { it.id in drawablesWhitelist }
+        val commonDrawableSources = filterDrawableSourcesByWhitelist(
+            parseDrawableSources(resRoot),
+            drawablesWhitelist,
+            whitelistOn,
+        )
+        val commonDrawables = buildDrawableResources(commonDrawableSources)
+
+        val androidExtraRoot = androidExtraResDir.orNull?.asFile?.takeIf { it.exists() }
+        val androidExtraStringsByLocale = if (androidExtraRoot == null) {
+            emptyMap()
         } else {
-            rawDrawableSources
+            filterStringsByWhitelist(
+                parseStringsByLocale(androidExtraRoot),
+                stringsWhitelist,
+                whitelistOn,
+            )
         }
-        val drawables = buildDrawableResources(drawableSources)
+        val androidExtraDrawableSources = if (androidExtraRoot == null) {
+            emptyList()
+        } else {
+            filterDrawableSourcesByWhitelist(
+                parseDrawableSources(androidExtraRoot),
+                drawablesWhitelist,
+                whitelistOn,
+            )
+        }
+        val androidStringsByLocale = mergeStringsByLocale(commonStringsByLocale, androidExtraStringsByLocale)
+        val androidStrings = androidStringsByLocale.values.flatten()
+            .distinctBy { it.name }
+            .sortedBy { it.name }
+        val androidDrawableSources = commonDrawableSources + androidExtraDrawableSources
+        val androidDrawables = buildDrawableResources(androidDrawableSources)
+
+        val iosExtraRoot = iosExtraResDir.orNull?.asFile?.takeIf { it.exists() }
+        val iosExtraStringsByLocale = if (iosExtraRoot == null) {
+            emptyMap()
+        } else {
+            filterStringsByWhitelist(
+                parseStringsByLocale(iosExtraRoot),
+                stringsWhitelist,
+                whitelistOn,
+            )
+        }
+        val iosExtraDrawableSources = if (iosExtraRoot == null) {
+            emptyList()
+        } else {
+            filterDrawableSourcesByWhitelist(
+                parseDrawableSources(iosExtraRoot),
+                drawablesWhitelist,
+                whitelistOn,
+            )
+        }
+        val iosStringsByLocale = mergeStringsByLocale(commonStringsByLocale, iosExtraStringsByLocale)
+        val iosStrings = iosStringsByLocale.values.flatten()
+            .distinctBy { it.name }
+            .sortedBy { it.name }
+        val iosDrawableSources = commonDrawableSources + iosExtraDrawableSources
+        val iosDrawables = buildDrawableResources(iosDrawableSources)
 
         val outputRoot = outputDir.get().asFile
         if (outputRoot.exists()) {
@@ -122,12 +178,31 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val androidPkg = androidNamespace.get().ifBlank { pkg }
         val iosPrefix = iosResourcesPrefix.get()
         val iosFrameworkName = iosFrameworkName.get()
+        val commonStringIds = commonStrings.map { it.name }.toSet()
+        val commonDrawableIds = commonDrawables.map { it.id }.toSet()
 
-        writeCommonRes(commonDir, pkg, strings, drawables)
-        writeAndroidRes(androidDir, pkg, androidPkg, strings, drawables)
-        writeIosRes(iosDir, pkg, iosPrefix, iosFrameworkName, strings, drawables)
-        writeIosStringResources(iosResourcesDir, stringsByLocale)
-        writeIosDrawableResources(iosResourcesDir, drawableSources)
+        writeCommonRes(commonDir, pkg, commonStrings, commonDrawables)
+        writeAndroidRes(
+            androidDir,
+            pkg,
+            androidPkg,
+            androidStrings,
+            androidDrawables,
+            commonStringIds,
+            commonDrawableIds,
+        )
+        writeIosRes(
+            iosDir,
+            pkg,
+            iosPrefix,
+            iosFrameworkName,
+            iosStrings,
+            iosDrawables,
+            commonStringIds,
+            commonDrawableIds,
+        )
+        writeIosStringResources(iosResourcesDir, iosStringsByLocale)
+        writeIosDrawableResources(iosResourcesDir, iosDrawableSources)
     }
 
     private fun loadWhitelist(property: RegularFileProperty, label: String): Set<String> {
@@ -142,6 +217,48 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             .map { it.substringBefore('#').trim() }
             .filter { it.isNotBlank() && !it.startsWith("//") }
             .toSet()
+    }
+
+    private fun filterStringsByWhitelist(
+        stringsByLocale: Map<String, List<StringResource>>,
+        whitelist: Set<String>,
+        whitelistOn: Boolean,
+    ): Map<String, List<StringResource>> {
+        if (!whitelistOn) return stringsByLocale
+        return stringsByLocale.mapValues { (_, items) ->
+            items.filter { it.name in whitelist }
+        }.filterValues { it.isNotEmpty() }
+    }
+
+    private fun filterDrawableSourcesByWhitelist(
+        sources: List<DrawableSource>,
+        whitelist: Set<String>,
+        whitelistOn: Boolean,
+    ): List<DrawableSource> {
+        if (!whitelistOn) return sources
+        return sources.filter { it.id in whitelist }
+    }
+
+    private fun mergeStringsByLocale(
+        base: Map<String, List<StringResource>>,
+        extra: Map<String, List<StringResource>>,
+    ): Map<String, List<StringResource>> {
+        if (extra.isEmpty()) return base
+        val locales = (base.keys + extra.keys).distinct()
+        val out = linkedMapOf<String, List<StringResource>>()
+        for (locale in locales) {
+            val merged = LinkedHashMap<String, StringResource>()
+            for (string in base[locale].orEmpty()) {
+                merged[string.name] = string
+            }
+            for (string in extra[locale].orEmpty()) {
+                merged[string.name] = string
+            }
+            if (merged.isNotEmpty()) {
+                out[locale] = merged.values.sortedBy { it.name }
+            }
+        }
+        return out
     }
 
     private fun parseStringsByLocale(resRoot: File): Map<String, List<StringResource>> {
@@ -394,6 +511,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         androidNamespace: String,
         strings: List<StringResource>,
         drawables: List<DrawableResource>,
+        commonStrings: Set<String>,
+        commonDrawables: Set<String>,
     ) {
         val file = outputDir.resolve("Res.android.kt")
         file.writeText(buildString {
@@ -408,7 +527,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 appendLine("    }")
             } else {
                 for (string in strings) {
-                    appendLine("        actual val ${string.name}: ResourceId")
+                    val keyword = if (string.name in commonStrings) "actual val" else "val"
+                    appendLine("        $keyword ${string.name}: ResourceId")
                     appendLine("            get() = R.string.${string.name}")
                 }
                 appendLine("    }")
@@ -419,7 +539,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 appendLine("    }")
             } else {
                 for (drawable in drawables) {
-                    appendLine("        actual val ${drawable.id}: ResourceId")
+                    val keyword = if (drawable.id in commonDrawables) "actual val" else "val"
+                    appendLine("        $keyword ${drawable.id}: ResourceId")
                     appendLine("            get() = R.drawable.${drawable.id}")
                 }
                 appendLine("    }")
@@ -435,6 +556,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         iosFrameworkName: String,
         strings: List<StringResource>,
         drawables: List<DrawableResource>,
+        commonStrings: Set<String>,
+        commonDrawables: Set<String>,
     ) {
         val file = outputDir.resolve("Res.ios.kt")
         file.writeText(buildString {
@@ -455,7 +578,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 appendLine("    }")
             } else {
                 for (string in strings) {
-                    appendLine("        actual val ${string.name}: ResourceId")
+                    val keyword = if (string.name in commonStrings) "actual val" else "val"
+                    appendLine("        $keyword ${string.name}: ResourceId")
                     appendLine("            get() = resourceId(\"${string.name}\")")
                 }
                 appendLine("    }")
@@ -475,7 +599,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                         append('.')
                         append(drawable.extension)
                     }
-                    appendLine("        actual val ${drawable.id}: ResourceId")
+                    val keyword = if (drawable.id in commonDrawables) "actual val" else "val"
+                    appendLine("        $keyword ${drawable.id}: ResourceId")
                     appendLine("            get() = resourceId(\"$path\")")
                 }
                 appendLine("    }")

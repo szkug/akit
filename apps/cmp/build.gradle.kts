@@ -61,6 +61,7 @@ android {
 cmpResources {
     packageName.set("cn.szkug.akit.apps.cmp")
     androidNamespace.set("cn.szkug.akit.apps.cmp")
+    androidExtraResDir.set(layout.projectDirectory.dir("src/androidMain/res"))
     iosResourcesPrefix.set("cmp-res")
     iosFrameworkName.set("AkitCmp")
     iosFrameworkBundleId.set("cn.szkug.akit.apps.cmp")

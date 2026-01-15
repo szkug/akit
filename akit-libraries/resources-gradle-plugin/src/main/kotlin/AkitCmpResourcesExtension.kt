@@ -6,6 +6,8 @@ abstract class AkitCmpResourcesExtension {
     abstract val packageName: Property<String>
     abstract val androidNamespace: Property<String>
     abstract val resDir: DirectoryProperty
+    abstract val androidExtraResDir: DirectoryProperty
+    abstract val iosExtraResDir: DirectoryProperty
     abstract val iosResourcesPrefix: Property<String>
     abstract val iosFrameworkName: Property<String>
     abstract val iosFrameworkBundleId: Property<String>

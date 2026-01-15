@@ -65,8 +65,11 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 dependsOn(generateTask)
                 doLast {
                     val resRoot = extension.resDir.get().asFile
+                    val extraIosResRoot = extension.iosExtraResDir.orNull?.asFile
                     val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
-                    if (!resRoot.exists() && !generatedRoot.exists()) return@doLast
+                    if (!resRoot.exists() && !generatedRoot.exists() && (extraIosResRoot == null || !extraIosResRoot.exists())) {
+                        return@doLast
+                    }
                     val appBundle = resolveXcodeAppBundle() ?: return@doLast
                     val prefix = extension.iosResourcesPrefix.get()
                     val appDestDir = if (prefix.isBlank()) {
@@ -80,6 +83,14 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                     if (resRoot.exists()) {
                         project.copy {
                             from(resRoot)
+                            into(appDestDir)
+                            exclude("drawable*/**")
+                            exclude("values*/**")
+                        }
+                    }
+                    if (extraIosResRoot != null && extraIosResRoot.exists()) {
+                        project.copy {
+                            from(extraIosResRoot)
                             into(appDestDir)
                             exclude("drawable*/**")
                             exclude("values*/**")
@@ -102,8 +113,11 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                         dependsOn(generateTask)
                         doLast {
                             val resRoot = extension.resDir.get().asFile
+                            val extraIosResRoot = extension.iosExtraResDir.orNull?.asFile
                             val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
-                            if (!resRoot.exists() && !generatedRoot.exists()) return@doLast
+                            if (!resRoot.exists() && !generatedRoot.exists() && (extraIosResRoot == null || !extraIosResRoot.exists())) {
+                                return@doLast
+                            }
                             val prefix = extension.iosResourcesPrefix.get()
                             val frameworkDir = if (outputDirectory.name.endsWith(".framework")) {
                                 outputDirectory
@@ -127,6 +141,14 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                             if (resRoot.exists()) {
                                 project.copy {
                                     from(resRoot)
+                                    into(destDir)
+                                    exclude("drawable*/**")
+                                    exclude("values*/**")
+                                }
+                            }
+                            if (extraIosResRoot != null && extraIosResRoot.exists()) {
+                                project.copy {
+                                    from(extraIosResRoot)
                                     into(destDir)
                                     exclude("drawable*/**")
                                     exclude("values*/**")
@@ -156,6 +178,22 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         pluginManager.withPlugin("com.android.library") {
             extensions.getByType<LibraryExtension>().sourceSets.getByName("main").apply {
                 res.srcDir(extension.resDir)
+            }
+        }
+
+        afterEvaluate {
+            val androidExtra = extension.androidExtraResDir.orNull?.asFile
+            if (androidExtra != null && androidExtra.exists()) {
+                generateTask.configure { androidExtraResDir.set(extension.androidExtraResDir) }
+                pluginManager.withPlugin("com.android.library") {
+                    extensions.getByType<LibraryExtension>().sourceSets.getByName("main").apply {
+                        res.srcDir(androidExtra)
+                    }
+                }
+            }
+            val iosExtra = extension.iosExtraResDir.orNull?.asFile
+            if (iosExtra != null && iosExtra.exists()) {
+                generateTask.configure { iosExtraResDir.set(extension.iosExtraResDir) }
             }
         }
     }
