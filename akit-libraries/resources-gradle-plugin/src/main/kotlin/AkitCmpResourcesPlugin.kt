@@ -19,6 +19,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         extension.iosResourcesPrefix.convention("cmp-res")
         extension.iosFrameworkName.convention("")
         extension.iosFrameworkBundleId.convention("")
+        extension.whitelistEnabled.convention(false)
 
         val generateTask = tasks.register<GenerateCmpResourcesTask>("generateCmpResources") {
             resDir.set(extension.resDir)
@@ -27,6 +28,9 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             androidNamespace.set(extension.androidNamespace)
             iosResourcesPrefix.set(extension.iosResourcesPrefix)
             iosFrameworkName.set(extension.iosFrameworkName)
+            whitelistEnabled.set(extension.whitelistEnabled)
+            stringsWhitelistFile.set(extension.stringsWhitelistFile)
+            drawablesWhitelistFile.set(extension.drawablesWhitelistFile)
         }
 
         pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {

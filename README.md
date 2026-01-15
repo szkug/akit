@@ -240,8 +240,14 @@ cmpResources {
     iosResourcesPrefix.set("cmp-res") // iOS bundle path
     iosFrameworkName.set("MyFramework")
     iosFrameworkBundleId.set("com.example.app")
+    whitelistEnabled.set(false) // Only allow whitelisted ids when enabled
+    stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))
+    drawablesWhitelistFile.set(layout.projectDirectory.file("res-whitelist/drawables.txt"))
 }
 ```
+
+Whitelist files are plain text, one resource id per line. Lines starting with `#` or `//` are
+ignored.
 
 ### Usage
 

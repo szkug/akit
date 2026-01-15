@@ -222,8 +222,13 @@ cmpResources {
     iosResourcesPrefix.set("cmp-res") // iOS 资源 bundle 路径
     iosFrameworkName.set("MyFramework")
     iosFrameworkBundleId.set("com.example.app")
+    whitelistEnabled.set(false) // 开启后仅保留白名单资源
+    stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))
+    drawablesWhitelistFile.set(layout.projectDirectory.file("res-whitelist/drawables.txt"))
 }
 ```
+
+白名单文件为纯文本，一行一个资源 id；以 `#` 或 `//` 开头的行会被忽略。
 
 ### 使用
 
