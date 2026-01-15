@@ -4,7 +4,7 @@
 
 Compose Multiplatform helpers for image loading, NinePatch rendering, and resource access.
 
-Current version: 2.0.0-CMP-08
+Current version: 2.0.0-CMP-11
 
 Artifacts (group `cn.szkug.akit`):
 - `akit-image`: Compose Multiplatform async image loader (Glide on Android, Coil 3 on iOS).

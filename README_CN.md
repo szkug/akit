@@ -2,7 +2,7 @@
 
 Compose Multiplatform 的图片加载、NinePatch 渲染、资源访问辅助库。
 
-当前版本：2.0.0-CMP-08
+当前版本：2.0.0-CMP-11
 
 组件（group `cn.szkug.akit`）：
 - `akit-image`：Compose Multiplatform 异步图片加载（Android 使用 Glide，iOS 使用 Coil 3）。
