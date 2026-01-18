@@ -31,6 +31,7 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.material3)
             api(projects.akitLibraries.akitImage)
+            api(projects.akitLibraries.akitGraph)
             api(projects.akitLibraries.resourcesRuntime)
         }
         androidMain.dependencies {
