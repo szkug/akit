@@ -53,16 +53,24 @@ class GlideRequestEngine(
             contentScale,
             bitmapTransformations,
             drawableTransformations
-        ).setupContext(context)
+        ).setupContext(context, requestModel)
             .setupSize(size)
             .setupFailure(failureModel)
             .flowOfRequest(context, requestModel, size)
     }
 
-    private fun <T> RequestBuilder<T>.setupContext(context: AsyncImageContext): RequestBuilder<T> {
+    private fun <T> RequestBuilder<T>.setupContext(
+        context: AsyncImageContext,
+        requestModel: RequestModel,
+    ): RequestBuilder<T> {
+        val enableLottie = context.supportLottie || requestModel.model is LottieResource
+        val lottieIterations = when (val model = requestModel.model) {
+            is LottieResource -> model.iterations
+            else -> context.animationIterations
+        }
         return this.set(NinepatchEnableOption, context.supportNinepatch)
-            .set(LottieDecodeOptions.Enabled, context.supportLottie)
-            .set(LottieDecodeOptions.Iterations, context.animationIterations)
+            .set(LottieDecodeOptions.Enabled, enableLottie)
+            .set(LottieDecodeOptions.Iterations, lottieIterations)
     }
 
     private fun <T> RequestBuilder<T>.setupSize(size: ResolvableImageSize): RequestBuilder<T> {

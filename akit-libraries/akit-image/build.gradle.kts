@@ -25,6 +25,7 @@ kotlin {
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
             implementation(libs.bundles.glide)
+            compileOnly(libs.glide.annotations)
             implementation(libs.lottie)
         }
         iosMain.dependencies {
@@ -44,6 +45,7 @@ android {
 
     defaultConfig {
         minSdk = AndroidSdkVersions.MIN
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildFeatures.compose = true
