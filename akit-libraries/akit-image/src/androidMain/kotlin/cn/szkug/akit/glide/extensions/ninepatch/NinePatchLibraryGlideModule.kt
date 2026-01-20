@@ -2,7 +2,6 @@ package cn.szkug.akit.glide.extensions.ninepatch
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
@@ -22,9 +21,7 @@ class NinePatchLibraryGlideModule : LibraryGlideModule() {
     override fun registerComponents(
         context: Context, glide: Glide, registry: Registry
     ) {
-
         registerCount++
-
         registry
             .prepend(
                 InputStream::class.java,
@@ -37,7 +34,6 @@ class NinePatchLibraryGlideModule : LibraryGlideModule() {
                 NinePatchDrawableDecoder(context) { ByteBufferBackedInputStream(it) },
             )
     }
-
 }
 
 class ByteBufferBackedInputStream(private var buffer: ByteBuffer) : InputStream() {
@@ -60,4 +56,3 @@ class ByteBufferBackedInputStream(private var buffer: ByteBuffer) : InputStream(
         return readLen
     }
 }
-

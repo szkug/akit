@@ -1,7 +1,7 @@
 package cn.szkug.akit.image
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -11,6 +11,10 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
+import cn.szkug.akit.lottie.LottieResource
+import cn.szkug.akit.lottie.rememberLottiePainter
+import cn.szkug.akit.resources.runtime.ResourceId
+import cn.szkug.akit.resources.runtime.painterResource
 
 /**
  * Async image load node base on platform-specific image loader.
@@ -29,7 +33,6 @@ fun AkitAsyncImage(
     context: AsyncImageContext = rememberAsyncImageContext(),
     engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
 ) {
-
     Layout(
         modifier = modifier
             .asyncPainterNode(
@@ -78,3 +81,18 @@ fun Modifier.akitAsyncBackground(
         engine = engine
     )
 }
+
+@Composable
+private fun Any?.toCommonPainterModel(): PainterModel? = when (this) {
+    is ResourceId -> PainterModel(painterResource(this))
+    is Painter -> PainterModel(this)
+    is ImageBitmap -> remember(this) { PainterModel(BitmapPainter(this)) }
+    is LottieResource -> PainterModel(rememberLottiePainter(this))
+    else -> null
+}
+
+@Composable
+private fun Any?.toResourceModel(): ResourceModel? = platformResourceModel() ?: toCommonPainterModel()
+
+@Composable
+private fun Any?.toPainterModel(): PainterModel? = platformPainterModel() ?: toCommonPainterModel()

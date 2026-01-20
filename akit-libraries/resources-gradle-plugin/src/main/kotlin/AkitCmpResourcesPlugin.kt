@@ -85,6 +85,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                             from(resRoot)
                             into(appDestDir)
                             exclude("drawable*/**")
+                            exclude("raw*/**")
                             exclude("values*/**")
                         }
                     }
@@ -93,6 +94,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                             from(extraIosResRoot)
                             into(appDestDir)
                             exclude("drawable*/**")
+                            exclude("raw*/**")
                             exclude("values*/**")
                         }
                     }
@@ -143,6 +145,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                                     from(resRoot)
                                     into(destDir)
                                     exclude("drawable*/**")
+                                    exclude("raw*/**")
                                     exclude("values*/**")
                                 }
                             }
@@ -151,6 +154,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                                     from(extraIosResRoot)
                                     into(destDir)
                                     exclude("drawable*/**")
+                                    exclude("raw*/**")
                                     exclude("values*/**")
                                 }
                             }

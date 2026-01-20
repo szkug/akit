@@ -10,7 +10,6 @@ Artifacts (group `cn.szkug.akit`):
 - `akit-image`: Compose Multiplatform async image loader (Glide on Android, Coil 3 on iOS).
 - `akit-graph`: shared graphics helpers (NinePatch parsing/painter).
 - `resources-runtime`: Compose Multiplatform ResourceId runtime.
-- `glide-ninepatch-module`: Glide decoder for NinePatch (Android only).
 - `glide-blur-module`: Glide Gaussian blur extension backed by RenderScript toolkit (Android only).
 - `renderscript-toolkit-publish`: RenderScript intrinsics replacement (Android only).
 
@@ -165,14 +164,13 @@ class GlideAppModuleImpl : AppGlideModule() {
 }
 ```
 
-## Glide extension modules (Android, optional)
+## Glide extensions (Android)
 
-If you want to use Glide extensions directly (or you are not depending on them transitively via
-`akit-image`), add them explicitly:
+NinePatch and Lottie decoders ship with `akit-image` on Android. The blur extension is a separate
+artifact; add it explicitly if you need it:
 
 ```kotlin
 dependencies {
-    implementation("cn.szkug.akit:glide-ninepatch-module:$akitVersion")
     implementation("cn.szkug.akit:glide-blur-module:$akitVersion")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 }
@@ -184,11 +182,18 @@ If the annotation processor does not register the LibraryGlideModules, register 
 import com.bumptech.glide.annotation.Excludes
 
 @GlideModule
-@Excludes(value = [BlurBitmapLibraryGlideModule::class, NinePatchLibraryGlideModule::class])
+@Excludes(
+    value = [
+        BlurBitmapLibraryGlideModule::class,
+        NinePatchLibraryGlideModule::class,
+        LottieLibraryGlideModule::class,
+    ]
+)
 class GlideAppModuleImpl : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
         NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
+        LottieLibraryGlideModule().registerComponents(context, glide, registry)
     }
 }
 ```
@@ -204,6 +209,9 @@ class GlideAppModuleImpl : AppGlideModule() {
         }
         if (NinePatchLibraryGlideModule.registerCount == 0) {
             NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
+        }
+        if (LottieLibraryGlideModule.registerCount == 0) {
+            LottieLibraryGlideModule().registerComponents(context, glide, registry)
         }
     }
 }

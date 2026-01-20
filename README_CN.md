@@ -8,7 +8,6 @@ Compose Multiplatform 的图片加载、NinePatch 渲染、资源访问辅助库
 - `akit-image`：Compose Multiplatform 异步图片加载（Android 使用 Glide，iOS 使用 Coil 3）。
 - `akit-graph`：共享图形辅助（NinePatch 解析/绘制）。
 - `resources-runtime`：Compose Multiplatform 的 ResourceId 运行时。
-- `glide-ninepatch-module`：NinePatch 的 Glide 解码器（仅 Android）。
 - `glide-blur-module`：基于 RenderScript toolkit 的 Glide 高斯模糊扩展（仅 Android）。
 - `renderscript-toolkit-publish`：RenderScript intrinsics 替代实现（仅 Android）。
 
@@ -149,13 +148,12 @@ class GlideAppModuleImpl : AppGlideModule() {
 }
 ```
 
-## Glide 扩展模块（Android，可选）
+## Glide 扩展（Android）
 
-如果你需要直接使用 Glide 扩展功能（或未通过 `akit-image` 间接依赖），请显式添加：
+NinePatch 与 Lottie 解码能力已随 `akit-image` 一并提供；模糊扩展仍为独立组件，如需使用请显式添加：
 
 ```kotlin
 dependencies {
-    implementation("cn.szkug.akit:glide-ninepatch-module:$akitVersion")
     implementation("cn.szkug.akit:glide-blur-module:$akitVersion")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 }
@@ -167,11 +165,18 @@ dependencies {
 import com.bumptech.glide.annotation.Excludes
 
 @GlideModule
-@Excludes(value = [BlurBitmapLibraryGlideModule::class, NinePatchLibraryGlideModule::class])
+@Excludes(
+    value = [
+        BlurBitmapLibraryGlideModule::class,
+        NinePatchLibraryGlideModule::class,
+        LottieLibraryGlideModule::class,
+    ]
+)
 class GlideAppModuleImpl : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
         NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
+        LottieLibraryGlideModule().registerComponents(context, glide, registry)
     }
 }
 ```
@@ -187,6 +192,9 @@ class GlideAppModuleImpl : AppGlideModule() {
         }
         if (NinePatchLibraryGlideModule.registerCount == 0) {
             NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
+        }
+        if (LottieLibraryGlideModule.registerCount == 0) {
+            LottieLibraryGlideModule().registerComponents(context, glide, registry)
         }
     }
 }

@@ -37,6 +37,22 @@ internal data class DrawableSource(
     val file: File,
 )
 
+internal data class RawResource(
+    val id: String,
+    val fileNameWithoutExtension: String,
+    val extension: String,
+    val relativeDir: String,
+)
+
+internal data class RawSource(
+    val id: String,
+    val baseName: String,
+    val extension: String,
+    val relativeDir: String,
+    val locale: String?,
+    val file: File,
+)
+
 abstract class GenerateCmpResourcesTask : DefaultTask() {
 
     @get:InputDirectory
@@ -108,6 +124,12 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             whitelistOn,
         )
         val commonDrawables = buildDrawableResources(commonDrawableSources)
+        val commonRawSources = filterRawSourcesByWhitelist(
+            parseRawSources(resRoot),
+            drawablesWhitelist,
+            whitelistOn,
+        )
+        val commonRaws = buildRawResources(commonRawSources)
 
         val androidExtraRoot = androidExtraResDir.orNull?.asFile?.takeIf { it.exists() }
         val androidExtraStringsByLocale = if (androidExtraRoot == null) {
@@ -128,12 +150,23 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 whitelistOn,
             )
         }
+        val androidExtraRawSources = if (androidExtraRoot == null) {
+            emptyList()
+        } else {
+            filterRawSourcesByWhitelist(
+                parseRawSources(androidExtraRoot),
+                drawablesWhitelist,
+                whitelistOn,
+            )
+        }
         val androidStringsByLocale = mergeStringsByLocale(commonStringsByLocale, androidExtraStringsByLocale)
         val androidStrings = androidStringsByLocale.values.flatten()
             .distinctBy { it.name }
             .sortedBy { it.name }
         val androidDrawableSources = commonDrawableSources + androidExtraDrawableSources
         val androidDrawables = buildDrawableResources(androidDrawableSources)
+        val androidRawSources = commonRawSources + androidExtraRawSources
+        val androidRaws = buildRawResources(androidRawSources)
 
         val iosExtraRoot = iosExtraResDir.orNull?.asFile?.takeIf { it.exists() }
         val iosExtraStringsByLocale = if (iosExtraRoot == null) {
@@ -154,12 +187,23 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 whitelistOn,
             )
         }
+        val iosExtraRawSources = if (iosExtraRoot == null) {
+            emptyList()
+        } else {
+            filterRawSourcesByWhitelist(
+                parseRawSources(iosExtraRoot),
+                drawablesWhitelist,
+                whitelistOn,
+            )
+        }
         val iosStringsByLocale = mergeStringsByLocale(commonStringsByLocale, iosExtraStringsByLocale)
         val iosStrings = iosStringsByLocale.values.flatten()
             .distinctBy { it.name }
             .sortedBy { it.name }
         val iosDrawableSources = commonDrawableSources + iosExtraDrawableSources
         val iosDrawables = buildDrawableResources(iosDrawableSources)
+        val iosRawSources = commonRawSources + iosExtraRawSources
+        val iosRaws = buildRawResources(iosRawSources)
 
         val outputRoot = outputDir.get().asFile
         if (outputRoot.exists()) {
@@ -180,16 +224,19 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val iosFrameworkName = iosFrameworkName.get()
         val commonStringIds = commonStrings.map { it.name }.toSet()
         val commonDrawableIds = commonDrawables.map { it.id }.toSet()
+        val commonRawIds = commonRaws.map { it.id }.toSet()
 
-        writeCommonRes(commonDir, pkg, commonStrings, commonDrawables)
+        writeCommonRes(commonDir, pkg, commonStrings, commonDrawables, commonRaws)
         writeAndroidRes(
             androidDir,
             pkg,
             androidPkg,
             androidStrings,
             androidDrawables,
+            androidRaws,
             commonStringIds,
             commonDrawableIds,
+            commonRawIds,
         )
         writeIosRes(
             iosDir,
@@ -198,11 +245,14 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             iosFrameworkName,
             iosStrings,
             iosDrawables,
+            iosRaws,
             commonStringIds,
             commonDrawableIds,
+            commonRawIds,
         )
         writeIosStringResources(iosResourcesDir, iosStringsByLocale)
         writeIosDrawableResources(iosResourcesDir, iosDrawableSources)
+        writeIosRawResources(iosResourcesDir, iosRawSources)
     }
 
     private fun loadWhitelist(property: RegularFileProperty, label: String): Set<String> {
@@ -235,6 +285,15 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         whitelist: Set<String>,
         whitelistOn: Boolean,
     ): List<DrawableSource> {
+        if (!whitelistOn) return sources
+        return sources.filter { it.id in whitelist }
+    }
+
+    private fun filterRawSourcesByWhitelist(
+        sources: List<RawSource>,
+        whitelist: Set<String>,
+        whitelistOn: Boolean,
+    ): List<RawSource> {
         if (!whitelistOn) return sources
         return sources.filter { it.id in whitelist }
     }
@@ -396,6 +455,41 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         return out
     }
 
+    private fun parseRawSources(resRoot: File): List<RawSource> {
+        if (!resRoot.exists()) return emptyList()
+        val rawDirs = resRoot.listFiles().orEmpty()
+            .filter { it.isDirectory && it.name.startsWith("raw") }
+
+        val out = mutableListOf<RawSource>()
+        for (dir in rawDirs) {
+            val localeInfo = rawDirLocaleInfo(dir.name)
+            val locale = localeInfo?.locale
+            val relativeDir = resRoot.toPath().relativize(dir.toPath()).toString()
+                .replace(File.separatorChar, '/')
+            val normalizedDir = if (localeInfo != null) {
+                normalizeRawDir(relativeDir, localeInfo.tokensToRemove)
+            } else {
+                relativeDir
+            }
+            val files = dir.listFiles().orEmpty().filter { it.isFile }
+            for (file in files) {
+                val extension = file.extension.lowercase()
+                if (extension.isBlank()) continue
+                val baseName = file.nameWithoutExtension
+                val id = sanitizeIdentifier(baseName)
+                out += RawSource(
+                    id = id,
+                    baseName = baseName,
+                    extension = extension,
+                    relativeDir = normalizedDir,
+                    locale = locale,
+                    file = file,
+                )
+            }
+        }
+        return out
+    }
+
     private fun buildDrawableResources(sources: List<DrawableSource>): List<DrawableResource> {
         if (sources.isEmpty()) return emptyList()
         val grouped = sources.groupBy { it.id }
@@ -419,6 +513,26 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         return out.sortedBy { it.id }
     }
 
+    private fun buildRawResources(sources: List<RawSource>): List<RawResource> {
+        if (sources.isEmpty()) return emptyList()
+        val grouped = sources.groupBy { it.id }
+        val out = mutableListOf<RawResource>()
+        for ((id, candidates) in grouped) {
+            val baseCandidates = candidates.filter { it.locale == null }
+            val pickFrom = if (baseCandidates.isNotEmpty()) baseCandidates else candidates
+            val chosen = pickFrom.minWith(compareBy<RawSource> { it.relativeDir }.thenBy { it.file.name })
+            if (chosen != null) {
+                out += RawResource(
+                    id = id,
+                    fileNameWithoutExtension = chosen.baseName,
+                    extension = chosen.extension,
+                    relativeDir = chosen.relativeDir,
+                )
+            }
+        }
+        return out.sortedBy { it.id }
+    }
+
     private fun drawableDirScore(relativeDir: String): Int {
         val suffix = relativeDir.removePrefix("drawable").trimStart('-')
         if (suffix.isBlank()) return 0
@@ -435,11 +549,24 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         return parseLocaleQualifier(qualifiers)
     }
 
+    private fun rawDirLocaleInfo(dirName: String): LocaleQualifier? {
+        if (!dirName.startsWith("raw-")) return null
+        val qualifiers = dirName.removePrefix("raw-")
+        return parseLocaleQualifier(qualifiers)
+    }
+
     private fun normalizeDrawableDir(dirName: String, tokensToRemove: Set<String>): String {
         if (!dirName.startsWith("drawable-")) return dirName
         val parts = dirName.split('-')
         val kept = parts.drop(1).filter { it !in tokensToRemove }
         return if (kept.isEmpty()) "drawable" else "drawable-" + kept.joinToString("-")
+    }
+
+    private fun normalizeRawDir(dirName: String, tokensToRemove: Set<String>): String {
+        if (!dirName.startsWith("raw-")) return dirName
+        val parts = dirName.split('-')
+        val kept = parts.drop(1).filter { it !in tokensToRemove }
+        return if (kept.isEmpty()) "raw" else "raw-" + kept.joinToString("-")
     }
 
     private fun normalizeDrawableName(raw: String): Pair<String, String> {
@@ -474,6 +601,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         packageName: String,
         strings: List<StringResource>,
         drawables: List<DrawableResource>,
+        raws: List<RawResource>,
     ) {
         val file = outputDir.resolve("Res.kt")
         file.writeText(buildString {
@@ -501,6 +629,16 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 }
                 appendLine("    }")
             }
+            appendLine()
+            appendLine("    object raw {")
+            if (raws.isEmpty()) {
+                appendLine("    }")
+            } else {
+                for (raw in raws) {
+                    appendLine("        val ${raw.id}: ResourceId")
+                }
+                appendLine("    }")
+            }
             appendLine("}")
         })
     }
@@ -511,8 +649,10 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         androidNamespace: String,
         strings: List<StringResource>,
         drawables: List<DrawableResource>,
+        raws: List<RawResource>,
         commonStrings: Set<String>,
         commonDrawables: Set<String>,
+        commonRaws: Set<String>,
     ) {
         val file = outputDir.resolve("Res.android.kt")
         file.writeText(buildString {
@@ -545,6 +685,18 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 }
                 appendLine("    }")
             }
+            appendLine()
+            appendLine("    actual object raw {")
+            if (raws.isEmpty()) {
+                appendLine("    }")
+            } else {
+                for (raw in raws) {
+                    val keyword = if (raw.id in commonRaws) "actual val" else "val"
+                    appendLine("        $keyword ${raw.id}: ResourceId")
+                    appendLine("            get() = R.raw.${raw.id}")
+                }
+                appendLine("    }")
+            }
             appendLine("}")
         })
     }
@@ -556,8 +708,10 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         iosFrameworkName: String,
         strings: List<StringResource>,
         drawables: List<DrawableResource>,
+        raws: List<RawResource>,
         commonStrings: Set<String>,
         commonDrawables: Set<String>,
+        commonRaws: Set<String>,
     ) {
         val file = outputDir.resolve("Res.ios.kt")
         file.writeText(buildString {
@@ -601,6 +755,27 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                     }
                     val keyword = if (drawable.id in commonDrawables) "actual val" else "val"
                     appendLine("        $keyword ${drawable.id}: ResourceId")
+                    appendLine("            get() = resourceId(\"$path\")")
+                }
+                appendLine("    }")
+            }
+            appendLine()
+            appendLine("    actual object raw {")
+            if (raws.isEmpty()) {
+                appendLine("    }")
+            } else {
+                for (raw in raws) {
+                    val path = buildString {
+                        if (raw.relativeDir.isNotBlank()) {
+                            append(raw.relativeDir)
+                            append('/')
+                        }
+                        append(raw.fileNameWithoutExtension)
+                        append('.')
+                        append(raw.extension)
+                    }
+                    val keyword = if (raw.id in commonRaws) "actual val" else "val"
+                    appendLine("        $keyword ${raw.id}: ResourceId")
                     appendLine("            get() = resourceId(\"$path\")")
                 }
                 appendLine("    }")
@@ -663,6 +838,34 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             val targetDir = if (key.relativeDir.isBlank()) baseDir else baseDir.resolve(key.relativeDir)
             targetDir.mkdirs()
             candidate.source.file.copyTo(targetDir.resolve(key.fileName), overwrite = true)
+        }
+    }
+
+    private fun writeIosRawResources(
+        outputDir: File,
+        sources: List<RawSource>,
+    ) {
+        if (sources.isEmpty()) return
+        data class TargetKey(val locale: String?, val relativeDir: String, val fileName: String)
+
+        val chosen = mutableMapOf<TargetKey, RawSource>()
+        for (source in sources.sortedBy { it.file.name }) {
+            val fileName = "${source.baseName}.${source.extension}"
+            val key = TargetKey(source.locale, source.relativeDir, fileName)
+            if (key !in chosen) {
+                chosen[key] = source
+            }
+        }
+
+        for ((key, source) in chosen) {
+            val baseDir = if (key.locale.isNullOrBlank()) {
+                outputDir
+            } else {
+                outputDir.resolve("${key.locale}.lproj")
+            }
+            val targetDir = if (key.relativeDir.isBlank()) baseDir else baseDir.resolve(key.relativeDir)
+            targetDir.mkdirs()
+            source.file.copyTo(targetDir.resolve(key.fileName), overwrite = true)
         }
     }
 

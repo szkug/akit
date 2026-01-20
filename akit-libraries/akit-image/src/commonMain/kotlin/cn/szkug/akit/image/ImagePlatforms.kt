@@ -2,7 +2,14 @@ package cn.szkug.akit.image
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
+import cn.szkug.akit.lottie.LottieResource
+import cn.szkug.akit.lottie.rememberLottiePainter
+import cn.szkug.akit.resources.runtime.ResourceId
+import cn.szkug.akit.resources.runtime.painterResource
 
 expect val SDK_SIZE_ORIGINAL: Int
 
@@ -26,8 +33,9 @@ expect class PlatformAsyncLoadData : AsyncLoadData {
 
 expect val LocalPlatformAsyncRequestEngine: ProvidableCompositionLocal<AsyncRequestEngine<PlatformAsyncLoadData>>
 
-@Composable
-expect fun Any?.toResourceModel(): ResourceModel?
 
 @Composable
-expect fun Any?.toPainterModel(): PainterModel?
+expect fun Any?.platformResourceModel(): ResourceModel?
+
+@Composable
+expect fun Any?.platformPainterModel(): PainterModel?

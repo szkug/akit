@@ -41,7 +41,6 @@ includeAkitLibraries(
     ":akit-graph",
     ":akit-image",
     ":glide-blur-module",
-    ":glide-ninepatch-module",
     ":resources-runtime",
     ":renderscript-toolkit-publish",
 )

@@ -30,6 +30,7 @@ private enum class DemoPage {
     AnimatedImageList,
     LocalizedDemo,
     ShadowEffects,
+    LottieDemo,
 }
 
 @Composable
@@ -44,6 +45,7 @@ fun AkitCmpApp() {
             DemoPage.AnimatedImageList -> AnimatedImageListPage(onBack = { page = DemoPage.Home })
             DemoPage.LocalizedDemo -> LanguageDemoPage(onBack = { page = DemoPage.Home })
             DemoPage.ShadowEffects -> ShadowEffectDemoPage(onBack = { page = DemoPage.Home })
+            DemoPage.LottieDemo -> LottieDemoPage(onBack = { page = DemoPage.Home })
         }
     }
 }
@@ -67,6 +69,9 @@ private fun HomeScreen(onNavigate: (DemoPage) -> Unit) {
         }
         Button(onClick = { onNavigate(DemoPage.ShadowEffects) }) {
             Text(text = "Shadow Effects")
+        }
+        Button(onClick = { onNavigate(DemoPage.LottieDemo) }) {
+            Text(text = "Lottie Demo")
         }
     }
 }

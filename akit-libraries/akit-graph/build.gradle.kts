@@ -22,6 +22,7 @@ kotlin {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
+            implementation(libs.lottie)
         }
         iosMain.dependencies {
         }

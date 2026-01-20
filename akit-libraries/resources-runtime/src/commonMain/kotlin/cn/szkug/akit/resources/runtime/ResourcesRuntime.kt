@@ -15,3 +15,5 @@ expect fun stringResource(id: ResourceId, vararg formatArgs: Any): String
 
 @Composable
 expect fun painterResource(id: ResourceId): Painter
+
+expect fun resolveResourcePath(id: ResourceId, localeOverride: String? = null): String?

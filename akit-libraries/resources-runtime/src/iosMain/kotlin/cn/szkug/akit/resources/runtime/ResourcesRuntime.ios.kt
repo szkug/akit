@@ -68,6 +68,15 @@ actual fun painterResource(id: ResourceId): Painter {
     }
 }
 
+actual fun resolveResourcePath(id: ResourceId, localeOverride: String?): String? {
+    val info = decodeResourceId(id)
+    if (info.value.isBlank()) return null
+    val path = parseResourcePath(info.value)
+    val bundle = resourceBundle(info.frameworkName)
+    val locales = preferredLocales(bundle, localeOverride ?: userDefaultsLanguage())
+    return resolveImagePath(bundle, info.prefix, path, locales)
+}
+
 private fun decodeResourceId(id: ResourceId): ResourceInfo {
     val rawPath = id.path?.trimStart('/') ?: ""
     val decodedPath = rawPath.replace("%7C", "|").replace("%7c", "|")

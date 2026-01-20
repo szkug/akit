@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import cn.szkug.akit.glide.extensions.lottie.LottieDecodeOptions
 import cn.szkug.akit.graph.toPainter
 import cn.szkug.akit.image.AsyncLoadData
 import cn.szkug.akit.image.AsyncLoadResult
@@ -18,9 +19,10 @@ import cn.szkug.akit.image.RequestModel
 import cn.szkug.akit.image.ResIdModel
 import cn.szkug.akit.image.ResolvableImageSize
 import cn.szkug.akit.image.ResourceModel
+import cn.szkug.akit.lottie.LottieResource
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
-import cn.szkug.akit.glide.extensions.ninepatch.NinePatchDrawableDecoder
+import com.bumptech.glide.request.RequestOptions
 import cn.szkug.akit.glide.extensions.ninepatch.NinepatchEnableOption
 import kotlinx.coroutines.flow.Flow
 import java.io.File
@@ -58,9 +60,9 @@ class GlideRequestEngine(
     }
 
     private fun <T> RequestBuilder<T>.setupContext(context: AsyncImageContext): RequestBuilder<T> {
-        var builder = this.set(NinepatchEnableOption, context.supportNinepatch)
-
-        return builder
+        return this.set(NinepatchEnableOption, context.supportNinepatch)
+            .set(LottieDecodeOptions.Enabled, context.supportLottie)
+            .set(LottieDecodeOptions.Iterations, context.animationIterations)
     }
 
     private fun <T> RequestBuilder<T>.setupSize(size: ResolvableImageSize): RequestBuilder<T> {
@@ -78,6 +80,7 @@ class GlideRequestEngine(
         }
     }
 
+
     private fun RequestBuilder<Drawable>.flowOfRequest(
         context: AsyncImageContext,
         requestModel: RequestModel,
@@ -85,6 +88,7 @@ class GlideRequestEngine(
     ): Flow<AsyncLoadResult<DrawableAsyncLoadData>> {
         return when (val model = requestModel.model) {
             is Int -> return flowOfId(context, model)
+            is LottieResource -> load(model)
             is File -> load(model)
             is Uri -> load(model)
             is String -> load(model)

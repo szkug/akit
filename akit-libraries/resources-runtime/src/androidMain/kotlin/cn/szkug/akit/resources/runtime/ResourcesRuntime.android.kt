@@ -22,3 +22,5 @@ actual fun painterResource(id: ResourceId): Painter {
         AppCompatResources.getDrawable(context, id)!!.toPainter()
     }
 }
+
+actual fun resolveResourcePath(id: ResourceId, localeOverride: String?): String? = null

@@ -95,7 +95,6 @@ dependencies {
 
     // project modules
     implementation(projects.akitLibraries.akitImage)
-    implementation(projects.akitLibraries.glideNinepatchModule)
     implementation(projects.akitLibraries.glideBlurModule)
     implementation(projects.apps.cmp)
 

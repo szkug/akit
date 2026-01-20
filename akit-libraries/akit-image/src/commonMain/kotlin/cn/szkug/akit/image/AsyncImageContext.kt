@@ -29,6 +29,7 @@ interface AsyncImageLoadListener {
     fun onCancel(model: Any?) {}
 }
 
+enum class LottieLoadType { None, }
 class AsyncImageContext(
     val context: PlatformImageContext,
     val coroutineContext: CoroutineContext,
@@ -37,8 +38,11 @@ class AsyncImageContext(
     val listener: AsyncImageLoadListener? = null,
     val ignoreImagePadding: Boolean = false,
 
+    val animationIterations: Int = -1,
+
     // extension support
     val supportNinepatch: Boolean = false,
+    val supportLottie: Boolean = false,
 ) {
     companion object
 }

@@ -10,6 +10,7 @@ lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.9.1"
 composeBom = "2025.07.00"
 composeCompiler = "1.5.13"
+lottie = "6.5.2"
 
 glide = "4.16.0"
 glide-plugin = "2.24.0"
@@ -90,6 +91,7 @@ androidx-tracing-perfetto = { module = "androidx.tracing:tracing-perfetto", vers
 androidx-tracing-perfetto-binary = { module = "androidx.tracing:tracing-perfetto-binary", version.ref = "androidx-tracing-perfetto" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 
 
 

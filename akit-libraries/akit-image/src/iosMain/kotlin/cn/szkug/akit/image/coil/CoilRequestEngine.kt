@@ -9,6 +9,9 @@ import cn.szkug.akit.image.AsyncRequestEngine
 import cn.szkug.akit.image.RequestModel
 import cn.szkug.akit.image.ResolvableImageSize
 import cn.szkug.akit.image.ResourceModel
+import cn.szkug.akit.lottie.LottieResource
+import cn.szkug.akit.resources.runtime.ResourceId
+import cn.szkug.akit.resources.runtime.resolveResourcePath
 import coil3.Image
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -38,6 +41,7 @@ interface CoilImageLoaderFactory {
 
 private val NinePatchFactory = NinePatchDecoder.Factory()
 private val GifFactory = GifDecoder.Factory()
+private val LottieFactory = LottieDecoder.Factory()
 
 open class CoilImageLoaderSingletonFactory : CoilImageLoaderFactory {
 
@@ -46,7 +50,7 @@ open class CoilImageLoaderSingletonFactory : CoilImageLoaderFactory {
     final override fun get(context: AsyncImageContext): ImageLoader {
         return reference.value ?: create(
             context,
-            listOf(NinePatchFactory, GifFactory)
+            listOf(NinePatchFactory, GifFactory, LottieFactory)
         ).also {
             reference.value = it
         }
@@ -78,15 +82,26 @@ class CoilRequestEngine(
     ): Flow<AsyncLoadResult<PainterAsyncLoadData>> = callbackFlow {
 
         val size = size.awaitSize()
+        val rawModel = requestModel.model
+        val resolvedModel = when (rawModel) {
+            is LottieResource -> resolveLottieResource(rawModel.resource)
+            is ResourceId -> resolveResourcePath(rawModel)
+                ?: error("ResourceId not found: $rawModel")
+            else -> rawModel
+        }
 
-        val builder = when (val model = requestModel.model) {
-            is ImageRequest -> model.newBuilder(context.context)
+        val builder = when (resolvedModel) {
+            is ImageRequest -> resolvedModel.newBuilder(context.context)
             else -> ImageRequest.Builder(context.context)
-                .data(model)
+                .data(resolvedModel)
         }
 
         if (context.supportNinepatch) {
             builder.extras[NinePatchDecodeEnabled] = true
+        }
+        if (rawModel is LottieResource) {
+            builder.extras[LottieDecodeEnabled] = true
+            builder.extras[LottieIterationsKey] = context.animationIterations
         }
 
         val target = CoilFlowTarget(context, this)
@@ -104,6 +119,14 @@ class CoilRequestEngine(
 
     companion object {
         val Normal = CoilRequestEngine()
+    }
+}
+
+private fun resolveLottieResource(resource: Any): Any {
+    return when (resource) {
+        is ResourceId -> resolveResourcePath(resource) ?: resource
+        is String -> resource
+        else -> resource
     }
 }
 
@@ -155,6 +178,7 @@ private fun Painter.toPainterAsyncLoadData() = PainterAsyncLoadData(this)
 
 private fun Image.toAkitPainter(context: AsyncImageContext): Painter {
     return when (this) {
+        is LottieCoilImage -> toPainter()
         is NinePatchCoilImage -> toPainter()
         is GifCoilImage -> toPainter()
         else -> asPainter(context.context)
