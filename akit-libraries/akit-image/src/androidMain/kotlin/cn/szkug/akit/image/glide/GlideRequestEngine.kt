@@ -22,8 +22,10 @@ import cn.szkug.akit.image.ResourceModel
 import cn.szkug.akit.lottie.LottieResource
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import cn.szkug.akit.glide.extensions.ninepatch.NinepatchEnableOption
+import com.bumptech.glide.signature.ObjectKey
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 
@@ -68,9 +70,20 @@ class GlideRequestEngine(
             is LottieResource -> model.iterations
             else -> context.animationIterations
         }
-        return this.set(NinepatchEnableOption, context.supportNinepatch)
+        var builder = this.set(NinepatchEnableOption, context.supportNinepatch)
             .set(LottieDecodeOptions.Enabled, enableLottie)
             .set(LottieDecodeOptions.Iterations, lottieIterations)
+        val lottieModel = requestModel.model as? LottieResource
+        val lottieResId = lottieModel?.resource as? Int
+        if (lottieResId != null) {
+            val lottieCacheKey = "raw:$lottieResId"
+            builder = builder
+                .set(LottieDecodeOptions.CacheKey, lottieCacheKey)
+                .signature(ObjectKey(LottieInstanceKey(lottieResId)))
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+        }
+        return builder
     }
 
     private fun <T> RequestBuilder<T>.setupSize(size: ResolvableImageSize): RequestBuilder<T> {
@@ -115,3 +128,5 @@ class GlideRequestEngine(
             }
     }
 }
+
+private class LottieInstanceKey(private val resId: Int)

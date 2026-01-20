@@ -30,6 +30,9 @@ object LottieDecodeOptions {
         "cn.szkug.akit.lottie.Iterations",
         LottieDrawable.INFINITE
     )
+    val CacheKey: Option<String?> = Option.memory(
+        "cn.szkug.akit.lottie.CacheKey"
+    )
 }
 
 @GlideModule
@@ -131,7 +134,8 @@ private class LottieDrawableDecoder : ResourceDecoder<InputStream, Drawable> {
         height: Int,
         options: Options
     ): com.bumptech.glide.load.engine.Resource<Drawable>? {
-        val result = LottieCompositionFactory.fromJsonInputStreamSync(source, null)
+        val cacheKey = options.get(LottieDecodeOptions.CacheKey)
+        val result = LottieCompositionFactory.fromJsonInputStreamSync(source, cacheKey)
         val composition = result.value ?: return null
         val iterations = options.get(LottieDecodeOptions.Iterations)!!
         val drawable = LottieDrawable().apply {
