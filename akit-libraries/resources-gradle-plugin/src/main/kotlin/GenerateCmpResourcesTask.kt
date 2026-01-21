@@ -56,6 +56,7 @@ internal data class RawSource(
 abstract class GenerateCmpResourcesTask : DefaultTask() {
 
     @get:InputDirectory
+    @get:Optional
     abstract val resDir: DirectoryProperty
 
     @get:OutputDirectory
@@ -73,9 +74,6 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
 
     @get:Input
     abstract val iosResourcesPrefix: Property<String>
-
-    @get:Input
-    abstract val iosFrameworkName: Property<String>
 
     @get:InputDirectory
     @get:Optional
@@ -221,7 +219,6 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val pkg = packageName.get()
         val androidPkg = androidNamespace.get().ifBlank { pkg }
         val iosPrefix = iosResourcesPrefix.get()
-        val iosFrameworkName = iosFrameworkName.get()
         val commonStringIds = commonStrings.map { it.name }.toSet()
         val commonDrawableIds = commonDrawables.map { it.id }.toSet()
         val commonRawIds = commonRaws.map { it.id }.toSet()
@@ -242,7 +239,6 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             iosDir,
             pkg,
             iosPrefix,
-            iosFrameworkName,
             iosStrings,
             iosDrawables,
             iosRaws,
@@ -705,7 +701,6 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         outputDir: File,
         packageName: String,
         iosPrefix: String,
-        iosFrameworkName: String,
         strings: List<StringResource>,
         drawables: List<DrawableResource>,
         raws: List<RawResource>,
@@ -720,11 +715,11 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import cn.szkug.akit.resources.runtime.ResourceId")
             appendLine("import platform.Foundation.NSURL")
             appendLine()
-            appendLine("private const val frameworkName = \"$iosFrameworkName\"")
             appendLine("private const val resourcesPrefix = \"$iosPrefix\"")
             appendLine()
             appendLine("private fun resourceId(value: String): ResourceId =")
-            appendLine("    NSURL.fileURLWithPath(\"${'$'}frameworkName|${'$'}resourcesPrefix|${'$'}value\")")
+            appendLine("    if (resourcesPrefix.isBlank()) NSURL.fileURLWithPath(value)")
+            appendLine("    else NSURL.fileURLWithPath(\"${'$'}resourcesPrefix|${'$'}value\")")
             appendLine()
             appendLine("actual object Res {")
             appendLine("    actual object strings {")

@@ -48,4 +48,5 @@ includeAkitLibraries(
 // apps
 include(":apps:android")
 include(":apps:cmp")
+include(":apps:cmp-lib")
 include(":benchmark")

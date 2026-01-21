@@ -9,8 +9,6 @@ abstract class AkitCmpResourcesExtension {
     abstract val androidExtraResDir: DirectoryProperty
     abstract val iosExtraResDir: DirectoryProperty
     abstract val iosResourcesPrefix: Property<String>
-    abstract val iosFrameworkName: Property<String>
-    abstract val iosFrameworkBundleId: Property<String>
     abstract val whitelistEnabled: Property<Boolean>
     abstract val stringsWhitelistFile: RegularFileProperty
     abstract val drawablesWhitelistFile: RegularFileProperty

@@ -18,9 +18,8 @@ kotlin {
 
     targets.withType<KotlinNativeTarget>().configureEach {
         binaries.framework {
-            baseName = "AkitCmp"
+            baseName = "AkitCmpLibRes"
             isStatic = true
-            transitiveExport = false
         }
     }
 
@@ -32,7 +31,6 @@ kotlin {
             implementation(compose.material3)
             api(projects.akitLibraries.akitImage)
             api(projects.akitLibraries.akitGraph)
-            implementation(projects.apps.cmpLib)
             api(projects.akitLibraries.resourcesRuntime)
         }
         androidMain.dependencies {
@@ -47,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.apps.cmp"
+    namespace = "cn.szkug.akit.apps.cmp.lib"
 
     compileSdk = AndroidSdkVersions.COMPILE
 
@@ -61,7 +59,8 @@ android {
 }
 
 cmpResources {
-    packageName.set("cn.szkug.akit.apps.cmp.host")
-    androidNamespace.set("cn.szkug.akit.apps.cmp")
-    iosResourcesPrefix.set("AkitCmpHostRes")
+    packageName.set("cn.szkug.akit.apps.cmp")
+    androidNamespace.set("cn.szkug.akit.apps.cmp.lib")
+    androidExtraResDir.set(layout.projectDirectory.dir("src/androidMain/res"))
+    iosResourcesPrefix.set("AkitCmpLibRes")
 }

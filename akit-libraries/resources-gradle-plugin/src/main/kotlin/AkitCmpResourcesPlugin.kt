@@ -1,12 +1,11 @@
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
 
@@ -17,35 +16,74 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         extension.androidNamespace.convention("")
         extension.resDir.convention(layout.projectDirectory.dir("src/res"))
         extension.iosResourcesPrefix.convention("cmp-res")
-        extension.iosFrameworkName.convention("")
-        extension.iosFrameworkBundleId.convention("")
         extension.whitelistEnabled.convention(false)
 
+        val emptyResDir = layout.buildDirectory.dir("generated/cmp-resources/empty-res")
+        val emptyResDirFile = emptyResDir.get().asFile
+        if (!emptyResDirFile.exists()) {
+            emptyResDirFile.mkdirs()
+        }
+
         val generateTask = tasks.register<GenerateCmpResourcesTask>("generateCmpResources") {
-            resDir.set(extension.resDir)
+            val resolvedResDir = extension.resDir.flatMap { dir ->
+                if (dir.asFile.exists()) {
+                    providers.provider { dir }
+                } else {
+                    emptyResDir
+                }
+            }
+            resDir.set(resolvedResDir)
             outputDir.set(layout.buildDirectory.dir("generated/cmp-resources"))
             packageName.set(extension.packageName)
             androidNamespace.set(extension.androidNamespace)
             iosResourcesPrefix.set(extension.iosResourcesPrefix)
-            iosFrameworkName.set(extension.iosFrameworkName)
             whitelistEnabled.set(extension.whitelistEnabled)
             stringsWhitelistFile.set(extension.stringsWhitelistFile)
             drawablesWhitelistFile.set(extension.drawablesWhitelistFile)
         }
 
+        val composeResourcesElements = configurations.create("cmpComposeResourcesElements") {
+            isCanBeConsumed = true
+            isCanBeResolved = false
+        }
+        val composeResourcesClasspath = configurations.create("cmpComposeResourcesClasspath") {
+            isCanBeConsumed = false
+            isCanBeResolved = true
+        }
+        val composeResourcesArtifacts = composeResourcesClasspath.incoming.artifactView {
+            lenient(true)
+        }.files
+        val composeResourcesDir = layout.buildDirectory.dir("generated/cmp-resources/compose-resources")
+        val prepareComposeResourcesTask = tasks.register("prepareCmpComposeResources") {
+            outputs.dir(composeResourcesDir)
+            dependsOn(generateTask)
+            doLast {
+                val outputRoot = composeResourcesDir.get().asFile
+                if (outputRoot.exists()) {
+                    project.delete(outputRoot)
+                }
+                outputRoot.mkdirs()
+                val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
+                if (!generatedRoot.exists()) return@doLast
+                val prefix = extension.iosResourcesPrefix.get()
+                val destDir = if (prefix.isBlank()) {
+                    File(outputRoot, "compose-resources")
+                } else {
+                    File(outputRoot, "compose-resources/$prefix")
+                }
+                destDir.mkdirs()
+                project.copy {
+                    from(generatedRoot)
+                    into(destDir)
+                }
+            }
+        }
+        composeResourcesElements.outgoing.artifact(composeResourcesDir) {
+            builtBy(prepareComposeResourcesTask)
+        }
+
         pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
             val kotlinExt = extensions.getByType<KotlinMultiplatformExtension>()
-            val inferredFrameworkName = kotlinExt.targets
-                .withType(KotlinNativeTarget::class.java)
-                .flatMap { it.binaries.withType(Framework::class.java) }
-                .firstOrNull()
-                ?.baseName
-                .orEmpty()
-            if (inferredFrameworkName.isNotBlank()) {
-                extension.iosFrameworkName.convention(inferredFrameworkName)
-            }
-
-
             with(kotlinExt) {
                 sourceSets.commonMain {
                     kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("commonMain") })
@@ -60,118 +98,30 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 }
             }
 
-            val syncXcodeResourcesTask = tasks.register("syncCmpIosResourcesToXcode") {
-                outputs.upToDateWhen { false }
-                dependsOn(generateTask)
-                doLast {
-                    val resRoot = extension.resDir.get().asFile
-                    val extraIosResRoot = extension.iosExtraResDir.orNull?.asFile
-                    val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
-                    if (!resRoot.exists() && !generatedRoot.exists() && (extraIosResRoot == null || !extraIosResRoot.exists())) {
-                        return@doLast
-                    }
-                    val appBundle = resolveXcodeAppBundle() ?: return@doLast
-                    val prefix = extension.iosResourcesPrefix.get()
-                    val appDestDir = if (prefix.isBlank()) {
-                        appBundle
-                    } else {
-                        File(appBundle, prefix)
-                    }
-                    if (!prefix.isBlank()) {
-                        project.delete(appDestDir)
-                    }
-                    if (resRoot.exists()) {
-                        project.copy {
-                            from(resRoot)
-                            into(appDestDir)
-                            exclude("drawable*/**")
-                            exclude("raw*/**")
-                            exclude("values*/**")
-                        }
-                    }
-                    if (extraIosResRoot != null && extraIosResRoot.exists()) {
-                        project.copy {
-                            from(extraIosResRoot)
-                            into(appDestDir)
-                            exclude("drawable*/**")
-                            exclude("raw*/**")
-                            exclude("values*/**")
-                        }
-                    }
-                    if (generatedRoot.exists()) {
-                        project.copy {
-                            from(generatedRoot)
-                            into(appDestDir)
-                        }
-                    }
-                }
+            val cmpComposeResourcesFiles = objects.fileCollection().apply {
+                from(composeResourcesDir)
+                from(composeResourcesArtifacts)
+                builtBy(prepareComposeResourcesTask)
             }
-            tasks.matching { it.name.startsWith("embedAndSignAppleFrameworkForXcode") }
-                .configureEach { dependsOn(syncXcodeResourcesTask) }
 
-            kotlinExt.targets.withType(KotlinNativeTarget::class.java).configureEach {
-                binaries.withType(Framework::class.java).configureEach {
-                    linkTaskProvider.configure {
-                        dependsOn(generateTask)
-                        doLast {
-                            val resRoot = extension.resDir.get().asFile
-                            val extraIosResRoot = extension.iosExtraResDir.orNull?.asFile
-                            val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
-                            if (!resRoot.exists() && !generatedRoot.exists() && (extraIosResRoot == null || !extraIosResRoot.exists())) {
-                                return@doLast
-                            }
-                            val prefix = extension.iosResourcesPrefix.get()
-                            val frameworkDir = if (outputDirectory.name.endsWith(".framework")) {
-                                outputDirectory
-                            } else {
-                                File(outputDirectory, "${baseName}.framework")
-                            }
-                            val destRoot = frameworkDir
-                            val destDir = if (prefix.isBlank()) {
-                                destRoot
-                            } else {
-                                File(destRoot, prefix)
-                            }
-                            val legacyRoot = File(frameworkDir, "Resources")
-                            val legacyDest = if (prefix.isBlank()) {
-                                legacyRoot
-                            } else {
-                                File(legacyRoot, prefix)
-                            }
-                            project.delete(legacyDest)
-                            project.delete(destDir)
-                            if (resRoot.exists()) {
-                                project.copy {
-                                    from(resRoot)
-                                    into(destDir)
-                                    exclude("drawable*/**")
-                                    exclude("raw*/**")
-                                    exclude("values*/**")
-                                }
-                            }
-                            if (extraIosResRoot != null && extraIosResRoot.exists()) {
-                                project.copy {
-                                    from(extraIosResRoot)
-                                    into(destDir)
-                                    exclude("drawable*/**")
-                                    exclude("raw*/**")
-                                    exclude("values*/**")
-                                }
-                            }
-                            if (generatedRoot.exists()) {
-                                project.copy {
-                                    from(generatedRoot)
-                                    into(destDir)
-                                }
-                            }
-                            patchFrameworkInfoPlist(
-                                frameworkDir,
-                                baseName,
-                                extension.iosFrameworkBundleId.get(),
-                            )
-                        }
-                    }
-                }
+            val syncCmpResourcesForXcode = tasks.register<SyncCmpResourcesForXcodeTask>(
+                "syncCmpResourcesForXcode"
+            ) {
+                resources.from(cmpComposeResourcesFiles)
+                outputDirOverride.set(providers.gradleProperty("cmp.ios.resources.outputDir").orElse(""))
+                dependsOn(prepareComposeResourcesTask)
+            }
+
+            val composeSyncTasks = tasks.matching {
+                it.name.startsWith("syncComposeResourcesFor") &&
+                    (it.name.contains("Ios") || it.name.contains("Xcode"))
+            }
+            syncCmpResourcesForXcode.configure {
+                mustRunAfter(composeSyncTasks)
+            }
+
+            tasks.matching { it.name == "embedAndSignAppleFrameworkForXcode" }.configureEach {
+                dependsOn(syncCmpResourcesForXcode)
             }
 
             tasks.withType(KotlinCompilationTask::class.java).configureEach {
@@ -200,70 +150,36 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 generateTask.configure { iosExtraResDir.set(extension.iosExtraResDir) }
             }
         }
-    }
-}
 
-private fun resolveXcodeAppBundle(): File? {
-    val targetBuildDir = System.getenv("TARGET_BUILD_DIR").orEmpty()
-    val resourcesFolderPath = System.getenv("UNLOCALIZED_RESOURCES_FOLDER_PATH").orEmpty()
-    if (targetBuildDir.isNotBlank() && resourcesFolderPath.isNotBlank()) {
-        return File(targetBuildDir, resourcesFolderPath)
-    }
-    val fullProductName = System.getenv("FULL_PRODUCT_NAME").orEmpty()
-    if (targetBuildDir.isNotBlank() && fullProductName.isNotBlank()) {
-        return File(targetBuildDir, fullProductName)
-    }
-    val builtProductsDir = System.getenv("BUILT_PRODUCTS_DIR").orEmpty()
-    val contentsFolderPath = System.getenv("CONTENTS_FOLDER_PATH").orEmpty()
-    if (builtProductsDir.isNotBlank() && contentsFolderPath.isNotBlank()) {
-        return File(builtProductsDir, contentsFolderPath)
-    }
-    return null
-}
-
-private fun patchFrameworkInfoPlist(
-    frameworkDir: File,
-    baseName: String,
-    bundleId: String,
-) {
-    val infoPlist = File(frameworkDir, "Info.plist")
-    if (!infoPlist.exists()) return
-    val content = infoPlist.readText()
-    var updated = content
-    if (bundleId.isNotBlank()) {
-        val bundleRegex = Regex("<key>CFBundleIdentifier</key>\\s*<string>[^<]*</string>")
-        updated = if (bundleRegex.containsMatchIn(updated)) {
-            bundleRegex.replace(
-                updated,
-                "<key>CFBundleIdentifier</key>\n    <string>$bundleId</string>"
-            )
-        } else {
-            updated
+        gradle.projectsEvaluated {
+            val projectDeps = linkedMapOf<String, ProjectDependency>()
+            val rootPath = project.path
+            fun collectProjectDeps(root: Project) {
+                val sourceSetConfigs = root.configurations.matching {
+                    it.name.contains("MainImplementation") || it.name.contains("MainApi")
+                }
+                for (config in sourceSetConfigs) {
+                    for (dep in config.dependencies.withType(ProjectDependency::class.java)) {
+                        val path = dep.dependencyProject.path
+                        if (path == rootPath) continue
+                        if (projectDeps.putIfAbsent(path, dep) == null) {
+                            collectProjectDeps(dep.dependencyProject)
+                        }
+                    }
+                }
+            }
+            collectProjectDeps(project)
+            for (dep in projectDeps.values) {
+                val depProject = dep.dependencyProject
+                if (depProject.configurations.findByName("cmpComposeResourcesElements") != null) {
+                    dependencies.add(
+                        composeResourcesClasspath.name,
+                        dependencies.project(
+                            mapOf("path" to depProject.path, "configuration" to "cmpComposeResourcesElements")
+                        )
+                    )
+                }
+            }
         }
     }
-    val entries = buildList {
-        if (!updated.contains("<key>CFBundlePackageType</key>")) {
-            add("    <key>CFBundlePackageType</key>\n    <string>FMWK</string>")
-        }
-        if (!updated.contains("<key>CFBundleExecutable</key>")) {
-            add("    <key>CFBundleExecutable</key>\n    <string>$baseName</string>")
-        }
-        if (!updated.contains("<key>CFBundleName</key>")) {
-            add("    <key>CFBundleName</key>\n    <string>$baseName</string>")
-        }
-        if (bundleId.isNotBlank() && !updated.contains("<key>CFBundleIdentifier</key>")) {
-            add("    <key>CFBundleIdentifier</key>\n    <string>$bundleId</string>")
-        }
-    }
-    if (entries.isEmpty() && updated == content) return
-    val marker = "</dict>"
-    val index = updated.lastIndexOf(marker)
-    if (index == -1) return
-    val insert = entries.joinToString("\n", postfix = "\n")
-    val finalText = if (entries.isEmpty()) {
-        updated
-    } else {
-        updated.substring(0, index) + insert + updated.substring(index)
-    }
-    infoPlist.writeText(finalText)
 }

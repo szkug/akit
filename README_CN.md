@@ -228,9 +228,7 @@ cmpResources {
     packageName.set("com.example.app") // common Res 文件包名
     androidNamespace.set("com.example.app")
     androidExtraResDir.set(layout.projectDirectory.dir("src/android-res"))
-    iosResourcesPrefix.set("cmp-res") // iOS 资源 bundle 路径
-    iosFrameworkName.set("MyFramework")
-    iosFrameworkBundleId.set("com.example.app")
+    iosResourcesPrefix.set("cmp-res") // iOS compose-resources 子目录
     iosExtraResDir.set(layout.projectDirectory.dir("src/ios-res"))
     whitelistEnabled.set(false) // 开启后仅保留白名单资源
     stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))
@@ -248,7 +246,10 @@ cmpResources {
 res/values/strings.xml -> `<string name="hello">Hello</string>`
 - commonMain: `expect Res.strings.hello: ResourceId`
 - androidMain: `Res.strings.hello = R.strings.hello`
-- iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$frameworkName|$resourcesPrefix|hello")`
+- iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$resourcesPrefix|hello")`
+
+iOS 资源会通过 Compose Multiplatform 的同步任务拷贝到 App bundle 的
+`compose-resources/<iosResourcesPrefix>` 目录下。
 
 使用 runtime 库的 `stringResource` / `painterResource` 时会根据 App 语言自动处理多语言：
 - Android 侧为 `androidx.compose.ui.res.stringResource` 实现，依赖 `android.content.Context` 的语言配置

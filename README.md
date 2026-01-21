@@ -246,9 +246,7 @@ cmpResources {
     packageName.set("com.example.app") // Package name for Res in common
     androidNamespace.set("com.example.app")
     androidExtraResDir.set(layout.projectDirectory.dir("src/androidMain/res"))
-    iosResourcesPrefix.set("cmp-res") // iOS bundle path
-    iosFrameworkName.set("MyFramework")
-    iosFrameworkBundleId.set("com.example.app")
+    iosResourcesPrefix.set("cmp-res") // iOS subdir under compose-resources
     iosExtraResDir.set(layout.projectDirectory.dir("src/iosMain/res"))
     whitelistEnabled.set(false) // Only allow whitelisted ids when enabled
     stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))
@@ -268,7 +266,10 @@ Resource example:
 res/values/strings.xml -> `<string name="hello">Hello</string>`
 - commonMain: `expect Res.strings.hello: ResourceId`
 - androidMain: `Res.strings.hello = R.strings.hello`
-- iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$frameworkName|$resourcesPrefix|hello")`
+- iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$resourcesPrefix|hello")`
+
+iOS resources are synced into the app bundle under `compose-resources/<iosResourcesPrefix>` by
+Compose Multiplatform's resource sync tasks.
 
 When calling `stringResource` / `painterResource` from the runtime library, locale handling is
 automatic:

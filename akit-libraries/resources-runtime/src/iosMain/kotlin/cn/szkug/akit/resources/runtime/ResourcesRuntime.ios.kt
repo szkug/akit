@@ -31,7 +31,6 @@ import platform.UIKit.UIScreen
 actual typealias ResourceId = NSURL
 
 private data class ResourceInfo(
-    val frameworkName: String,
     val prefix: String,
     val value: String,
 )
@@ -42,16 +41,14 @@ private data class ResourcePath(
     val extension: String,
 )
 
-private val bundleCache = mutableMapOf<String, NSBundle>()
 private val preferredLocalesCache = mutableMapOf<String, List<String>>()
 private val scaleCandidatesCache = mutableMapOf<String, List<String>>()
 
 @Composable
 actual fun stringResource(id: ResourceId, vararg formatArgs: Any): String {
     val info = decodeResourceId(id)
-    val bundle = resourceBundle(info.frameworkName)
-    val localeOverride = userDefaultsLanguage()
-    val locales = preferredLocales(bundle, localeOverride)
+    val bundle = NSBundle.mainBundle
+    val locales = preferredLocales(bundle, userDefaultsLanguage())
     val raw = loadLocalizedString(bundle, info.prefix, info.value, locales)
     return formatString(raw, formatArgs)
 }
@@ -62,9 +59,11 @@ actual fun painterResource(id: ResourceId): Painter {
     return remember(id, localeOverride) {
         val info = decodeResourceId(id)
         val path = parseResourcePath(info.value)
-        val bundle = resourceBundle(info.frameworkName)
+        val bundle = NSBundle.mainBundle
         val locales = preferredLocales(bundle, localeOverride)
-        loadPainter(bundle, info.prefix, path, locales)
+        val painter = loadPainter(bundle, info.prefix, path, locales)
+        if (painter != null) return@remember painter
+        error("Failed to resolve image path: name=${path.name} extension=${path.extension} directory=${path.directory}")
     }
 }
 
@@ -72,7 +71,7 @@ actual fun resolveResourcePath(id: ResourceId, localeOverride: String?): String?
     val info = decodeResourceId(id)
     if (info.value.isBlank()) return null
     val path = parseResourcePath(info.value)
-    val bundle = resourceBundle(info.frameworkName)
+    val bundle = NSBundle.mainBundle
     val locales = preferredLocales(bundle, localeOverride ?: userDefaultsLanguage())
     return resolveImagePath(bundle, info.prefix, path, locales)
 }
@@ -81,10 +80,12 @@ private fun decodeResourceId(id: ResourceId): ResourceInfo {
     val rawPath = id.path?.trimStart('/') ?: ""
     val decodedPath = rawPath.replace("%7C", "|").replace("%7c", "|")
     val parts = decodedPath.split('|', limit = 3)
-    val frameworkName = parts.getOrNull(0).orEmpty()
-    val prefix = parts.getOrNull(1).orEmpty()
-    val value = parts.getOrNull(2).orEmpty()
-    return ResourceInfo(frameworkName, prefix, value)
+    val (prefix, value) = when (parts.size) {
+        3 -> parts[1].orEmpty() to parts[2].orEmpty()
+        2 -> parts[0].orEmpty() to parts[1].orEmpty()
+        else -> "" to parts.getOrNull(0).orEmpty()
+    }
+    return ResourceInfo(prefix, value)
 }
 
 private fun parseResourcePath(value: String): ResourcePath {
@@ -97,15 +98,6 @@ private fun parseResourcePath(value: String): ResourcePath {
         error("Missing extension in resource path: $value")
     }
     return ResourcePath(directory = directory, name = name, extension = extension)
-}
-
-private fun resourceBundle(frameworkName: String): NSBundle {
-    if (frameworkName.isBlank()) return NSBundle.mainBundle
-    return bundleCache.getOrPut(frameworkName) {
-        val frameworksPath = NSBundle.mainBundle.privateFrameworksPath ?: return@getOrPut NSBundle.mainBundle
-        val frameworkPath = "$frameworksPath/$frameworkName.framework"
-        NSBundle.bundleWithPath(frameworkPath) ?: NSBundle.mainBundle
-    }
 }
 
 private fun loadLocalizedString(
@@ -138,26 +130,18 @@ private fun userDefaultsLanguage(): String? {
 }
 
 private fun loadStringTable(bundle: NSBundle, prefix: String, locale: String): Map<String, String>? {
-    val directory = when {
-        locale.isBlank() -> prefix.takeIf { it.isNotBlank() }
-        else -> localizationDirectory(prefix, locale)
-    }
-    val path = if (directory.isNullOrBlank()) {
-        bundle.pathForResource("Localizable", "strings")
+    val directory = if (locale.isBlank()) {
+        resourceDirectory(prefix, "")
     } else {
-        bundle.pathForResource("Localizable", "strings", directory)
-    } ?: return null
+        localizedResourceDirectory(prefix, "", locale)
+    }
+    val path = bundle.pathForResource("Localizable", "strings", directory) ?: return null
     return stringTableCache.getOrPut(path) {
         val data = NSData.dataWithContentsOfFile(path) ?: return@getOrPut emptyMap()
         val bytes = data.toByteArray()
         val text = bytes.decodeToString()
         parseStringsFile(text)
     }
-}
-
-private fun localizationDirectory(prefix: String, locale: String): String {
-    val lproj = "$locale.lproj"
-    return if (prefix.isBlank()) lproj else "$prefix/$lproj"
 }
 
 private fun preferredLocales(bundle: NSBundle, overrideLocale: String?): List<String> {
@@ -273,8 +257,9 @@ private fun loadPainter(
     prefix: String,
     path: ResourcePath,
     locales: List<String>,
-): Painter {
-    val bitmap = loadImageBitmap(bundle, prefix, path, locales)
+): Painter? {
+    val filePath = resolveImagePath(bundle, prefix, path, locales) ?: return null
+    val bitmap = loadImageBitmapAtPath(filePath)
     val ninePatchSource = ImageBitmapNinePatchSource(bitmap)
     val parsed = parseNinePatch(ninePatchSource, null)
     return if (parsed.type == NinePatchType.Raw) {
@@ -286,14 +271,7 @@ private fun loadPainter(
     }
 }
 
-private fun loadImageBitmap(
-    bundle: NSBundle,
-    prefix: String,
-    path: ResourcePath,
-    locales: List<String>,
-): ImageBitmap {
-    val filePath = resolveImagePath(bundle, prefix, path, locales)
-        ?: error("Failed to resolve image path: name=${path.name} extension=${path.extension} directory=${path.directory}")
+private fun loadImageBitmapAtPath(filePath: String): ImageBitmap {
     val data = NSData.dataWithContentsOfFile(filePath)
         ?: error("Failed to load image data: path=$filePath")
     val bytes = data.toByteArray()
@@ -304,10 +282,13 @@ private fun loadImageBitmap(
     return image.toComposeImageBitmap()
 }
 
+private const val composeResourcesRoot = "compose-resources"
+
 private fun resourceDirectory(prefix: String, directory: String): String {
-    if (prefix.isBlank()) return directory
-    if (directory.isBlank()) return prefix
-    return "$prefix/$directory"
+    val parts = mutableListOf(composeResourcesRoot)
+    if (prefix.isNotBlank()) parts += prefix
+    if (directory.isNotBlank()) parts += directory
+    return parts.joinToString("/")
 }
 
 private fun resolveImagePath(
@@ -330,11 +311,11 @@ private fun resolveImagePath(
 private fun localizedResourceDirectory(prefix: String, directory: String, locale: String): String {
     if (locale.isBlank()) return resourceDirectory(prefix, directory)
     val lproj = "$locale.lproj"
-    return if (prefix.isBlank()) {
-        if (directory.isBlank()) lproj else "$lproj/$directory"
-    } else {
-        if (directory.isBlank()) "$prefix/$lproj" else "$prefix/$lproj/$directory"
-    }
+    val parts = mutableListOf(composeResourcesRoot)
+    if (prefix.isNotBlank()) parts += prefix
+    parts += lproj
+    if (directory.isNotBlank()) parts += directory
+    return parts.joinToString("/")
 }
 
 private fun pathForResource(bundle: NSBundle, name: String, extension: String, directory: String): String? {
