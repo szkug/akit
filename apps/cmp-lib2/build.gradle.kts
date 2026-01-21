@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.project.alib)
-    id("cn.szkug.akit.resources")
 }
 
 kotlin {
@@ -18,9 +17,8 @@ kotlin {
 
     targets.withType<KotlinNativeTarget>().configureEach {
         binaries.framework {
-            baseName = "AkitCmp"
+            baseName = "AkitCmpLibRes"
             isStatic = true
-            transitiveExport = false
         }
     }
 
@@ -32,8 +30,8 @@ kotlin {
             implementation(compose.material3)
             api(projects.akitLibraries.akitImage)
             api(projects.akitLibraries.akitGraph)
-            implementation(projects.apps.cmpLib2)
             api(projects.akitLibraries.resourcesRuntime)
+            api(projects.apps.cmpLib)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
@@ -47,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.apps.cmp"
+    namespace = "cn.szkug.akit.apps.cmp.lib2"
 
     compileSdk = AndroidSdkVersions.COMPILE
 
@@ -58,10 +56,4 @@ android {
     buildFeatures.compose = true
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-}
-
-cmpResources {
-    packageName.set("cn.szkug.akit.apps.cmp.host")
-    androidNamespace.set("cn.szkug.akit.apps.cmp")
-    iosResourcesPrefix.set("AkitCmpHostRes")
 }

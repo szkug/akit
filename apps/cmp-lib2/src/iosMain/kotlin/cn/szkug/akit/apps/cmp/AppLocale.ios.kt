@@ -49,7 +49,7 @@ private class IosAppLanguageManager(
     }
 }
 
-internal fun currentLanguageCode(defaults: NSUserDefaults = NSUserDefaults.standardUserDefaults): String? {
+fun currentLanguageCode(defaults: NSUserDefaults = NSUserDefaults.standardUserDefaults): String? {
     val raw = defaults.stringForKey(appLanguageKey)
         ?.trim()
         ?.takeIf { it.isNotEmpty() }
@@ -82,7 +82,7 @@ private fun applyLayoutDirection(languageCode: String?) {
     }
 }
 
-internal fun isRtlLanguage(languageCode: String): Boolean {
+fun isRtlLanguage(languageCode: String): Boolean {
     val base = languageCode.replace('_', '-').lowercase().substringBefore('-')
     return base in setOf("ar", "fa", "he", "ur", "dv", "ku", "ps", "sd", "ug", "yi")
 }

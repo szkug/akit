@@ -19,9 +19,14 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         extension.whitelistEnabled.convention(false)
 
         val emptyResDir = layout.buildDirectory.dir("generated/cmp-resources/empty-res")
-        val emptyResDirFile = emptyResDir.get().asFile
-        if (!emptyResDirFile.exists()) {
-            emptyResDirFile.mkdirs()
+        val prepareEmptyResDir = tasks.register("prepareCmpEmptyResDir") {
+            outputs.dir(emptyResDir)
+            doLast {
+                val dir = emptyResDir.get().asFile
+                if (!dir.exists()) {
+                    dir.mkdirs()
+                }
+            }
         }
 
         val generateTask = tasks.register<GenerateCmpResourcesTask>("generateCmpResources") {
@@ -40,6 +45,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             whitelistEnabled.set(extension.whitelistEnabled)
             stringsWhitelistFile.set(extension.stringsWhitelistFile)
             drawablesWhitelistFile.set(extension.drawablesWhitelistFile)
+            dependsOn(prepareEmptyResDir)
         }
 
         val composeResourcesElements = configurations.create("cmpComposeResourcesElements") {
