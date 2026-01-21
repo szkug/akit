@@ -269,7 +269,10 @@ res/values/strings.xml -> `<string name="hello">Hello</string>`
 - iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$resourcesPrefix|hello")`
 
 iOS resources are synced into the app bundle under `compose-resources/<iosResourcesPrefix>` by
-Compose Multiplatform's resource sync tasks.
+`syncCmpResourcesForXcode`, which runs during `embedAndSignAppleFrameworkForXcode` (Xcode build)
+and merges transitive module resources (via `cmpComposeResourcesElements`).
+If you need a manual output directory (e.g. CLI debugging), set
+`-Pcmp.ios.resources.outputDir=/path/to/Resources`.
 
 When calling `stringResource` / `painterResource` from the runtime library, locale handling is
 automatic:
