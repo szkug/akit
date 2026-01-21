@@ -205,6 +205,7 @@ class GlideAppModuleImpl : AppGlideModule() {
 resources 插件会将 `src/res` 生成统一的 `Res` 对象与平台 `ResourceId`：
 - Android：以 Android R 的方式引入资源，`ResourceId` 即 `R` id。
 - iOS：`ResourceId` 是指向 framework/app 内资源的文件 URL，密度限定符会转成 `@2x`/`@3x` 变体。
+完整说明见：[README_RESOURCE_CN.md](README_RESOURCE_CN.md)。
 
 ### 插件 + 运行时
 

@@ -223,6 +223,7 @@ The resources plugin generates a shared `Res` object and platform `ResourceId` f
 - Android: access resources via Android `R`, and `ResourceId` is the `R` id.
 - iOS: `ResourceId` is a file URL pointing to resources bundled in the framework/app; density
   qualifiers become `@2x`/`@3x` variants.
+Full details: [README_RESOURCE.md](README_RESOURCE.md).
 
 ### Plugin + runtime
 
