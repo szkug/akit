@@ -252,6 +252,8 @@ iOS 资源会在 Xcode 构建时通过 `syncCmpResourcesForXcode` 同步到 App 
 `compose-resources/<iosResourcesPrefix>` 目录下，并合并传递依赖模块资源
 （`cmpComposeResourcesElements`）。如需手动指定输出目录（例如命令行调试），可设置
 `-Pcmp.ios.resources.outputDir=/path/to/Resources`。
+使用 CocoaPods 时，资源会同步到
+`build/compose/cocoapods/compose-resources`，并挂到 `syncFramework`。
 
 使用 runtime 库的 `stringResource` / `painterResource` 时会根据 App 语言自动处理多语言：
 - Android 侧为 `androidx.compose.ui.res.stringResource` 实现，依赖 `android.content.Context` 的语言配置

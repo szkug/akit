@@ -130,6 +130,17 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 dependsOn(syncCmpResourcesForXcode)
             }
 
+            pluginManager.withPlugin("org.jetbrains.kotlin.native.cocoapods") {
+                syncCmpResourcesForXcode.configure {
+                    cocoapodsOutputDir.set(
+                        layout.buildDirectory.dir("compose/cocoapods/compose-resources").map { it.asFile.absolutePath }
+                    )
+                }
+                tasks.matching { it.name == "syncFramework" }.configureEach {
+                    dependsOn(syncCmpResourcesForXcode)
+                }
+            }
+
             tasks.withType(KotlinCompilationTask::class.java).configureEach {
                 dependsOn(generateTask)
             }

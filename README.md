@@ -271,8 +271,10 @@ res/values/strings.xml -> `<string name="hello">Hello</string>`
 iOS resources are synced into the app bundle under `compose-resources/<iosResourcesPrefix>` by
 `syncCmpResourcesForXcode`, which runs during `embedAndSignAppleFrameworkForXcode` (Xcode build)
 and merges transitive module resources (via `cmpComposeResourcesElements`).
-If you need a manual output directory (e.g. CLI debugging), set
+If you need a manual output directory (e.g. CLI debugging or framework export), set
 `-Pcmp.ios.resources.outputDir=/path/to/Resources`.
+When using CocoaPods, resources are synced into
+`build/compose/cocoapods/compose-resources` and wired to `syncFramework`.
 
 When calling `stringResource` / `painterResource` from the runtime library, locale handling is
 automatic:
