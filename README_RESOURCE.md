@@ -62,6 +62,10 @@ When the `org.jetbrains.kotlin.native.cocoapods` plugin is present:
 
 This aligns with Compose Multiplatform's CocoaPods resource layout.
 
+For XCFramework publishing via Gradle (`podPublish*XCFramework`), the plugin also wires
+`syncCmpResourcesForXcode` as a dependency so aggregated resources are produced before
+the publish tasks run.
+
 ### Manual output (CLI / framework export)
 
 If you build outside Xcode or want a deterministic output:
@@ -99,4 +103,3 @@ cmpResources {
   - the bundle contains `compose-resources/<prefix>/...`,
   - the app target actually runs `embedAndSignAppleFrameworkForXcode` or `syncFramework`,
   - the correct prefix is set in both build and runtime output.
-

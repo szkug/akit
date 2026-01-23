@@ -139,6 +139,11 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 tasks.matching { it.name == "syncFramework" }.configureEach {
                     dependsOn(syncCmpResourcesForXcode)
                 }
+                tasks.matching {
+                    it.name.startsWith("podPublish") && it.name.endsWith("XCFramework")
+                }.configureEach {
+                    dependsOn(syncCmpResourcesForXcode)
+                }
             }
 
             tasks.withType(KotlinCompilationTask::class.java).configureEach {
