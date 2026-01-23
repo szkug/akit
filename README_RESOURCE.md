@@ -18,9 +18,9 @@ exported as a framework) must apply the plugin so it can sync all transitive res
 
 Tasks and outputs (per module):
 - `generateCmpResources`: generates `commonMain`, `androidMain`, `iosMain`, and `iosResources`
-  into `build/generated/cmp-resources`.
+  into `build/generated/compose-resources`.
 - `prepareCmpComposeResources`: packages iOS resources into
-  `build/generated/cmp-resources/compose-resources/<iosResourcesPrefix>`.
+  `build/generated/compose-resources/<iosResourcesPrefix>`.
 - `cmpComposeResourcesElements`: outgoing configuration that publishes the composed resources
   for dependency consumers.
 

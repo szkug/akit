@@ -247,7 +247,7 @@ cmpResources {
     packageName.set("com.example.app") // Package name for Res in common
     androidNamespace.set("com.example.app")
     androidExtraResDir.set(layout.projectDirectory.dir("src/androidMain/res"))
-    iosResourcesPrefix.set("cmp-res") // iOS subdir under compose-resources
+    iosResourcesPrefix.set("cmp-res") // iOS subdir under compose-resources (default: <ModuleName>Res)
     iosExtraResDir.set(layout.projectDirectory.dir("src/iosMain/res"))
     whitelistEnabled.set(false) // Only allow whitelisted ids when enabled
     stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))

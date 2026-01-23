@@ -15,10 +15,22 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         extension.packageName.convention("")
         extension.androidNamespace.convention("")
         extension.resDir.convention(layout.projectDirectory.dir("src/res"))
-        extension.iosResourcesPrefix.convention("cmp-res")
+        val defaultIosPrefix = providers.provider {
+            val rawName = project.name
+            val parts = rawName.split(Regex("[^A-Za-z0-9]+")).filter { it.isNotBlank() }
+            val camel = if (parts.isEmpty()) {
+                rawName.replaceFirstChar { it.uppercase() }
+            } else {
+                parts.joinToString("") { part ->
+                    part.replaceFirstChar { it.uppercase() }
+                }
+            }
+            "${camel}Res"
+        }
+        extension.iosResourcesPrefix.convention(defaultIosPrefix)
         extension.whitelistEnabled.convention(false)
 
-        val emptyResDir = layout.buildDirectory.dir("generated/cmp-resources/empty-res")
+        val emptyResDir = layout.buildDirectory.dir("generated/compose-resources/empty-res")
         val prepareEmptyResDir = tasks.register("prepareCmpEmptyResDir") {
             outputs.dir(emptyResDir)
             doLast {
@@ -38,7 +50,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 }
             }
             resDir.set(resolvedResDir)
-            outputDir.set(layout.buildDirectory.dir("generated/cmp-resources"))
+            outputDir.set(layout.buildDirectory.dir("generated/compose-resources"))
             packageName.set(extension.packageName)
             androidNamespace.set(extension.androidNamespace)
             iosResourcesPrefix.set(extension.iosResourcesPrefix)
@@ -59,23 +71,25 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         val composeResourcesArtifacts = composeResourcesClasspath.incoming.artifactView {
             lenient(true)
         }.files
-        val composeResourcesDir = layout.buildDirectory.dir("generated/cmp-resources/compose-resources")
+        val composeResourcesDir = layout.buildDirectory.dir("generated/compose-resources")
         val prepareComposeResourcesTask = tasks.register("prepareCmpComposeResources") {
             outputs.dir(composeResourcesDir)
             dependsOn(generateTask)
             doLast {
                 val outputRoot = composeResourcesDir.get().asFile
-                if (outputRoot.exists()) {
-                    project.delete(outputRoot)
+                if (!outputRoot.exists()) {
+                    outputRoot.mkdirs()
                 }
-                outputRoot.mkdirs()
                 val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
                 if (!generatedRoot.exists()) return@doLast
                 val prefix = extension.iosResourcesPrefix.get()
                 val destDir = if (prefix.isBlank()) {
-                    File(outputRoot, "compose-resources")
+                    File(outputRoot, "resources")
                 } else {
-                    File(outputRoot, "compose-resources/$prefix")
+                    File(outputRoot, prefix)
+                }
+                if (destDir.exists()) {
+                    project.delete(destDir)
                 }
                 destDir.mkdirs()
                 project.copy {
@@ -119,7 +133,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             }
 
             val composeSyncTasks = tasks.matching {
-                it.name.startsWith("syncComposeResourcesFor") &&
+                (it.name.startsWith("syncComposeResourcesFor") || it.name.startsWith("syncPodComposeResourcesFor")) &&
                     (it.name.contains("Ios") || it.name.contains("Xcode"))
             }
             syncCmpResourcesForXcode.configure {

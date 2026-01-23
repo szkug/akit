@@ -17,9 +17,9 @@
 
 每个模块的任务与输出：
 - `generateCmpResources`：生成 `commonMain`/`androidMain`/`iosMain` 以及 `iosResources`
-  到 `build/generated/cmp-resources`。
+  到 `build/generated/compose-resources`。
 - `prepareCmpComposeResources`：将 iOS 资源打包成
-  `build/generated/cmp-resources/compose-resources/<iosResourcesPrefix>`。
+  `build/generated/compose-resources/<iosResourcesPrefix>`。
 - `cmpComposeResourcesElements`：发布当前模块的 iOS 资源，供依赖方聚合。
 
 ## iOS 运行时行为
@@ -96,4 +96,3 @@ cmpResources {
   - bundle 中是否存在 `compose-resources/<prefix>/...`；
   - 是否实际执行了 `embedAndSignAppleFrameworkForXcode` 或 `syncFramework`；
   - prefix 是否正确配置并一致。
-

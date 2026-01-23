@@ -229,7 +229,7 @@ cmpResources {
     packageName.set("com.example.app") // common Res 文件包名
     androidNamespace.set("com.example.app")
     androidExtraResDir.set(layout.projectDirectory.dir("src/android-res"))
-    iosResourcesPrefix.set("cmp-res") // iOS compose-resources 子目录
+    iosResourcesPrefix.set("cmp-res") // iOS compose-resources 子目录（默认：<模块名>Res）
     iosExtraResDir.set(layout.projectDirectory.dir("src/ios-res"))
     whitelistEnabled.set(false) // 开启后仅保留白名单资源
     stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))
