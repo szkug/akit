@@ -30,7 +30,8 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         extension.iosResourcesPrefix.convention(defaultIosPrefix)
         extension.whitelistEnabled.convention(false)
 
-        val emptyResDir = layout.buildDirectory.dir("generated/compose-resources/empty-res")
+        val generatedRootDir = layout.buildDirectory.dir("generated/compose-resources")
+        val emptyResDir = generatedRootDir.map { it.dir("empty-res") }
         val prepareEmptyResDir = tasks.register("prepareCmpEmptyResDir") {
             outputs.dir(emptyResDir)
             doLast {
@@ -50,7 +51,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 }
             }
             resDir.set(resolvedResDir)
-            outputDir.set(layout.buildDirectory.dir("generated/compose-resources"))
+            outputDir.set(generatedRootDir.map { it.dir("code") })
             packageName.set(extension.packageName)
             androidNamespace.set(extension.androidNamespace)
             iosResourcesPrefix.set(extension.iosResourcesPrefix)
@@ -71,23 +72,21 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         val composeResourcesArtifacts = composeResourcesClasspath.incoming.artifactView {
             lenient(true)
         }.files
-        val composeResourcesDir = layout.buildDirectory.dir("generated/compose-resources")
+        val composeResourcesDir = generatedRootDir
+        val resourcesDirProvider = providers.provider {
+            val prefix = extension.iosResourcesPrefix.get()
+            val dirName = if (prefix.isBlank()) "resources" else prefix
+            File(composeResourcesDir.get().asFile, dirName)
+        }
         val prepareComposeResourcesTask = tasks.register("prepareCmpComposeResources") {
-            outputs.dir(composeResourcesDir)
+            outputs.dir(resourcesDirProvider)
             dependsOn(generateTask)
             doLast {
                 val outputRoot = composeResourcesDir.get().asFile
-                if (!outputRoot.exists()) {
-                    outputRoot.mkdirs()
-                }
+                if (!outputRoot.exists()) outputRoot.mkdirs()
                 val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
                 if (!generatedRoot.exists()) return@doLast
-                val prefix = extension.iosResourcesPrefix.get()
-                val destDir = if (prefix.isBlank()) {
-                    File(outputRoot, "resources")
-                } else {
-                    File(outputRoot, prefix)
-                }
+                val destDir = resourcesDirProvider.get()
                 if (destDir.exists()) {
                     project.delete(destDir)
                 }
@@ -98,7 +97,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 }
             }
         }
-        composeResourcesElements.outgoing.artifact(composeResourcesDir) {
+        composeResourcesElements.outgoing.artifact(resourcesDirProvider) {
             builtBy(prepareComposeResourcesTask)
         }
 
@@ -119,7 +118,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             }
 
             val cmpComposeResourcesFiles = objects.fileCollection().apply {
-                from(composeResourcesDir)
+                from(resourcesDirProvider)
                 from(composeResourcesArtifacts)
                 builtBy(prepareComposeResourcesTask)
             }

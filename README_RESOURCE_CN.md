@@ -17,7 +17,7 @@
 
 每个模块的任务与输出：
 - `generateCmpResources`：生成 `commonMain`/`androidMain`/`iosMain` 以及 `iosResources`
-  到 `build/generated/compose-resources`。
+  到 `build/generated/compose-resources/code`。
 - `prepareCmpComposeResources`：将 iOS 资源打包成
   `build/generated/compose-resources/<iosResourcesPrefix>`。
 - `cmpComposeResourcesElements`：发布当前模块的 iOS 资源，供依赖方聚合。
