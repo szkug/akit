@@ -214,6 +214,7 @@ cmpResources {
     iosResourcesPrefix.set("cmp-res") // iOS compose-resources 子目录（默认：<模块名>Res）
     iosExtraResDir.set(layout.projectDirectory.dir("src/ios-res"))
     iosPruneUnused.set(false) // 在最终导出的模块里裁剪 iOS 未使用资源
+    iosPruneLogEnabled.set(false) // 输出裁剪扫描详情（KLIB IR + 调用链）
 }
 ```
 
@@ -227,7 +228,7 @@ res/values/strings.xml -> `<string name="hello">Hello</string>`
 - androidMain: `Res.strings.hello = R.strings.hello`
 - iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$resourcesPrefix|hello")`
 
-iOS 资源会在 Xcode 构建时通过 `syncCmpResourcesForXcode` 同步到 App bundle 的
+iOS 资源会在 Xcode 构建时通过 `syncComposeMultiplatformResourceResourcesForXcode` 同步到 App bundle 的
 `compose-resources/<iosResourcesPrefix>` 目录下，并合并传递依赖模块资源
 （`cmpComposeResourcesElements`）。如需手动指定输出目录（例如命令行调试），可设置
 `-Pcmp.ios.resources.outputDir=/path/to/Resources`。

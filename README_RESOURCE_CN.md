@@ -16,9 +16,9 @@
 ## 生成产物
 
 每个模块的任务与输出：
-- `generateCmpResources`：生成 `commonMain`/`androidMain`/`iosMain` 以及 `iosResources`
+- `generateComposeMultiplatformResourceResources`：生成 `commonMain`/`androidMain`/`iosMain` 以及 `iosResources`
   到 `build/generated/compose-resources/code`。
-- `prepareCmpComposeResources`：将 iOS 资源打包成
+- `prepareComposeMultiplatformResourceComposeResources`：将 iOS 资源打包成
   `build/generated/compose-resources/<iosResourcesPrefix>`。
 - `cmpComposeResourcesElements`：发布当前模块的 iOS 资源，供依赖方聚合。
 
@@ -44,7 +44,7 @@ iOS 侧 `ResourceId` 实际是带 `prefix|relativePath` 的文件 URL。运行�
 
 ### Xcode 构建
 
-`syncCmpResourcesForXcode` 会在 `embedAndSignAppleFrameworkForXcode` 时执行，
+`syncComposeMultiplatformResourceResourcesForXcode` 会在 `embedAndSignAppleFrameworkForXcode` 时执行，
 并将 `compose-resources/<prefix>` 拷贝到 app bundle 的资源目录，路径由
 以下环境变量确定：
 - `BUILT_PRODUCTS_DIR`
@@ -56,7 +56,7 @@ iOS 侧 `ResourceId` 实际是带 `prefix|relativePath` 的文件 URL。运行�
 
 当启用 `org.jetbrains.kotlin.native.cocoapods` 时：
 - 资源同步到 `build/compose/cocoapods/compose-resources`；
-- `syncCmpResourcesForXcode` 挂到 `syncFramework`。
+- `syncComposeMultiplatformResourceResourcesForXcode` 挂到 `syncFramework`。
 
 与 Compose Multiplatform 的 CocoaPods 资源目录保持一致。
 
@@ -65,7 +65,7 @@ iOS 侧 `ResourceId` 实际是带 `prefix|relativePath` 的文件 URL。运行�
 非 Xcode 构建或需要固定输出目录时可使用：
 
 ```
-./gradlew :your:module:syncCmpResourcesForXcode \
+./gradlew :your:module:syncComposeMultiplatformResourceResourcesForXcode \
   -Pcmp.ios.resources.outputDir=/path/to/Resources
 ```
 
@@ -82,14 +82,15 @@ cmpResources {
     iosResourcesPrefix.set("cmp-res")
     iosExtraResDir.set(layout.projectDirectory.dir("src/iosMain/res"))
     iosPruneUnused.set(false)
+    iosPruneLogEnabled.set(false)
 }
 ```
 
 ## 注意事项
 
 - 建议每个模块使用唯一的 `iosResourcesPrefix`，避免资源冲突。
-- iOS 入口模块必须应用插件，保证 `syncCmpResourcesForXcode` 执行。
-- 当 `src/res` 不存在时会使用空目录（由 `prepareCmpEmptyResDir` 创建）。
+- iOS 入口模块必须应用插件，保证 `syncComposeMultiplatformResourceResourcesForXcode` 执行。
+- 当 `src/res` 不存在时会使用空目录（由 `prepareComposeMultiplatformResourceEmptyResDir` 创建）。
 - 运行时找不到资源时，优先检查：
   - bundle 中是否存在 `compose-resources/<prefix>/...`；
   - 是否实际执行了 `embedAndSignAppleFrameworkForXcode` 或 `syncFramework`；

@@ -9,6 +9,12 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
 
+/**
+ * Gradle plugin that generates Compose resource accessors and syncs iOS resources.
+ *
+ * This class wires generation tasks, resource publishing, and iOS sync/pruning
+ * while keeping configuration and task names centralized.
+ */
 class AkitCmpResourcesPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         var syncCmpResourcesForXcodeProvider: org.gradle.api.tasks.TaskProvider<SyncCmpResourcesForXcodeTask>? = null
@@ -17,6 +23,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         extension.androidNamespace.convention("")
         extension.resDir.convention(layout.projectDirectory.dir("src/res"))
         extension.iosPruneUnused.convention(false)
+        extension.iosPruneLogEnabled.convention(false)
         val defaultIosPrefix = providers.provider {
             val rawName = project.name
             val parts = rawName.split(Regex("[^A-Za-z0-9]+")).filter { it.isNotBlank() }
@@ -31,9 +38,9 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         }
         extension.iosResourcesPrefix.convention(defaultIosPrefix)
 
-        val generatedRootDir = layout.buildDirectory.dir("generated/compose-resources")
-        val emptyResDir = generatedRootDir.map { it.dir("empty-res") }
-        val prepareEmptyResDir = tasks.register("prepareCmpEmptyResDir") {
+        val generatedRootDir = layout.buildDirectory.dir(AkitResourcesGradleConstants.GENERATED_RES_ROOT)
+        val emptyResDir = generatedRootDir.map { it.dir(AkitResourcesGradleConstants.GENERATED_EMPTY_RES_DIR) }
+        val prepareEmptyResDir = tasks.register(AkitResourcesGradleConstants.TASK_PREPARE_EMPTY) {
             outputs.dir(emptyResDir)
             doLast {
                 val dir = emptyResDir.get().asFile
@@ -43,7 +50,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             }
         }
 
-        val generateTask = tasks.register<GenerateCmpResourcesTask>("generateCmpResources") {
+        val generateTask = tasks.register<GenerateCmpResourcesTask>(AkitResourcesGradleConstants.TASK_GENERATE) {
             val resolvedResDir = extension.resDir.flatMap { dir ->
                 if (dir.asFile.exists()) {
                     providers.provider { dir }
@@ -52,18 +59,18 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 }
             }
             resDir.set(resolvedResDir)
-            outputDir.set(generatedRootDir.map { it.dir("code") })
+            outputDir.set(generatedRootDir.map { it.dir(AkitResourcesGradleConstants.GENERATED_CODE_DIR) })
             packageName.set(extension.packageName)
             androidNamespace.set(extension.androidNamespace)
             iosResourcesPrefix.set(extension.iosResourcesPrefix)
             dependsOn(prepareEmptyResDir)
         }
 
-        val composeResourcesElements = configurations.create("cmpComposeResourcesElements") {
+        val composeResourcesElements = configurations.create(AkitResourcesGradleConstants.CONFIG_ELEMENTS) {
             isCanBeConsumed = true
             isCanBeResolved = false
         }
-        val composeResourcesClasspath = configurations.create("cmpComposeResourcesClasspath") {
+        val composeResourcesClasspath = configurations.create(AkitResourcesGradleConstants.CONFIG_CLASSPATH) {
             isCanBeConsumed = false
             isCanBeResolved = true
         }
@@ -76,13 +83,14 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             val dirName = if (prefix.isBlank()) "resources" else prefix
             File(composeResourcesDir.get().asFile, dirName)
         }
-        val prepareComposeResourcesTask = tasks.register("prepareCmpComposeResources") {
+        val prepareComposeResourcesTask = tasks.register(AkitResourcesGradleConstants.TASK_PREPARE_COMPOSE) {
             outputs.dir(resourcesDirProvider)
             dependsOn(generateTask)
             doLast {
                 val outputRoot = composeResourcesDir.get().asFile
                 if (!outputRoot.exists()) outputRoot.mkdirs()
-                val generatedRoot = generateTask.get().outputDir.get().asFile.resolve("iosResources")
+                val generatedRoot = generateTask.get().outputDir.get().asFile
+                    .resolve(AkitResourcesGradleConstants.GENERATED_IOS_RESOURCES_DIR)
                 if (!generatedRoot.exists()) return@doLast
                 val destDir = resourcesDirProvider.get()
                 if (destDir.exists()) {
@@ -103,15 +111,21 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             val kotlinExt = extensions.getByType<KotlinMultiplatformExtension>()
             with(kotlinExt) {
                 sourceSets.commonMain {
-                    kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("commonMain") })
+                    kotlin.srcDir(
+                        generateTask.map { it.outputDir.get().asFile.resolve(AkitResourcesGradleConstants.SOURCESET_COMMON) }
+                    )
                 }
 
                 sourceSets.androidMain {
-                    kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("androidMain") })
+                    kotlin.srcDir(
+                        generateTask.map { it.outputDir.get().asFile.resolve(AkitResourcesGradleConstants.SOURCESET_ANDROID) }
+                    )
                 }
 
                 sourceSets.iosMain {
-                    kotlin.srcDir(generateTask.map { it.outputDir.get().asFile.resolve("iosMain") })
+                    kotlin.srcDir(
+                        generateTask.map { it.outputDir.get().asFile.resolve(AkitResourcesGradleConstants.SOURCESET_IOS) }
+                    )
                 }
             }
 
@@ -122,38 +136,45 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             }
 
             val syncCmpResourcesForXcode = tasks.register<SyncCmpResourcesForXcodeTask>(
-                "syncCmpResourcesForXcode"
+                AkitResourcesGradleConstants.TASK_SYNC_XCODE
             ) {
                 resources.from(cmpComposeResourcesFiles)
-                outputDirOverride.set(providers.gradleProperty("cmp.ios.resources.outputDir").orElse(""))
+                outputDirOverride.set(
+                    providers.gradleProperty(AkitResourcesGradleConstants.GRADLE_PROP_OUTPUT_DIR).orElse("")
+                )
                 dependsOn(prepareComposeResourcesTask)
             }
             syncCmpResourcesForXcodeProvider = syncCmpResourcesForXcode
 
             val composeSyncTasks = tasks.matching {
-                (it.name.startsWith("syncComposeResourcesFor") || it.name.startsWith("syncPodComposeResourcesFor")) &&
-                    (it.name.contains("Ios") || it.name.contains("Xcode"))
+                (it.name.startsWith(AkitResourcesGradleConstants.SYNC_TASK_PREFIX) ||
+                    it.name.startsWith(AkitResourcesGradleConstants.SYNC_POD_TASK_PREFIX)) &&
+                    (it.name.contains(AkitResourcesGradleConstants.SYNC_IOS_TOKEN) ||
+                        it.name.contains(AkitResourcesGradleConstants.SYNC_XCODE_TOKEN))
             }
             syncCmpResourcesForXcode.configure {
                 mustRunAfter(composeSyncTasks)
                 pruneUnused.set(extension.iosPruneUnused)
+                pruneLogEnabled.set(extension.iosPruneLogEnabled)
             }
 
-            tasks.matching { it.name == "embedAndSignAppleFrameworkForXcode" }.configureEach {
+            tasks.matching { it.name == AkitResourcesGradleConstants.TASK_EMBED_XCODE }.configureEach {
                 finalizedBy(syncCmpResourcesForXcode)
             }
 
             pluginManager.withPlugin("org.jetbrains.kotlin.native.cocoapods") {
                 syncCmpResourcesForXcode.configure {
                     cocoapodsOutputDir.set(
-                        layout.buildDirectory.dir("compose/cocoapods/compose-resources").map { it.asFile.absolutePath }
+                        layout.buildDirectory.dir(AkitResourcesGradleConstants.COCOAPODS_OUTPUT_DIR)
+                            .map { it.asFile.absolutePath }
                     )
                 }
-                tasks.matching { it.name == "syncFramework" }.configureEach {
+                tasks.matching { it.name == AkitResourcesGradleConstants.TASK_SYNC_FRAMEWORK }.configureEach {
                     dependsOn(syncCmpResourcesForXcode)
                 }
                 tasks.matching {
-                    it.name.startsWith("podPublish") && it.name.endsWith("XCFramework")
+                    it.name.startsWith(AkitResourcesGradleConstants.TASK_POD_PUBLISH_PREFIX) &&
+                        it.name.endsWith(AkitResourcesGradleConstants.TASK_POD_PUBLISH_SUFFIX)
                 }.configureEach {
                     dependsOn(syncCmpResourcesForXcode)
                 }
@@ -191,7 +212,8 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             val rootPath = project.path
             fun collectProjectDeps(root: Project) {
                 val sourceSetConfigs = root.configurations.matching {
-                    it.name.contains("MainImplementation") || it.name.contains("MainApi")
+                    it.name.contains(AkitResourcesGradleConstants.CONFIG_MAIN_IMPLEMENTATION) ||
+                        it.name.contains(AkitResourcesGradleConstants.CONFIG_MAIN_API)
                 }
                 for (config in sourceSetConfigs) {
                     for (dep in config.dependencies.withType(ProjectDependency::class.java)) {
@@ -206,11 +228,11 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             collectProjectDeps(project)
             for (dep in projectDeps.values) {
                 val depProject = dep.dependencyProject
-                if (depProject.configurations.findByName("cmpComposeResourcesElements") != null) {
+                if (depProject.configurations.findByName(AkitResourcesGradleConstants.CONFIG_ELEMENTS) != null) {
                     dependencies.add(
                         composeResourcesClasspath.name,
                         dependencies.project(
-                            mapOf("path" to depProject.path, "configuration" to "cmpComposeResourcesElements")
+                            mapOf("path" to depProject.path, "configuration" to AkitResourcesGradleConstants.CONFIG_ELEMENTS)
                         )
                     )
                 }
@@ -222,7 +244,10 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 for (depProject in allProjects) {
                     from(
                         depProject.file(
-                            "${depProject.buildDir}/generated/compose-resources/code/iosMain/Res.ios.kt"
+                            "${depProject.buildDir}/${AkitResourcesGradleConstants.GENERATED_RES_ROOT}/" +
+                                "${AkitResourcesGradleConstants.GENERATED_CODE_DIR}/" +
+                                "${AkitResourcesGradleConstants.SOURCESET_IOS}/" +
+                                AkitResourcesConstants.RES_FILE_IOS
                         )
                     )
                 }
@@ -230,18 +255,26 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             val provider = syncCmpResourcesForXcodeProvider
             if (provider != null) {
                 val klibToolPathProvider = providers.provider { resolveKlibToolPath(project) ?: "" }
-                val klibDirs = objects.fileCollection().apply {
-                    val targets = listOf("iosArm64", "iosX64", "iosSimulatorArm64")
-                    for (depProject in allProjects) {
-                        for (target in targets) {
-                            from(
-                                depProject.layout.buildDirectory.dir(
-                                    "classes/kotlin/$target/main/klib/${depProject.name}/default"
+                    val klibDirs = objects.fileCollection().apply {
+                        val targets = listOf(
+                            AkitResourcesGradleConstants.TARGET_IOS_ARM64,
+                            AkitResourcesGradleConstants.TARGET_IOS_X64,
+                            AkitResourcesGradleConstants.TARGET_IOS_SIM_ARM64,
+                        )
+                        for (depProject in allProjects) {
+                            for (target in targets) {
+                                from(
+                                    depProject.layout.buildDirectory.dir(
+                                        "${AkitResourcesGradleConstants.KLIB_BASE_DIR}/" +
+                                            "$target/" +
+                                            "${AkitResourcesGradleConstants.KLIB_DIR_SUFFIX}/" +
+                                            "${depProject.name}/" +
+                                            AkitResourcesGradleConstants.KLIB_DEFAULT_VARIANT
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
-                }
                 provider.configure {
                     resFiles.from(resFiles)
                     klibFiles.from(klibDirs)
@@ -258,6 +291,9 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
     }
 }
 
+/**
+ * Resolve a usable `klib` tool path from Gradle properties, env vars, or `~/.konan`.
+ */
 private fun resolveKlibToolPath(project: Project): String? {
     val propHome = project.findProperty("kotlin.native.home") as? String
     val envHomes = listOfNotNull(
@@ -279,6 +315,9 @@ private fun resolveKlibToolPath(project: Project): String? {
     return null
 }
 
+/**
+ * Locate the `klib` executable inside a Kotlin/Native distribution directory.
+ */
 private fun findKlibTool(home: File): File? {
     val bin = File(home, "bin")
     val unixTool = File(bin, "klib")
@@ -290,6 +329,9 @@ private fun findKlibTool(home: File): File? {
     return null
 }
 
+/**
+ * Locate the `klib` tool by scanning `kotlin-native-prebuilt-*` directories.
+ */
 private fun findKlibToolInPrebuilt(root: File): File? {
     if (!root.exists()) return null
     val candidates = root.listFiles()

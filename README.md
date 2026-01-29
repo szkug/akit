@@ -231,6 +231,7 @@ cmpResources {
     iosResourcesPrefix.set("cmp-res") // iOS subdir under compose-resources (default: <ModuleName>Res)
     iosExtraResDir.set(layout.projectDirectory.dir("src/iosMain/res"))
     iosPruneUnused.set(false) // Prune unused iOS resources in the final exported module
+    iosPruneLogEnabled.set(false) // Log pruning scan details (KLIB IR + call chains)
 }
 ```
 
@@ -246,7 +247,7 @@ res/values/strings.xml -> `<string name="hello">Hello</string>`
 - iosMain: `Res.strings.hello = NSURL.fileURLWithPath("$resourcesPrefix|hello")`
 
 iOS resources are synced into the app bundle under `compose-resources/<iosResourcesPrefix>` by
-`syncCmpResourcesForXcode`, which runs during `embedAndSignAppleFrameworkForXcode` (Xcode build)
+`syncComposeMultiplatformResourceResourcesForXcode`, which runs during `embedAndSignAppleFrameworkForXcode` (Xcode build)
 and merges transitive module resources (via `cmpComposeResourcesElements`).
 If you need a manual output directory (e.g. CLI debugging or framework export), set
 `-Pcmp.ios.resources.outputDir=/path/to/Resources`.

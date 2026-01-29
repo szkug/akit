@@ -9,4 +9,5 @@ abstract class AkitCmpResourcesExtension {
     abstract val iosExtraResDir: DirectoryProperty
     abstract val iosResourcesPrefix: Property<String>
     abstract val iosPruneUnused: Property<Boolean>
+    abstract val iosPruneLogEnabled: Property<Boolean>
 }
