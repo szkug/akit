@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import cn.szkug.akit.graph.renderscript.BlurConfig
 import kotlin.coroutines.CoroutineContext
 
 
@@ -29,7 +30,6 @@ interface AsyncImageLoadListener {
     fun onCancel(model: Any?) {}
 }
 
-enum class LottieLoadType { None, }
 class AsyncImageContext(
     val context: PlatformImageContext,
     val coroutineContext: CoroutineContext,
@@ -39,6 +39,7 @@ class AsyncImageContext(
     val ignoreImagePadding: Boolean = false,
 
     val animationIterations: Int = -1,
+    val blurConfig: BlurConfig? = null,
 
     // extension support
     val supportNinepatch: Boolean = false,
@@ -54,18 +55,20 @@ fun rememberAsyncImageContext(
     logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
     listener: AsyncImageLoadListener? = null,
     animationContext: CoroutineContext = rememberCoroutineScope().coroutineContext,
+    blurConfig: BlurConfig? = null,
     // extension support
     supportNinepatch: Boolean = false,
 ): AsyncImageContext {
 
     val platformContext = LocalPlatformImageContext.current
-    return remember(ignoreImagePadding, supportNinepatch, animationContext, *keys) {
+    return remember(ignoreImagePadding, supportNinepatch, animationContext, blurConfig, *keys) {
         AsyncImageContext(
             context = platformContext,
             ignoreImagePadding = ignoreImagePadding,
             logger = logger,
             listener = listener,
             coroutineContext = animationContext,
+            blurConfig = blurConfig,
             supportNinepatch = supportNinepatch
         )
     }

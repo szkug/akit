@@ -3,7 +3,7 @@ package cn.szkug.akit.glide.extensions.lottie
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import cn.szkug.akit.lottie.LottieResource
+import cn.szkug.akit.graph.lottie.LottieResource
 import com.airbnb.lottie.LottieCompositionFactory
 import com.airbnb.lottie.LottieDrawable
 import com.bumptech.glide.Glide
@@ -23,15 +23,15 @@ import java.io.InputStream
 
 object LottieDecodeOptions {
     val Enabled: Option<Boolean> = Option.memory(
-        "cn.szkug.akit.lottie.Enabled",
+        "cn.szkug.akit.graph.lottie.Enabled",
         false
     )
     val Iterations: Option<Int> = Option.memory(
-        "cn.szkug.akit.lottie.Iterations",
+        "cn.szkug.akit.graph.lottie.Iterations",
         LottieDrawable.INFINITE
     )
     val CacheKey: Option<String?> = Option.memory(
-        "cn.szkug.akit.lottie.CacheKey"
+        "cn.szkug.akit.graph.lottie.CacheKey"
     )
 }
 

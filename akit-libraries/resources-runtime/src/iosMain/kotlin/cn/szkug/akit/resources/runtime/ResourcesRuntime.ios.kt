@@ -106,10 +106,20 @@ private fun loadLocalizedString(
     key: String,
     locales: List<String>,
 ): String {
+    val attemptedPaths = mutableListOf<String>()
     for (locale in locales) {
-        val table = loadStringTable(bundle, prefix, locale) ?: continue
-        val value = table[key]
+        val table = loadStringTable(bundle, prefix, locale)
+        val value = table?.get(key)
         if (value != null) return value
+        attemptedPaths += fullResourcePath(
+            bundle,
+            localizedResourceDirectory(prefix, "", locale),
+            "Localizable",
+            "strings"
+        )
+    }
+    if (attemptedPaths.isNotEmpty()) {
+        logMissingResource("string table", attemptedPaths)
     }
     return ""
 }
@@ -129,12 +139,9 @@ private fun userDefaultsLanguage(): String? {
     return trimmed
 }
 
+
 private fun loadStringTable(bundle: NSBundle, prefix: String, locale: String): Map<String, String>? {
-    val directory = if (locale.isBlank()) {
-        resourceDirectory(prefix, "")
-    } else {
-        localizedResourceDirectory(prefix, "", locale)
-    }
+    val directory = localizedResourceDirectory(prefix, "", locale)
     val path = bundle.pathForResource("Localizable", "strings", directory) ?: return null
     return stringTableCache.getOrPut(path) {
         val data = NSData.dataWithContentsOfFile(path) ?: return@getOrPut emptyMap()
@@ -284,13 +291,6 @@ private fun loadImageBitmapAtPath(filePath: String): ImageBitmap {
 
 private const val composeResourcesRoot = "compose-resources"
 
-private fun resourceDirectory(prefix: String, directory: String): String {
-    val parts = mutableListOf(composeResourcesRoot)
-    if (prefix.isNotBlank()) parts += prefix
-    if (directory.isNotBlank()) parts += directory
-    return parts.joinToString("/")
-}
-
 private fun resolveImagePath(
     bundle: NSBundle,
     prefix: String,
@@ -305,11 +305,28 @@ private fun resolveImagePath(
             if (resolved != null) return resolved
         }
     }
+    val attemptedPaths = mutableListOf<String>()
+    for (locale in locales) {
+        val directory = localizedResourceDirectory(prefix, path.directory, locale)
+        for (name in nameCandidates) {
+            attemptedPaths += fullResourcePath(bundle, directory, name, path.extension)
+        }
+    }
+    if (attemptedPaths.isNotEmpty()) {
+        logMissingResource("image", attemptedPaths)
+    }
     return null
 }
 
+private fun resourceDirectory1(prefix: String, directory: String): String {
+    val parts = mutableListOf(composeResourcesRoot)
+    if (prefix.isNotBlank()) parts += prefix
+    if (directory.isNotBlank()) parts += directory
+    return parts.joinToString("/")
+}
+
 private fun localizedResourceDirectory(prefix: String, directory: String, locale: String): String {
-    if (locale.isBlank()) return resourceDirectory(prefix, directory)
+    if (locale.isBlank()) return resourceDirectory1(prefix, directory)
     val lproj = "$locale.lproj"
     val parts = mutableListOf(composeResourcesRoot)
     if (prefix.isNotBlank()) parts += prefix
@@ -325,6 +342,35 @@ private fun pathForResource(bundle: NSBundle, name: String, extension: String, d
         bundle.pathForResource(name, extension, directory)
             ?: bundle.pathForResource(name, extension)
     }
+}
+
+private fun fullResourcePath(
+    bundle: NSBundle,
+    directory: String,
+    name: String,
+    extension: String
+): String {
+    val file = if (extension.isBlank()) name else "$name.$extension"
+    return if (directory.isBlank()) {
+        "${bundle.bundlePath}/$file"
+    } else {
+        "${bundle.bundlePath}/$directory/$file"
+    }
+}
+
+private fun logMissingResource(kind: String, paths: List<String>) {
+    if (paths.isEmpty()) return
+    val message = buildString {
+        append("AkitResources missing ")
+        append(kind)
+        append(" path(s):\n")
+        for (path in paths) {
+            append(" - ")
+            append(path)
+            append('\n')
+        }
+    }
+    println(message.trimEnd())
 }
 
 private fun buildScaleCandidates(name: String): List<String> {

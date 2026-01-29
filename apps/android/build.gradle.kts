@@ -95,8 +95,8 @@ dependencies {
 
     // project modules
     implementation(projects.akitLibraries.akitImage)
-    implementation(projects.akitLibraries.glideBlurModule)
     implementation(projects.apps.cmp)
+    implementation(projects.apps.cmpLib2)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)

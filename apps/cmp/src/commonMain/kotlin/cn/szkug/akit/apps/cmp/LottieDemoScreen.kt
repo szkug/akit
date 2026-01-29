@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cn.szkug.akit.image.AkitAsyncImage
-import cn.szkug.akit.lottie.LottieResource
+import cn.szkug.akit.graph.lottie.LottieResource
 
 @Composable
 fun LottieDemoPage(onBack: () -> Unit) {

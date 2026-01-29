@@ -40,9 +40,7 @@ fun includeAkitLibraries(vararg module: String) {
 includeAkitLibraries(
     ":akit-graph",
     ":akit-image",
-    ":glide-blur-module",
     ":resources-runtime",
-    ":renderscript-toolkit-publish",
 )
 
 // apps

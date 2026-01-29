@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
-import cn.szkug.akit.lottie.LottieResource
-import cn.szkug.akit.lottie.rememberLottiePainter
+import cn.szkug.akit.graph.lottie.LottieResource
+import cn.szkug.akit.graph.lottie.rememberLottiePainter
 import cn.szkug.akit.resources.runtime.ResourceId
 import cn.szkug.akit.resources.runtime.painterResource
 

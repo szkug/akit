@@ -10,8 +10,6 @@ Artifacts (group `cn.szkug.akit`):
 - `akit-image`: Compose Multiplatform async image loader (Glide on Android, Coil 3 on iOS).
 - `akit-graph`: shared graphics helpers (NinePatch parsing/painter).
 - `resources-runtime`: Compose Multiplatform ResourceId runtime.
-- `glide-blur-module`: Glide Gaussian blur extension backed by RenderScript toolkit (Android only).
-- `renderscript-toolkit-publish`: RenderScript intrinsics replacement (Android only).
 
 Gradle plugin: `cn.szkug.akit.resources` (group `cn.szkug.akit.resources`).
 
@@ -107,8 +105,6 @@ val engine = GlideRequestEngine(
     requestBuilder = { ctx ->
         GlideApp.with(ctx.context)
             .asDrawable()
-            // `BlurBitmapConfigOption` comes from `glide-blur-module` and depends on RenderScript toolkit.
-            .set(BlurBitmapConfigOption, BlurConfig(radius = 12))
     },
 )
 
@@ -166,16 +162,6 @@ class GlideAppModuleImpl : AppGlideModule() {
 
 ## Glide extensions (Android)
 
-NinePatch and Lottie decoders ship with `akit-image` on Android. The blur extension is a separate
-artifact; add it explicitly if you need it:
-
-```kotlin
-dependencies {
-    implementation("cn.szkug.akit:glide-blur-module:$akitVersion")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-}
-```
-
 If the annotation processor does not register the LibraryGlideModules, register them manually:
 
 ```kotlin
@@ -184,14 +170,12 @@ import com.bumptech.glide.annotation.Excludes
 @GlideModule
 @Excludes(
     value = [
-        BlurBitmapLibraryGlideModule::class,
         NinePatchLibraryGlideModule::class,
         LottieLibraryGlideModule::class,
     ]
 )
 class GlideAppModuleImpl : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
         NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
         LottieLibraryGlideModule().registerComponents(context, glide, registry)
     }
@@ -204,9 +188,6 @@ If `@Excludes` cannot be used, guard with `registerCount` to avoid duplicate reg
 @GlideModule
 class GlideAppModuleImpl : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        if (BlurBitmapLibraryGlideModule.registerCount == 0) {
-            BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
-        }
         if (NinePatchLibraryGlideModule.registerCount == 0) {
             NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
         }
@@ -301,6 +282,5 @@ adapted for 16KB page size.
 
 ```kotlin
 dependencies {
-    implementation("cn.szkug.akit:renderscript-toolkit-publish:$akitVersion")
 }
 ```

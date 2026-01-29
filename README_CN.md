@@ -8,8 +8,6 @@ Compose Multiplatform 的图片加载、NinePatch 渲染、资源访问辅助库
 - `akit-image`：Compose Multiplatform 异步图片加载（Android 使用 Glide，iOS 使用 Coil 3）。
 - `akit-graph`：共享图形辅助（NinePatch 解析/绘制）。
 - `resources-runtime`：Compose Multiplatform 的 ResourceId 运行时。
-- `glide-blur-module`：基于 RenderScript toolkit 的 Glide 高斯模糊扩展（仅 Android）。
-- `renderscript-toolkit-publish`：RenderScript intrinsics 替代实现（仅 Android）。
 
 Gradle 插件：`cn.szkug.akit.resources`（group `cn.szkug.akit.resources`）。
 
@@ -102,8 +100,6 @@ val engine = GlideRequestEngine(
     requestBuilder = { ctx ->
         GlideApp.with(ctx.context)
             .asDrawable()
-            // `BlurBitmapConfigOption` 来自 `glide-blur-module`，该模块依赖 RenderScript toolkit。
-            .set(BlurBitmapConfigOption, BlurConfig(radius = 12))
     },
 )
 
@@ -150,15 +146,6 @@ class GlideAppModuleImpl : AppGlideModule() {
 
 ## Glide 扩展（Android）
 
-NinePatch 与 Lottie 解码能力已随 `akit-image` 一并提供；模糊扩展仍为独立组件，如需使用请显式添加：
-
-```kotlin
-dependencies {
-    implementation("cn.szkug.akit:glide-blur-module:$akitVersion")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-}
-```
-
 如果注解处理器没有注册 LibraryGlideModules，可手动注册：
 
 ```kotlin
@@ -167,14 +154,12 @@ import com.bumptech.glide.annotation.Excludes
 @GlideModule
 @Excludes(
     value = [
-        BlurBitmapLibraryGlideModule::class,
         NinePatchLibraryGlideModule::class,
         LottieLibraryGlideModule::class,
     ]
 )
 class GlideAppModuleImpl : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
         NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
         LottieLibraryGlideModule().registerComponents(context, glide, registry)
     }
@@ -187,9 +172,6 @@ class GlideAppModuleImpl : AppGlideModule() {
 @GlideModule
 class GlideAppModuleImpl : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-        if (BlurBitmapLibraryGlideModule.registerCount == 0) {
-            BlurBitmapLibraryGlideModule().registerComponents(context, glide, registry)
-        }
         if (NinePatchLibraryGlideModule.registerCount == 0) {
             NinePatchLibraryGlideModule().registerComponents(context, glide, registry)
         }
@@ -269,14 +251,4 @@ Image(
     painter = painterResource(Res.drawable.logo),
     contentDescription = null,
 )
-```
-
-## RenderScript 工具包（Android）
-
-这是 `renderscript-intrinsics-replacement-toolkit` 的重新发布版本，供模糊扩展使用，适配了 16KB page size
-
-```kotlin
-dependencies {
-    implementation("cn.szkug.akit:renderscript-toolkit-publish:$akitVersion")
-}
 ```

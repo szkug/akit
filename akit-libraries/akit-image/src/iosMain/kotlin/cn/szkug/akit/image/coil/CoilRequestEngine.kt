@@ -9,7 +9,7 @@ import cn.szkug.akit.image.AsyncRequestEngine
 import cn.szkug.akit.image.RequestModel
 import cn.szkug.akit.image.ResolvableImageSize
 import cn.szkug.akit.image.ResourceModel
-import cn.szkug.akit.lottie.LottieResource
+import cn.szkug.akit.graph.lottie.LottieResource
 import cn.szkug.akit.resources.runtime.ResourceId
 import cn.szkug.akit.resources.runtime.resolveResourcePath
 import coil3.Image
@@ -20,6 +20,7 @@ import coil3.decode.Decoder
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import coil3.request.transformations
 import coil3.target.Target
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.ProducerScope
@@ -102,6 +103,10 @@ class CoilRequestEngine(
         if (rawModel is LottieResource) {
             builder.extras[LottieDecodeEnabled] = true
             builder.extras[LottieIterationsKey] = context.animationIterations
+        }
+        val blurConfig = context.blurConfig
+        if (blurConfig != null) {
+            builder.transformations(GaussianBlurTransformation(blurConfig))
         }
 
         val target = CoilFlowTarget(context, this)

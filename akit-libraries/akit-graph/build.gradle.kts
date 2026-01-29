@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.jetbrains.compose)
@@ -35,6 +36,9 @@ android {
     namespace = "cn.szkug.akit.graph"
 
     buildFeatures.compose = true
+
+    defaultConfig.externalNativeBuild.cmake.cppFlags("-std=c++17")
+    externalNativeBuild.cmake.path = file("src/renderscript-toolkit/cpp/CMakeLists.txt")
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 }

@@ -19,7 +19,7 @@ import cn.szkug.akit.image.RequestModel
 import cn.szkug.akit.image.ResIdModel
 import cn.szkug.akit.image.ResolvableImageSize
 import cn.szkug.akit.image.ResourceModel
-import cn.szkug.akit.lottie.LottieResource
+import cn.szkug.akit.graph.lottie.LottieResource
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -51,9 +51,15 @@ class GlideRequestEngine(
         requestModel: RequestModel,
         failureModel: ResourceModel?,
     ): Flow<AsyncLoadResult<DrawableAsyncLoadData>> {
+        val blurConfig = context.blurConfig
+        val contextBitmapTransformations = if (blurConfig == null) {
+            bitmapTransformations
+        } else {
+            bitmapTransformations + GaussianBlurTransformation(blurConfig)
+        }
         return requestBuilder(context).setupTransforms(
             contentScale,
-            bitmapTransformations,
+            contextBitmapTransformations,
             drawableTransformations
         ).setupContext(context, requestModel)
             .setupSize(size)

@@ -6,8 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
-import cn.szkug.akit.lottie.LottieResource
-import cn.szkug.akit.lottie.rememberLottiePainter
+import cn.szkug.akit.graph.lottie.LottieResource
+import cn.szkug.akit.graph.lottie.rememberLottiePainter
 import cn.szkug.akit.resources.runtime.ResourceId
 import cn.szkug.akit.resources.runtime.painterResource
 

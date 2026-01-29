@@ -44,14 +44,34 @@ abstract class SyncCmpResourcesForXcodeTask : DefaultTask() {
                 File(cocoapodsDir)
             }
         }
-        val targetDir = outputDir.canonicalFile
+        val baseDir = outputDir.canonicalFile
+        val targetDir = if (baseDir.name == "compose-resources") {
+            baseDir
+        } else {
+            File(baseDir, "compose-resources")
+        }
         if (!targetDir.exists()) {
             targetDir.mkdirs()
         }
-        project.copy {
-            from(resources)
-            into(targetDir)
-            includeEmptyDirs = false
+        for (input in resources.files) {
+            if (input.isDirectory) {
+                val destination = if (input.name == "compose-resources") {
+                    targetDir
+                } else {
+                    File(targetDir, input.name)
+                }
+                project.copy {
+                    from(input)
+                    into(destination)
+                    includeEmptyDirs = false
+                }
+            } else if (input.isFile) {
+                project.copy {
+                    from(input)
+                    into(targetDir)
+                    includeEmptyDirs = false
+                }
+            }
         }
     }
 }
