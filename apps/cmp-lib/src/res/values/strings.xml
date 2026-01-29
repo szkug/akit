@@ -13,4 +13,5 @@
     <string name="language_demo_button_ar">Arabic</string>
     <string name="language_demo_sample">This is a localized sample sentence.</string>
     <string name="language_demo_image_label">Localized image</string>
+    <string name="unused_cmp_string">This string should be pruned on iOS.</string>
 </resources>

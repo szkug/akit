@@ -11,10 +11,12 @@ import java.io.File
 
 class AkitCmpResourcesPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
+        var syncCmpResourcesForXcodeProvider: org.gradle.api.tasks.TaskProvider<SyncCmpResourcesForXcodeTask>? = null
         val extension = extensions.create<AkitCmpResourcesExtension>("cmpResources")
         extension.packageName.convention("")
         extension.androidNamespace.convention("")
         extension.resDir.convention(layout.projectDirectory.dir("src/res"))
+        extension.iosPruneUnused.convention(false)
         val defaultIosPrefix = providers.provider {
             val rawName = project.name
             val parts = rawName.split(Regex("[^A-Za-z0-9]+")).filter { it.isNotBlank() }
@@ -28,7 +30,6 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             "${camel}Res"
         }
         extension.iosResourcesPrefix.convention(defaultIosPrefix)
-        extension.whitelistEnabled.convention(false)
 
         val generatedRootDir = layout.buildDirectory.dir("generated/compose-resources")
         val emptyResDir = generatedRootDir.map { it.dir("empty-res") }
@@ -55,9 +56,6 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             packageName.set(extension.packageName)
             androidNamespace.set(extension.androidNamespace)
             iosResourcesPrefix.set(extension.iosResourcesPrefix)
-            whitelistEnabled.set(extension.whitelistEnabled)
-            stringsWhitelistFile.set(extension.stringsWhitelistFile)
-            drawablesWhitelistFile.set(extension.drawablesWhitelistFile)
             dependsOn(prepareEmptyResDir)
         }
 
@@ -130,6 +128,7 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                 outputDirOverride.set(providers.gradleProperty("cmp.ios.resources.outputDir").orElse(""))
                 dependsOn(prepareComposeResourcesTask)
             }
+            syncCmpResourcesForXcodeProvider = syncCmpResourcesForXcode
 
             val composeSyncTasks = tasks.matching {
                 (it.name.startsWith("syncComposeResourcesFor") || it.name.startsWith("syncPodComposeResourcesFor")) &&
@@ -137,10 +136,11 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             }
             syncCmpResourcesForXcode.configure {
                 mustRunAfter(composeSyncTasks)
+                pruneUnused.set(extension.iosPruneUnused)
             }
 
             tasks.matching { it.name == "embedAndSignAppleFrameworkForXcode" }.configureEach {
-                dependsOn(syncCmpResourcesForXcode)
+                finalizedBy(syncCmpResourcesForXcode)
             }
 
             pluginManager.withPlugin("org.jetbrains.kotlin.native.cocoapods") {
@@ -215,6 +215,90 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
                     )
                 }
             }
+
+            val allProjects = (listOf(project) + projectDeps.values.map { it.dependencyProject })
+                .distinctBy { it.path }
+            val resFiles = objects.fileCollection().apply {
+                for (depProject in allProjects) {
+                    from(
+                        depProject.file(
+                            "${depProject.buildDir}/generated/compose-resources/code/iosMain/Res.ios.kt"
+                        )
+                    )
+                }
+            }
+            val provider = syncCmpResourcesForXcodeProvider
+            if (provider != null) {
+                val klibToolPathProvider = providers.provider { resolveKlibToolPath(project) ?: "" }
+                val klibDirs = objects.fileCollection().apply {
+                    val targets = listOf("iosArm64", "iosX64", "iosSimulatorArm64")
+                    for (depProject in allProjects) {
+                        for (target in targets) {
+                            from(
+                                depProject.layout.buildDirectory.dir(
+                                    "classes/kotlin/$target/main/klib/${depProject.name}/default"
+                                )
+                            )
+                        }
+                    }
+                }
+                provider.configure {
+                    resFiles.from(resFiles)
+                    klibFiles.from(klibDirs)
+                    klibToolPath.set(klibToolPathProvider)
+                    for (depProject in allProjects) {
+                        val depTask = depProject.tasks.findByName("generateCmpResources")
+                        if (depTask != null) {
+                            dependsOn(depTask)
+                        }
+                    }
+                }
+            }
         }
     }
+}
+
+private fun resolveKlibToolPath(project: Project): String? {
+    val propHome = project.findProperty("kotlin.native.home") as? String
+    val envHomes = listOfNotNull(
+        propHome,
+        System.getenv("KONAN_HOME"),
+        System.getenv("KOTLIN_NATIVE_HOME"),
+        System.getenv("KONAN_DATA_DIR"),
+    )
+    for (home in envHomes) {
+        val homeDir = File(home)
+        val tool = findKlibTool(homeDir) ?: findKlibToolInPrebuilt(homeDir)
+        if (tool != null) return tool.absolutePath
+    }
+
+    val userHome = System.getProperty("user.home") ?: return null
+    val konanDir = File(userHome, ".konan")
+    val tool = findKlibToolInPrebuilt(konanDir)
+    if (tool != null) return tool.absolutePath
+    return null
+}
+
+private fun findKlibTool(home: File): File? {
+    val bin = File(home, "bin")
+    val unixTool = File(bin, "klib")
+    if (unixTool.exists()) return unixTool
+    val windowsTool = File(bin, "klib.bat")
+    if (windowsTool.exists()) return windowsTool
+    val windowsCmd = File(bin, "klib.cmd")
+    if (windowsCmd.exists()) return windowsCmd
+    return null
+}
+
+private fun findKlibToolInPrebuilt(root: File): File? {
+    if (!root.exists()) return null
+    val candidates = root.listFiles()
+        ?.filter { it.isDirectory && it.name.startsWith("kotlin-native-prebuilt-") }
+        ?.sortedByDescending { it.name }
+        .orEmpty()
+    for (candidate in candidates) {
+        val tool = findKlibTool(candidate)
+        if (tool != null) return tool
+    }
+    return null
 }

@@ -64,4 +64,5 @@ cmpResources {
     packageName.set("cn.szkug.akit.apps.cmp.host")
     androidNamespace.set("cn.szkug.akit.apps.cmp")
     iosResourcesPrefix.set("AkitCmpHostRes")
+    iosPruneUnused.set(true)
 }

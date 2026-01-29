@@ -29,12 +29,12 @@ fun LanguageDemoPage(onBack: () -> Unit) {
     val languageManager = rememberAppLanguageManager()
     var languageCode by rememberSaveable { mutableStateOf(languageManager.getAppLanguage()) }
     Column(modifier = Modifier.fillMaxSize()) {
-        PageHeader(title = stringResource(Res.strings.language_demo_title), onBack = onBack)
+        PageHeader(title = stringResource(SharedString.language_demo_title), onBack = onBack)
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(text = stringResource(Res.strings.language_demo_desc))
+            Text(text = stringResource(SharedString.language_demo_desc))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

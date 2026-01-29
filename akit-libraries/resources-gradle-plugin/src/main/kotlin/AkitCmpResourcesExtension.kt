@@ -1,5 +1,4 @@
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 
 abstract class AkitCmpResourcesExtension {
@@ -9,7 +8,5 @@ abstract class AkitCmpResourcesExtension {
     abstract val androidExtraResDir: DirectoryProperty
     abstract val iosExtraResDir: DirectoryProperty
     abstract val iosResourcesPrefix: Property<String>
-    abstract val whitelistEnabled: Property<Boolean>
-    abstract val stringsWhitelistFile: RegularFileProperty
-    abstract val drawablesWhitelistFile: RegularFileProperty
+    abstract val iosPruneUnused: Property<Boolean>
 }

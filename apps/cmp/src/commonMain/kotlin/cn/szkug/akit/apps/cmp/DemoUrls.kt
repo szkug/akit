@@ -21,3 +21,7 @@ object DemoUrls {
         "https://media.giphy.com/media/5VKbvrjxpVJCM/giphy.gif"
     )
 }
+
+
+typealias SharedDrawable = Res.drawable
+typealias SharedString = Res.strings

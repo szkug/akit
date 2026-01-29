@@ -1,15 +1,10 @@
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
@@ -79,83 +74,34 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
     @get:Optional
     abstract val iosExtraResDir: DirectoryProperty
 
-    @get:Input
-    abstract val whitelistEnabled: Property<Boolean>
-
-    @get:InputFile
-    @get:Optional
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val stringsWhitelistFile: RegularFileProperty
-
-    @get:InputFile
-    @get:Optional
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val drawablesWhitelistFile: RegularFileProperty
-
     @TaskAction
     fun generate() {
         val resRoot = resDir.get().asFile
-        val whitelistOn = whitelistEnabled.getOrElse(false)
-        val stringsWhitelist = if (whitelistOn) {
-            loadWhitelist(stringsWhitelistFile, "strings")
-        } else {
-            emptySet()
-        }
-        val drawablesWhitelist = if (whitelistOn) {
-            loadWhitelist(drawablesWhitelistFile, "drawables")
-        } else {
-            emptySet()
-        }
-
-        val commonStringsByLocale = filterStringsByWhitelist(
-            parseStringsByLocale(resRoot),
-            stringsWhitelist,
-            whitelistOn,
-        )
+        val commonStringsByLocale = parseStringsByLocale(resRoot)
         val commonStrings = commonStringsByLocale.values.flatten()
             .distinctBy { it.name }
             .sortedBy { it.name }
 
-        val commonDrawableSources = filterDrawableSourcesByWhitelist(
-            parseDrawableSources(resRoot),
-            drawablesWhitelist,
-            whitelistOn,
-        )
+        val commonDrawableSources = parseDrawableSources(resRoot)
         val commonDrawables = buildDrawableResources(commonDrawableSources)
-        val commonRawSources = filterRawSourcesByWhitelist(
-            parseRawSources(resRoot),
-            drawablesWhitelist,
-            whitelistOn,
-        )
+        val commonRawSources = parseRawSources(resRoot)
         val commonRaws = buildRawResources(commonRawSources)
 
         val androidExtraRoot = androidExtraResDir.orNull?.asFile?.takeIf { it.exists() }
         val androidExtraStringsByLocale = if (androidExtraRoot == null) {
             emptyMap()
         } else {
-            filterStringsByWhitelist(
-                parseStringsByLocale(androidExtraRoot),
-                stringsWhitelist,
-                whitelistOn,
-            )
+            parseStringsByLocale(androidExtraRoot)
         }
         val androidExtraDrawableSources = if (androidExtraRoot == null) {
             emptyList()
         } else {
-            filterDrawableSourcesByWhitelist(
-                parseDrawableSources(androidExtraRoot),
-                drawablesWhitelist,
-                whitelistOn,
-            )
+            parseDrawableSources(androidExtraRoot)
         }
         val androidExtraRawSources = if (androidExtraRoot == null) {
             emptyList()
         } else {
-            filterRawSourcesByWhitelist(
-                parseRawSources(androidExtraRoot),
-                drawablesWhitelist,
-                whitelistOn,
-            )
+            parseRawSources(androidExtraRoot)
         }
         val androidStringsByLocale = mergeStringsByLocale(commonStringsByLocale, androidExtraStringsByLocale)
         val androidStrings = androidStringsByLocale.values.flatten()
@@ -170,29 +116,17 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val iosExtraStringsByLocale = if (iosExtraRoot == null) {
             emptyMap()
         } else {
-            filterStringsByWhitelist(
-                parseStringsByLocale(iosExtraRoot),
-                stringsWhitelist,
-                whitelistOn,
-            )
+            parseStringsByLocale(iosExtraRoot)
         }
         val iosExtraDrawableSources = if (iosExtraRoot == null) {
             emptyList()
         } else {
-            filterDrawableSourcesByWhitelist(
-                parseDrawableSources(iosExtraRoot),
-                drawablesWhitelist,
-                whitelistOn,
-            )
+            parseDrawableSources(iosExtraRoot)
         }
         val iosExtraRawSources = if (iosExtraRoot == null) {
             emptyList()
         } else {
-            filterRawSourcesByWhitelist(
-                parseRawSources(iosExtraRoot),
-                drawablesWhitelist,
-                whitelistOn,
-            )
+            parseRawSources(iosExtraRoot)
         }
         val iosStringsByLocale = mergeStringsByLocale(commonStringsByLocale, iosExtraStringsByLocale)
         val iosStrings = iosStringsByLocale.values.flatten()
@@ -249,49 +183,6 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         writeIosStringResources(iosResourcesDir, iosStringsByLocale)
         writeIosDrawableResources(iosResourcesDir, iosDrawableSources)
         writeIosRawResources(iosResourcesDir, iosRawSources)
-    }
-
-    private fun loadWhitelist(property: RegularFileProperty, label: String): Set<String> {
-        if (!property.isPresent) {
-            throw GradleException("cmpResources whitelist is enabled but $label whitelist file is not set.")
-        }
-        val file = property.get().asFile
-        if (!file.exists()) {
-            throw GradleException("cmpResources whitelist file does not exist: ${file.absolutePath}")
-        }
-        return file.readLines()
-            .map { it.substringBefore('#').trim() }
-            .filter { it.isNotBlank() && !it.startsWith("//") }
-            .toSet()
-    }
-
-    private fun filterStringsByWhitelist(
-        stringsByLocale: Map<String, List<StringResource>>,
-        whitelist: Set<String>,
-        whitelistOn: Boolean,
-    ): Map<String, List<StringResource>> {
-        if (!whitelistOn) return stringsByLocale
-        return stringsByLocale.mapValues { (_, items) ->
-            items.filter { it.name in whitelist }
-        }.filterValues { it.isNotEmpty() }
-    }
-
-    private fun filterDrawableSourcesByWhitelist(
-        sources: List<DrawableSource>,
-        whitelist: Set<String>,
-        whitelistOn: Boolean,
-    ): List<DrawableSource> {
-        if (!whitelistOn) return sources
-        return sources.filter { it.id in whitelist }
-    }
-
-    private fun filterRawSourcesByWhitelist(
-        sources: List<RawSource>,
-        whitelist: Set<String>,
-        whitelistOn: Boolean,
-    ): List<RawSource> {
-        if (!whitelistOn) return sources
-        return sources.filter { it.id in whitelist }
     }
 
     private fun mergeStringsByLocale(

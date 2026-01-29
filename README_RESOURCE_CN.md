@@ -81,9 +81,7 @@ cmpResources {
     androidExtraResDir.set(layout.projectDirectory.dir("src/androidMain/res"))
     iosResourcesPrefix.set("cmp-res")
     iosExtraResDir.set(layout.projectDirectory.dir("src/iosMain/res"))
-    whitelistEnabled.set(false)
-    stringsWhitelistFile.set(layout.projectDirectory.file("res-whitelist/strings.txt"))
-    drawablesWhitelistFile.set(layout.projectDirectory.file("res-whitelist/drawables.txt"))
+    iosPruneUnused.set(false)
 }
 ```
 
