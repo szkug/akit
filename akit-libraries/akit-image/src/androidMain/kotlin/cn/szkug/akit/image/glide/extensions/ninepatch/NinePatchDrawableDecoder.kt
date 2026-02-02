@@ -1,4 +1,4 @@
-package cn.szkug.akit.glide.extensions.ninepatch
+package cn.szkug.akit.image.glide.extensions.ninepatch
 
 import android.content.Context
 import android.graphics.BitmapFactory

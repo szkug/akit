@@ -1,4 +1,4 @@
-package cn.szkug.akit.glide.extensions.lottie
+package cn.szkug.akit.image.glide.extensions.lottie
 
 import android.content.Context
 import android.content.res.Resources
@@ -7,12 +7,15 @@ import cn.szkug.akit.graph.lottie.LottieResource
 import com.airbnb.lottie.LottieCompositionFactory
 import com.airbnb.lottie.LottieDrawable
 import com.bumptech.glide.Glide
+import com.bumptech.glide.Priority
 import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.data.DataFetcher
+import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
@@ -99,7 +102,7 @@ private class LottieResourceDataFetcher(
     private var stream: InputStream? = null
 
     override fun loadData(
-        priority: com.bumptech.glide.Priority,
+        priority: Priority,
         callback: DataFetcher.DataCallback<in InputStream>
     ) {
         try {
@@ -119,8 +122,8 @@ private class LottieResourceDataFetcher(
 
     override fun getDataClass(): Class<InputStream> = InputStream::class.java
 
-    override fun getDataSource(): com.bumptech.glide.load.DataSource =
-        com.bumptech.glide.load.DataSource.LOCAL
+    override fun getDataSource(): DataSource =
+        DataSource.LOCAL
 }
 
 private class LottieDrawableDecoder : ResourceDecoder<InputStream, Drawable> {
@@ -133,7 +136,7 @@ private class LottieDrawableDecoder : ResourceDecoder<InputStream, Drawable> {
         width: Int,
         height: Int,
         options: Options
-    ): com.bumptech.glide.load.engine.Resource<Drawable>? {
+    ): Resource<Drawable>? {
         val cacheKey = options.get(LottieDecodeOptions.CacheKey)
         val result = LottieCompositionFactory.fromJsonInputStreamSync(source, cacheKey)
         val composition = result.value ?: return null

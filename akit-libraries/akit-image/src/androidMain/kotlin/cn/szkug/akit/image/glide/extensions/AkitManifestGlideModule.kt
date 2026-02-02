@@ -1,8 +1,8 @@
-package cn.szkug.akit.glide.extensions
+package cn.szkug.akit.image.glide.extensions
 
 import android.content.Context
-import cn.szkug.akit.glide.extensions.lottie.LottieLibraryGlideModule
-import cn.szkug.akit.glide.extensions.ninepatch.NinePatchLibraryGlideModule
+import cn.szkug.akit.image.glide.extensions.lottie.LottieLibraryGlideModule
+import cn.szkug.akit.image.glide.extensions.ninepatch.NinePatchLibraryGlideModule
 import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.Registry

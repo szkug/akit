@@ -38,7 +38,7 @@ android {
     buildFeatures.compose = true
 
     defaultConfig.externalNativeBuild.cmake.cppFlags("-std=c++17")
-    externalNativeBuild.cmake.path = file("src/renderscript-toolkit/cpp/CMakeLists.txt")
+    externalNativeBuild.cmake.path = file("src/cpp/renderscript-toolkit/CMakeLists.txt")
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 }

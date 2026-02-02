@@ -230,7 +230,7 @@ authors and should not be interpreted as representing official policies, either 
 or implied, of Google, Inc.
 
 ----------------------------------------------------------------------------------------------------
-submodules/renderscript
+akit-libraries/akit-graph/src/cpp/renderscript-toolkit
 
 License: Apache License 2.0
 

@@ -5,11 +5,10 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import cn.szkug.akit.glide.extensions.lottie.LottieDecodeOptions
+import cn.szkug.akit.image.glide.extensions.lottie.LottieDecodeOptions
 import cn.szkug.akit.graph.toPainter
 import cn.szkug.akit.image.AsyncLoadData
 import cn.szkug.akit.image.AsyncLoadResult
-import cn.szkug.akit.image.ImageSize
 import cn.szkug.akit.image.AsyncImageContext
 import cn.szkug.akit.image.BitmapTransformation
 import cn.szkug.akit.image.DrawableModel
@@ -23,8 +22,7 @@ import cn.szkug.akit.graph.lottie.LottieResource
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
-import cn.szkug.akit.glide.extensions.ninepatch.NinepatchEnableOption
+import cn.szkug.akit.image.glide.extensions.ninepatch.NinepatchEnableOption
 import com.bumptech.glide.signature.ObjectKey
 import kotlinx.coroutines.flow.Flow
 import java.io.File
