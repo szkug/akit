@@ -1,0 +1,8 @@
+<resources>
+    <dimen name="button_width">100dp</dimen>
+    <dimen name="button_height">48px</dimen>
+    <dimen name="sp_text_size">16sp</dimen>
+    <dimen name="pt_text_size">12pt</dimen>
+    <dimen name="in_width">0.5in</dimen>
+    <dimen name="mm_height">10mm</dimen>
+</resources>

@@ -1,0 +1,8 @@
+<resources>
+    <string name="values_demo_title">Values Demo</string>
+    <string name="values_demo_color_label">Color resource</string>
+    <string name="values_demo_dimen_label">Dimen resource</string>
+    <string name="values_demo_plural_label">Plural resource</string>
+    <string name="values_demo_array_label">Array resource</string>
+    <string name="values_demo_unit_label">Unit conversions</string>
+</resources>

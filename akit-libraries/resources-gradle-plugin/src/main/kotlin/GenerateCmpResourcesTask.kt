@@ -14,6 +14,67 @@ internal data class StringResource(
     val value: String,
 )
 
+internal enum class ValueResourceType {
+    STRING,
+    COLOR,
+    DIMEN,
+    PLURAL,
+    ARRAY,
+}
+
+internal enum class ResourceRefType(val token: String) {
+    STRING("string"),
+    COLOR("color"),
+    DIMEN("dimen"),
+    PLURAL("plurals"),
+    DRAWABLE("drawable"),
+    RAW("raw");
+
+    companion object {
+        fun fromToken(token: String): ResourceRefType? =
+            values().firstOrNull { it.token == token }
+    }
+}
+
+internal data class ResourceRef(
+    val type: ResourceRefType,
+    val name: String,
+)
+
+internal data class ValueResource(
+    val name: String,
+    val type: ValueResourceType,
+    val value: String? = null,
+    val pluralItems: Map<String, String> = emptyMap(),
+    val arrayItems: List<ResourceRef> = emptyList(),
+)
+
+internal data class ValuesFile(
+    val name: String,
+    val resources: List<ValueResource>,
+)
+
+internal data class NamedValueResource(
+    val name: String,
+    val value: String,
+)
+
+internal data class PluralResource(
+    val name: String,
+    val items: Map<String, String>,
+)
+
+internal data class ValuesResourceKey(
+    val file: String,
+    val type: ValueResourceType,
+    val name: String,
+)
+
+internal data class ResourceLookupKey(
+    val type: ResourceRefType,
+    val name: String,
+)
+
 internal data class DrawableResource(
     val id: String,
     val fileNameWithoutExtension: String,
@@ -77,10 +138,13 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val resRoot = resDir.get().asFile
-        val commonStringsByLocale = parseStringsByLocale(resRoot)
-        val commonStrings = commonStringsByLocale.values.flatten()
-            .distinctBy { it.name }
-            .sortedBy { it.name }
+        val commonValuesByLocale = parseValuesByLocale(resRoot)
+        val commonValuesByFile = buildValuesByFile(commonValuesByLocale)
+        val commonValueKeys = buildValuesKeys(commonValuesByFile)
+        val commonStringsByLocale = collectStringsByLocale(commonValuesByLocale)
+        val commonColorsByLocale = collectNamedValuesByLocale(commonValuesByLocale, ValueResourceType.COLOR)
+        val commonDimensByLocale = collectNamedValuesByLocale(commonValuesByLocale, ValueResourceType.DIMEN)
+        val commonPluralsByLocale = collectPluralsByLocale(commonValuesByLocale)
 
         val commonDrawableSources = parseDrawableSources(resRoot)
         val commonDrawables = buildDrawableResources(commonDrawableSources)
@@ -88,11 +152,14 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val commonRaws = buildRawResources(commonRawSources)
 
         val androidExtraRoot = androidExtraResDir.orNull?.asFile?.takeIf { it.exists() }
-        val androidExtraStringsByLocale = if (androidExtraRoot == null) {
+        val androidExtraValuesByLocale = if (androidExtraRoot == null) {
             emptyMap()
         } else {
-            parseStringsByLocale(androidExtraRoot)
+            parseValuesByLocale(androidExtraRoot)
         }
+        val androidExtraValuesByFile = buildValuesByFile(androidExtraValuesByLocale)
+        val androidValuesByFile = mergeValuesByFile(commonValuesByFile, androidExtraValuesByFile)
+        val androidValueLookup = buildValuesLookup(androidValuesByFile)
         val androidExtraDrawableSources = if (androidExtraRoot == null) {
             emptyList()
         } else {
@@ -103,21 +170,24 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         } else {
             parseRawSources(androidExtraRoot)
         }
-        val androidStringsByLocale = mergeStringsByLocale(commonStringsByLocale, androidExtraStringsByLocale)
-        val androidStrings = androidStringsByLocale.values.flatten()
-            .distinctBy { it.name }
-            .sortedBy { it.name }
         val androidDrawableSources = commonDrawableSources + androidExtraDrawableSources
         val androidDrawables = buildDrawableResources(androidDrawableSources)
         val androidRawSources = commonRawSources + androidExtraRawSources
         val androidRaws = buildRawResources(androidRawSources)
 
         val iosExtraRoot = iosExtraResDir.orNull?.asFile?.takeIf { it.exists() }
-        val iosExtraStringsByLocale = if (iosExtraRoot == null) {
+        val iosExtraValuesByLocale = if (iosExtraRoot == null) {
             emptyMap()
         } else {
-            parseStringsByLocale(iosExtraRoot)
+            parseValuesByLocale(iosExtraRoot)
         }
+        val iosExtraValuesByFile = buildValuesByFile(iosExtraValuesByLocale)
+        val iosValuesByFile = mergeValuesByFile(commonValuesByFile, iosExtraValuesByFile)
+        val iosValueLookup = buildValuesLookup(iosValuesByFile)
+        val iosExtraStringsByLocale = collectStringsByLocale(iosExtraValuesByLocale)
+        val iosExtraColorsByLocale = collectNamedValuesByLocale(iosExtraValuesByLocale, ValueResourceType.COLOR)
+        val iosExtraDimensByLocale = collectNamedValuesByLocale(iosExtraValuesByLocale, ValueResourceType.DIMEN)
+        val iosExtraPluralsByLocale = collectPluralsByLocale(iosExtraValuesByLocale)
         val iosExtraDrawableSources = if (iosExtraRoot == null) {
             emptyList()
         } else {
@@ -128,10 +198,10 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         } else {
             parseRawSources(iosExtraRoot)
         }
-        val iosStringsByLocale = mergeStringsByLocale(commonStringsByLocale, iosExtraStringsByLocale)
-        val iosStrings = iosStringsByLocale.values.flatten()
-            .distinctBy { it.name }
-            .sortedBy { it.name }
+        val iosStringsByLocale = mergeByLocale(commonStringsByLocale, iosExtraStringsByLocale) { it.name }
+        val iosColorsByLocale = mergeByLocale(commonColorsByLocale, iosExtraColorsByLocale) { it.name }
+        val iosDimensByLocale = mergeByLocale(commonDimensByLocale, iosExtraDimensByLocale) { it.name }
+        val iosPluralsByLocale = mergeByLocale(commonPluralsByLocale, iosExtraPluralsByLocale) { it.name }
         val iosDrawableSources = commonDrawableSources + iosExtraDrawableSources
         val iosDrawables = buildDrawableResources(iosDrawableSources)
         val iosRawSources = commonRawSources + iosExtraRawSources
@@ -153,19 +223,19 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val pkg = packageName.get()
         val androidPkg = androidNamespace.get().ifBlank { pkg }
         val iosPrefix = iosResourcesPrefix.get()
-        val commonStringIds = commonStrings.map { it.name }.toSet()
         val commonDrawableIds = commonDrawables.map { it.id }.toSet()
         val commonRawIds = commonRaws.map { it.id }.toSet()
 
-        writeCommonRes(commonDir, pkg, commonStrings, commonDrawables, commonRaws)
+        writeCommonRes(commonDir, pkg, commonValuesByFile, commonDrawables, commonRaws)
         writeAndroidRes(
             androidDir,
             pkg,
             androidPkg,
-            androidStrings,
+            androidValuesByFile,
+            androidValueLookup,
             androidDrawables,
             androidRaws,
-            commonStringIds,
+            commonValueKeys,
             commonDrawableIds,
             commonRawIds,
         )
@@ -173,67 +243,289 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             iosDir,
             pkg,
             iosPrefix,
-            iosStrings,
+            iosValuesByFile,
+            iosValueLookup,
             iosDrawables,
             iosRaws,
-            commonStringIds,
+            commonValueKeys,
             commonDrawableIds,
             commonRawIds,
         )
         writeIosStringResources(iosResourcesDir, iosStringsByLocale)
+        writeIosValueResources(iosResourcesDir, iosColorsByLocale, iosDimensByLocale, iosPluralsByLocale)
         writeIosDrawableResources(iosResourcesDir, iosDrawableSources)
         writeIosRawResources(iosResourcesDir, iosRawSources)
     }
 
-    private fun mergeStringsByLocale(
-        base: Map<String, List<StringResource>>,
-        extra: Map<String, List<StringResource>>,
-    ): Map<String, List<StringResource>> {
+    private fun <T> mergeByLocale(
+        base: Map<String, List<T>>,
+        extra: Map<String, List<T>>,
+        keySelector: (T) -> String,
+    ): Map<String, List<T>> {
         if (extra.isEmpty()) return base
         val locales = (base.keys + extra.keys).distinct()
-        val out = linkedMapOf<String, List<StringResource>>()
+            .sortedWith(compareBy<String> { it != "Base" }.thenBy { it })
+        val out = linkedMapOf<String, List<T>>()
         for (locale in locales) {
-            val merged = LinkedHashMap<String, StringResource>()
-            for (string in base[locale].orEmpty()) {
-                merged[string.name] = string
+            val merged = LinkedHashMap<String, T>()
+            for (item in base[locale].orEmpty()) {
+                merged[keySelector(item)] = item
             }
-            for (string in extra[locale].orEmpty()) {
-                merged[string.name] = string
+            for (item in extra[locale].orEmpty()) {
+                merged[keySelector(item)] = item
             }
             if (merged.isNotEmpty()) {
-                out[locale] = merged.values.sortedBy { it.name }
+                out[locale] = merged.values.sortedBy { keySelector(it) }
             }
         }
         return out
     }
 
-    private fun parseStringsByLocale(resRoot: File): Map<String, List<StringResource>> {
+    private fun parseValuesByLocale(resRoot: File): Map<String, List<ValuesFile>> {
         if (!resRoot.exists()) return emptyMap()
         val valuesDirs = resRoot.listFiles().orEmpty()
             .filter { it.isDirectory && it.name.startsWith("values") }
-        val out = linkedMapOf<String, List<StringResource>>()
+            .sortedBy { it.name }
+        val out = linkedMapOf<String, List<ValuesFile>>()
         for (dir in valuesDirs) {
             val locale = valuesDirToLocale(dir.name) ?: continue
-            val strings = parseStrings(dir.resolve("strings.xml"))
-            if (strings.isNotEmpty()) {
-                out[locale] = strings
+            val files = dir.listFiles().orEmpty()
+                .filter { it.isFile && it.extension.equals("xml", ignoreCase = true) }
+                .sortedBy { it.name }
+            val parsed = mutableListOf<ValuesFile>()
+            for (file in files) {
+                val fileName = sanitizeIdentifier(file.nameWithoutExtension)
+                val resources = parseValuesFile(file)
+                if (resources.isNotEmpty()) {
+                    parsed += ValuesFile(fileName, resources.sortedBy { it.name })
+                }
+            }
+            if (parsed.isNotEmpty()) {
+                out[locale] = parsed.sortedBy { it.name }
             }
         }
         return out
     }
 
-    private fun parseStrings(stringsFile: File): List<StringResource> {
-        if (!stringsFile.exists()) return emptyList()
-        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(stringsFile)
-        val nodes = doc.getElementsByTagName("string")
-        val out = mutableListOf<StringResource>()
+    private fun parseValuesFile(file: File): List<ValueResource> {
+        if (!file.exists()) return emptyList()
+        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
+        val root = doc.documentElement ?: return emptyList()
+        val nodes = root.childNodes
+        val out = mutableListOf<ValueResource>()
         for (i in 0 until nodes.length) {
             val node = nodes.item(i)
-            val name = node.attributes?.getNamedItem("name")?.nodeValue ?: continue
-            val value = node.textContent ?: ""
-            out += StringResource(name, value)
+            if (node.nodeType != org.w3c.dom.Node.ELEMENT_NODE) continue
+            val tag = node.nodeName
+            when (tag) {
+                "string" -> {
+                    val name = node.attributes?.getNamedItem("name")?.nodeValue ?: continue
+                    val value = node.textContent ?: ""
+                    out += ValueResource(name = name, type = ValueResourceType.STRING, value = value)
+                }
+                "color" -> {
+                    val name = node.attributes?.getNamedItem("name")?.nodeValue ?: continue
+                    val value = node.textContent?.trim().orEmpty()
+                    out += ValueResource(name = name, type = ValueResourceType.COLOR, value = value)
+                }
+                "dimen" -> {
+                    val name = node.attributes?.getNamedItem("name")?.nodeValue ?: continue
+                    val value = node.textContent?.trim().orEmpty()
+                    if (!isSupportedDimenValue(value)) {
+                        logger.warn("Unsupported dimen value for $name: $value")
+                        continue
+                    }
+                    out += ValueResource(name = name, type = ValueResourceType.DIMEN, value = value)
+                }
+                "plurals" -> {
+                    val name = node.attributes?.getNamedItem("name")?.nodeValue ?: continue
+                    val items = parsePluralItems(node)
+                    out += ValueResource(name = name, type = ValueResourceType.PLURAL, pluralItems = items)
+                }
+                "array", "string-array" -> {
+                    val name = node.attributes?.getNamedItem("name")?.nodeValue ?: continue
+                    val items = parseArrayItems(node)
+                    out += ValueResource(name = name, type = ValueResourceType.ARRAY, arrayItems = items)
+                }
+            }
         }
-        return out.sortedBy { it.name }
+        return out
+    }
+
+    private fun parsePluralItems(node: org.w3c.dom.Node): Map<String, String> {
+        val items = mutableMapOf<String, String>()
+        val children = node.childNodes
+        for (i in 0 until children.length) {
+            val child = children.item(i)
+            if (child.nodeType != org.w3c.dom.Node.ELEMENT_NODE) continue
+            if (child.nodeName != "item") continue
+            val quantity = child.attributes?.getNamedItem("quantity")?.nodeValue ?: continue
+            val value = child.textContent ?: ""
+            items[quantity] = value
+        }
+        return items
+    }
+
+    private fun parseArrayItems(node: org.w3c.dom.Node): List<ResourceRef> {
+        val out = mutableListOf<ResourceRef>()
+        val children = node.childNodes
+        for (i in 0 until children.length) {
+            val child = children.item(i)
+            if (child.nodeType != org.w3c.dom.Node.ELEMENT_NODE) continue
+            if (child.nodeName != "item") continue
+            val raw = child.textContent?.trim().orEmpty()
+            if (!raw.startsWith("@")) continue
+            val cleaned = raw.removePrefix("@").removePrefix("+")
+            if (cleaned.contains(':')) continue
+            val typeToken = cleaned.substringBefore('/').lowercase()
+            val name = cleaned.substringAfter('/', "")
+            if (name.isBlank()) continue
+            val refType = ResourceRefType.fromToken(typeToken) ?: continue
+            out += ResourceRef(refType, name)
+        }
+        return out
+    }
+
+    private fun isSupportedDimenValue(raw: String): Boolean {
+        val trimmed = raw.trim()
+        if (trimmed.isBlank()) return false
+        val match = Regex("""^([+-]?\d+(?:\.\d+)?)([a-zA-Z]+)$""").find(trimmed) ?: return false
+        val unit = match.groupValues.getOrNull(2).orEmpty().lowercase()
+        return unit in setOf("dp", "dip", "sp", "px", "in", "mm", "pt")
+    }
+
+    private fun buildValuesByFile(valuesByLocale: Map<String, List<ValuesFile>>): Map<String, List<ValueResource>> {
+        if (valuesByLocale.isEmpty()) return emptyMap()
+        val out = linkedMapOf<String, LinkedHashMap<ValuesResourceKey, ValueResource>>()
+        val localeOrder = valuesByLocale.keys.sortedWith(compareBy<String> { it != "Base" }.thenBy { it })
+        for (locale in localeOrder) {
+            for (file in valuesByLocale[locale].orEmpty()) {
+                val bucket = out.getOrPut(file.name) { LinkedHashMap() }
+                for (resource in file.resources) {
+                    val key = ValuesResourceKey(file = file.name, type = resource.type, name = resource.name)
+                    if (key !in bucket) {
+                        bucket[key] = resource
+                    }
+                }
+            }
+        }
+        return out.mapValues { it.value.values.sortedBy { res -> res.name } }
+    }
+
+    private fun mergeValuesByFile(
+        base: Map<String, List<ValueResource>>,
+        extra: Map<String, List<ValueResource>>,
+    ): Map<String, List<ValueResource>> {
+        if (extra.isEmpty()) return base
+        val fileNames = (base.keys + extra.keys).distinct().sorted()
+        val out = linkedMapOf<String, LinkedHashMap<ValuesResourceKey, ValueResource>>()
+        for (fileName in fileNames) {
+            val bucket = LinkedHashMap<ValuesResourceKey, ValueResource>()
+            for (resource in base[fileName].orEmpty()) {
+                val key = ValuesResourceKey(file = fileName, type = resource.type, name = resource.name)
+                bucket[key] = resource
+            }
+            for (resource in extra[fileName].orEmpty()) {
+                val key = ValuesResourceKey(file = fileName, type = resource.type, name = resource.name)
+                bucket[key] = resource
+            }
+            if (bucket.isNotEmpty()) {
+                out[fileName] = bucket
+            }
+        }
+        return out.mapValues { it.value.values.sortedBy { res -> res.name } }
+    }
+
+    private fun buildValuesKeys(valuesByFile: Map<String, List<ValueResource>>): Set<ValuesResourceKey> {
+        if (valuesByFile.isEmpty()) return emptySet()
+        val out = linkedSetOf<ValuesResourceKey>()
+        for ((file, resources) in valuesByFile) {
+            for (resource in resources) {
+                out += ValuesResourceKey(file = file, type = resource.type, name = resource.name)
+            }
+        }
+        return out
+    }
+
+    private fun buildValuesLookup(valuesByFile: Map<String, List<ValueResource>>): Map<ResourceLookupKey, String> {
+        if (valuesByFile.isEmpty()) return emptyMap()
+        val out = linkedMapOf<ResourceLookupKey, String>()
+        for (file in valuesByFile.keys.sorted()) {
+            val resources = valuesByFile[file].orEmpty()
+            for (resource in resources) {
+                val refType = when (resource.type) {
+                    ValueResourceType.STRING -> ResourceRefType.STRING
+                    ValueResourceType.COLOR -> ResourceRefType.COLOR
+                    ValueResourceType.DIMEN -> ResourceRefType.DIMEN
+                    ValueResourceType.PLURAL -> ResourceRefType.PLURAL
+                    ValueResourceType.ARRAY -> null
+                }
+                if (refType != null) {
+                    val key = ResourceLookupKey(refType, resource.name)
+                    if (key !in out) {
+                        out[key] = file
+                    }
+                }
+            }
+        }
+        return out
+    }
+
+    private fun collectStringsByLocale(valuesByLocale: Map<String, List<ValuesFile>>): Map<String, List<StringResource>> {
+        if (valuesByLocale.isEmpty()) return emptyMap()
+        val out = linkedMapOf<String, List<StringResource>>()
+        for ((locale, files) in valuesByLocale) {
+            val strings = LinkedHashMap<String, StringResource>()
+            for (file in files) {
+                for (resource in file.resources) {
+                    if (resource.type != ValueResourceType.STRING) continue
+                    strings[resource.name] = StringResource(resource.name, resource.value.orEmpty())
+                }
+            }
+            if (strings.isNotEmpty()) {
+                out[locale] = strings.values.sortedBy { it.name }
+            }
+        }
+        return out
+    }
+
+    private fun collectNamedValuesByLocale(
+        valuesByLocale: Map<String, List<ValuesFile>>,
+        type: ValueResourceType,
+    ): Map<String, List<NamedValueResource>> {
+        if (valuesByLocale.isEmpty()) return emptyMap()
+        val out = linkedMapOf<String, List<NamedValueResource>>()
+        for ((locale, files) in valuesByLocale) {
+            val entries = LinkedHashMap<String, NamedValueResource>()
+            for (file in files) {
+                for (resource in file.resources) {
+                    if (resource.type != type) continue
+                    entries[resource.name] = NamedValueResource(resource.name, resource.value.orEmpty())
+                }
+            }
+            if (entries.isNotEmpty()) {
+                out[locale] = entries.values.sortedBy { it.name }
+            }
+        }
+        return out
+    }
+
+    private fun collectPluralsByLocale(valuesByLocale: Map<String, List<ValuesFile>>): Map<String, List<PluralResource>> {
+        if (valuesByLocale.isEmpty()) return emptyMap()
+        val out = linkedMapOf<String, List<PluralResource>>()
+        for ((locale, files) in valuesByLocale) {
+            val entries = LinkedHashMap<String, PluralResource>()
+            for (file in files) {
+                for (resource in file.resources) {
+                    if (resource.type != ValueResourceType.PLURAL) continue
+                    entries[resource.name] = PluralResource(resource.name, resource.pluralItems)
+                }
+            }
+            if (entries.isNotEmpty()) {
+                out[locale] = entries.values.sortedBy { it.name }
+            }
+        }
+        return out
     }
 
     private data class LocaleQualifier(
@@ -483,10 +775,74 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         return if (first == '_' || first.isLetter()) cleaned else "res_$cleaned"
     }
 
+    private fun androidResourceGetter(
+        resource: ValueResource,
+        valuesLookup: Map<ResourceLookupKey, String>,
+    ): String {
+        return if (resource.type == ValueResourceType.ARRAY) {
+            buildArrayExpression(resource, valuesLookup)
+        } else {
+            val token = androidResourceToken(resource.type)
+            "R.$token.${resource.name}"
+        }
+    }
+
+    private fun iosResourceGetter(
+        resource: ValueResource,
+        valuesLookup: Map<ResourceLookupKey, String>,
+    ): String {
+        return if (resource.type == ValueResourceType.ARRAY) {
+            buildArrayExpression(resource, valuesLookup)
+        } else {
+            "resourceId(\"${resource.name}\")"
+        }
+    }
+
+    private fun androidResourceToken(type: ValueResourceType): String = when (type) {
+        ValueResourceType.STRING -> "string"
+        ValueResourceType.COLOR -> "color"
+        ValueResourceType.DIMEN -> "dimen"
+        ValueResourceType.PLURAL -> "plurals"
+        ValueResourceType.ARRAY -> "array"
+    }
+
+    private fun buildArrayExpression(
+        resource: ValueResource,
+        valuesLookup: Map<ResourceLookupKey, String>,
+    ): String {
+        if (resource.arrayItems.isEmpty()) return "emptyArray()"
+        val resolved = resource.arrayItems.mapNotNull { item ->
+            resolveArrayItem(resource.name, item, valuesLookup)
+        }
+        if (resolved.isEmpty()) return "emptyArray()"
+        return "arrayOf(${resolved.joinToString(", ")})"
+    }
+
+    private fun resolveArrayItem(
+        arrayName: String,
+        item: ResourceRef,
+        valuesLookup: Map<ResourceLookupKey, String>,
+    ): String? {
+        return when (item.type) {
+            ResourceRefType.DRAWABLE -> "Res.drawable.${item.name}"
+            ResourceRefType.RAW -> "Res.raw.${item.name}"
+            else -> {
+                val key = ResourceLookupKey(item.type, item.name)
+                val file = valuesLookup[key]
+                if (file == null) {
+                    logger.warn("Array $arrayName references missing ${item.type.token}/${item.name}")
+                    null
+                } else {
+                    "Res.$file.${item.name}"
+                }
+            }
+        }
+    }
+
     private fun writeCommonRes(
         outputDir: File,
         packageName: String,
-        strings: List<StringResource>,
+        valuesByFile: Map<String, List<ValueResource>>,
         drawables: List<DrawableResource>,
         raws: List<RawResource>,
     ) {
@@ -497,16 +853,26 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import cn.szkug.akit.resources.runtime.ResourceId")
             appendLine()
             appendLine("expect object Res {")
-            appendLine("    object strings {")
-            if (strings.isEmpty()) {
-                appendLine("    }")
-            } else {
-                for (string in strings) {
-                    appendLine("        val ${string.name}: ResourceId")
+            if (valuesByFile.isNotEmpty()) {
+                for (fileName in valuesByFile.keys.sorted()) {
+                    val resources = valuesByFile[fileName].orEmpty()
+                    appendLine("    object $fileName {")
+                    if (resources.isEmpty()) {
+                        appendLine("    }")
+                    } else {
+                        for (resource in resources) {
+                            val typeLabel = if (resource.type == ValueResourceType.ARRAY) {
+                                "Array<ResourceId>"
+                            } else {
+                                "ResourceId"
+                            }
+                            appendLine("        val ${resource.name}: $typeLabel")
+                        }
+                        appendLine("    }")
+                    }
+                    appendLine()
                 }
-                appendLine("    }")
             }
-            appendLine()
             appendLine("    object drawable {")
             if (drawables.isEmpty()) {
                 appendLine("    }")
@@ -534,10 +900,11 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         outputDir: File,
         packageName: String,
         androidNamespace: String,
-        strings: List<StringResource>,
+        valuesByFile: Map<String, List<ValueResource>>,
+        valuesLookup: Map<ResourceLookupKey, String>,
         drawables: List<DrawableResource>,
         raws: List<RawResource>,
-        commonStrings: Set<String>,
+        commonValues: Set<ValuesResourceKey>,
         commonDrawables: Set<String>,
         commonRaws: Set<String>,
     ) {
@@ -549,18 +916,33 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import $androidNamespace.R")
             appendLine()
             appendLine("actual object Res {")
-            appendLine("    actual object strings {")
-            if (strings.isEmpty()) {
-                appendLine("    }")
-            } else {
-                for (string in strings) {
-                    val keyword = if (string.name in commonStrings) "actual val" else "val"
-                    appendLine("        $keyword ${string.name}: ResourceId")
-                    appendLine("            get() = R.string.${string.name}")
+            if (valuesByFile.isNotEmpty()) {
+                val commonFiles = commonValues.map { it.file }.toSet()
+                for (fileName in valuesByFile.keys.sorted()) {
+                    val resources = valuesByFile[fileName].orEmpty()
+                    val objectKeyword = if (fileName in commonFiles) "actual object" else "object"
+                    appendLine("    $objectKeyword $fileName {")
+                    if (resources.isEmpty()) {
+                        appendLine("    }")
+                    } else {
+                        for (resource in resources) {
+                            val key = ValuesResourceKey(file = fileName, type = resource.type, name = resource.name)
+                            val keyword = if (key in commonValues) "actual val" else "val"
+                            val typeLabel = if (resource.type == ValueResourceType.ARRAY) {
+                                "Array<ResourceId>"
+                            } else {
+                                "ResourceId"
+                            }
+                            appendLine("        $keyword ${resource.name}: $typeLabel")
+                            appendLine(
+                                "            get() = ${androidResourceGetter(resource, valuesLookup)}"
+                            )
+                        }
+                        appendLine("    }")
+                    }
+                    appendLine()
                 }
-                appendLine("    }")
             }
-            appendLine()
             appendLine("    actual object drawable {")
             if (drawables.isEmpty()) {
                 appendLine("    }")
@@ -592,10 +974,11 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         outputDir: File,
         packageName: String,
         iosPrefix: String,
-        strings: List<StringResource>,
+        valuesByFile: Map<String, List<ValueResource>>,
+        valuesLookup: Map<ResourceLookupKey, String>,
         drawables: List<DrawableResource>,
         raws: List<RawResource>,
-        commonStrings: Set<String>,
+        commonValues: Set<ValuesResourceKey>,
         commonDrawables: Set<String>,
         commonRaws: Set<String>,
     ) {
@@ -613,18 +996,33 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("    else NSURL.fileURLWithPath(\"${'$'}resourcesPrefix|${'$'}value\")")
             appendLine()
             appendLine("actual object Res {")
-            appendLine("    actual object strings {")
-            if (strings.isEmpty()) {
-                appendLine("    }")
-            } else {
-                for (string in strings) {
-                    val keyword = if (string.name in commonStrings) "actual val" else "val"
-                    appendLine("        $keyword ${string.name}: ResourceId")
-                    appendLine("            get() = resourceId(\"${string.name}\")")
+            if (valuesByFile.isNotEmpty()) {
+                val commonFiles = commonValues.map { it.file }.toSet()
+                for (fileName in valuesByFile.keys.sorted()) {
+                    val resources = valuesByFile[fileName].orEmpty()
+                    val objectKeyword = if (fileName in commonFiles) "actual object" else "object"
+                    appendLine("    $objectKeyword $fileName {")
+                    if (resources.isEmpty()) {
+                        appendLine("    }")
+                    } else {
+                        for (resource in resources) {
+                            val key = ValuesResourceKey(file = fileName, type = resource.type, name = resource.name)
+                            val keyword = if (key in commonValues) "actual val" else "val"
+                            val typeLabel = if (resource.type == ValueResourceType.ARRAY) {
+                                "Array<ResourceId>"
+                            } else {
+                                "ResourceId"
+                            }
+                            appendLine("        $keyword ${resource.name}: $typeLabel")
+                            appendLine(
+                                "            get() = ${iosResourceGetter(resource, valuesLookup)}"
+                            )
+                        }
+                        appendLine("    }")
+                    }
+                    appendLine()
                 }
-                appendLine("    }")
             }
-            appendLine()
             appendLine("    actual object drawable {")
             if (drawables.isEmpty()) {
                 appendLine("    }")
@@ -692,6 +1090,69 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 }
             })
         }
+    }
+
+    private fun writeIosValueResources(
+        outputDir: File,
+        colorsByLocale: Map<String, List<NamedValueResource>>,
+        dimensByLocale: Map<String, List<NamedValueResource>>,
+        pluralsByLocale: Map<String, List<PluralResource>>,
+    ) {
+        if (colorsByLocale.isEmpty() && dimensByLocale.isEmpty() && pluralsByLocale.isEmpty()) return
+        val locales = (colorsByLocale.keys + dimensByLocale.keys + pluralsByLocale.keys).distinct()
+            .sortedWith(compareBy<String> { it != "Base" }.thenBy { it })
+        for (locale in locales) {
+            val valuesDir = iosValuesDir(outputDir, locale)
+            val colors = colorsByLocale[locale].orEmpty()
+            if (colors.isNotEmpty()) {
+                val entries = linkedMapOf<String, String>()
+                for (item in colors.sortedBy { it.name }) {
+                    entries[item.name] = item.value
+                }
+                writeKeyValueFile(valuesDir.resolve("colors.txt"), entries)
+            }
+            val dimens = dimensByLocale[locale].orEmpty()
+            if (dimens.isNotEmpty()) {
+                val entries = linkedMapOf<String, String>()
+                for (item in dimens.sortedBy { it.name }) {
+                    entries[item.name] = item.value
+                }
+                writeKeyValueFile(valuesDir.resolve("dimens.txt"), entries)
+            }
+            val plurals = pluralsByLocale[locale].orEmpty()
+            if (plurals.isNotEmpty()) {
+                val entries = linkedMapOf<String, String>()
+                val sortedPlurals = plurals.sortedBy { it.name }
+                for (plural in sortedPlurals) {
+                    val quantities = plural.items.toSortedMap()
+                    for ((quantity, value) in quantities) {
+                        entries["${plural.name}.$quantity"] = value
+                    }
+                }
+                writeKeyValueFile(valuesDir.resolve("plurals.txt"), entries)
+            }
+        }
+    }
+
+    private fun iosValuesDir(outputDir: File, locale: String): File {
+        return if (locale.isBlank()) {
+            outputDir.resolve("values")
+        } else {
+            outputDir.resolve("$locale.lproj").resolve("values")
+        }
+    }
+
+    private fun writeKeyValueFile(file: File, entries: Map<String, String>) {
+        if (entries.isEmpty()) return
+        file.parentFile?.mkdirs()
+        file.writeText(buildString {
+            for ((key, value) in entries.toSortedMap()) {
+                append(key)
+                append('=')
+                append(escapeValuesFileValue(value))
+                append('\n')
+            }
+        })
     }
 
     private fun writeIosDrawableResources(
@@ -806,6 +1267,20 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 when (ch) {
                     '\\' -> append("\\\\")
                     '"' -> append("\\\"")
+                    '\n' -> append("\\n")
+                    '\r' -> append("\\r")
+                    '\t' -> append("\\t")
+                    else -> append(ch)
+                }
+            }
+        }
+    }
+
+    private fun escapeValuesFileValue(value: String): String {
+        return buildString {
+            for (ch in value) {
+                when (ch) {
+                    '\\' -> append("\\\\")
                     '\n' -> append("\\n")
                     '\r' -> append("\\r")
                     '\t' -> append("\\t")

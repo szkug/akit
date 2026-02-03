@@ -1,0 +1,6 @@
+<resources>
+    <array name="common_primaryGradient">
+        <item>@color/color_primary_gradient_session_0</item>
+        <item>@color/color_primary_gradient_session_1</item>
+    </array>
+</resources>
