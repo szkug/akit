@@ -806,16 +806,40 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         ValueResourceType.ARRAY -> "array"
     }
 
+    private fun valueResourceTypeName(resource: ValueResource): String = when (resource.type) {
+        ValueResourceType.STRING -> "StringResourceId"
+        ValueResourceType.COLOR -> "ColorResourceId"
+        ValueResourceType.DIMEN -> "DimenResourceId"
+        ValueResourceType.PLURAL -> "PluralStringResourceId"
+        ValueResourceType.ARRAY -> "Array<${arrayElementTypeName(resource)}>"
+    }
+
+    private fun arrayElementTypeName(resource: ValueResource): String {
+        val first = resource.arrayItems.firstOrNull()?.type ?: return "ResourceId"
+        if (resource.arrayItems.any { it.type != first }) return "ResourceId"
+        return resourceRefTypeName(first) ?: "ResourceId"
+    }
+
+    private fun resourceRefTypeName(type: ResourceRefType): String? = when (type) {
+        ResourceRefType.STRING -> "StringResourceId"
+        ResourceRefType.COLOR -> "ColorResourceId"
+        ResourceRefType.DIMEN -> "DimenResourceId"
+        ResourceRefType.PLURAL -> "PluralStringResourceId"
+        ResourceRefType.DRAWABLE -> "ImageResourceId"
+        ResourceRefType.RAW -> "RawResourceId"
+    }
+
     private fun buildArrayExpression(
         resource: ValueResource,
         valuesLookup: Map<ResourceLookupKey, String>,
     ): String {
-        if (resource.arrayItems.isEmpty()) return "emptyArray()"
+        val elementType = arrayElementTypeName(resource)
+        if (resource.arrayItems.isEmpty()) return "emptyArray<$elementType>()"
         val resolved = resource.arrayItems.mapNotNull { item ->
             resolveArrayItem(resource.name, item, valuesLookup)
         }
-        if (resolved.isEmpty()) return "emptyArray()"
-        return "arrayOf(${resolved.joinToString(", ")})"
+        if (resolved.isEmpty()) return "emptyArray<$elementType>()"
+        return "arrayOf<$elementType>(${resolved.joinToString(", ")})"
     }
 
     private fun resolveArrayItem(
@@ -851,6 +875,12 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("package $packageName")
             appendLine()
             appendLine("import cn.szkug.akit.resources.runtime.ResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.StringResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.PluralStringResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.ColorResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.DimenResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.ImageResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.RawResourceId")
             appendLine()
             appendLine("expect object Res {")
             if (valuesByFile.isNotEmpty()) {
@@ -861,11 +891,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                         appendLine("    }")
                     } else {
                         for (resource in resources) {
-                            val typeLabel = if (resource.type == ValueResourceType.ARRAY) {
-                                "Array<ResourceId>"
-                            } else {
-                                "ResourceId"
-                            }
+                            val typeLabel = valueResourceTypeName(resource)
                             appendLine("        val ${resource.name}: $typeLabel")
                         }
                         appendLine("    }")
@@ -878,7 +904,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 appendLine("    }")
             } else {
                 for (drawable in drawables) {
-                    appendLine("        val ${drawable.id}: ResourceId")
+                    appendLine("        val ${drawable.id}: ImageResourceId")
                 }
                 appendLine("    }")
             }
@@ -888,7 +914,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 appendLine("    }")
             } else {
                 for (raw in raws) {
-                    appendLine("        val ${raw.id}: ResourceId")
+                    appendLine("        val ${raw.id}: RawResourceId")
                 }
                 appendLine("    }")
             }
@@ -913,6 +939,12 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("package $packageName")
             appendLine()
             appendLine("import cn.szkug.akit.resources.runtime.ResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.StringResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.PluralStringResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.ColorResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.DimenResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.ImageResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.RawResourceId")
             appendLine("import $androidNamespace.R")
             appendLine()
             appendLine("actual object Res {")
@@ -928,11 +960,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                         for (resource in resources) {
                             val key = ValuesResourceKey(file = fileName, type = resource.type, name = resource.name)
                             val keyword = if (key in commonValues) "actual val" else "val"
-                            val typeLabel = if (resource.type == ValueResourceType.ARRAY) {
-                                "Array<ResourceId>"
-                            } else {
-                                "ResourceId"
-                            }
+                            val typeLabel = valueResourceTypeName(resource)
                             appendLine("        $keyword ${resource.name}: $typeLabel")
                             appendLine(
                                 "            get() = ${androidResourceGetter(resource, valuesLookup)}"
@@ -949,7 +977,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             } else {
                 for (drawable in drawables) {
                     val keyword = if (drawable.id in commonDrawables) "actual val" else "val"
-                    appendLine("        $keyword ${drawable.id}: ResourceId")
+                    appendLine("        $keyword ${drawable.id}: ImageResourceId")
                     appendLine("            get() = R.drawable.${drawable.id}")
                 }
                 appendLine("    }")
@@ -961,7 +989,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             } else {
                 for (raw in raws) {
                     val keyword = if (raw.id in commonRaws) "actual val" else "val"
-                    appendLine("        $keyword ${raw.id}: ResourceId")
+                    appendLine("        $keyword ${raw.id}: RawResourceId")
                     appendLine("            get() = R.raw.${raw.id}")
                 }
                 appendLine("    }")
@@ -987,11 +1015,17 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("package $packageName")
             appendLine()
             appendLine("import cn.szkug.akit.resources.runtime.ResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.StringResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.PluralStringResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.ColorResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.DimenResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.ImageResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.RawResourceId")
             appendLine("import platform.Foundation.NSURL")
             appendLine()
             appendLine("private const val resourcesPrefix = \"$iosPrefix\"")
             appendLine()
-            appendLine("private fun resourceId(value: String): ResourceId =")
+            appendLine("private fun resourceId(value: String): StringResourceId =")
             appendLine("    if (resourcesPrefix.isBlank()) NSURL.fileURLWithPath(value)")
             appendLine("    else NSURL.fileURLWithPath(\"${'$'}resourcesPrefix|${'$'}value\")")
             appendLine()
@@ -1008,11 +1042,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                         for (resource in resources) {
                             val key = ValuesResourceKey(file = fileName, type = resource.type, name = resource.name)
                             val keyword = if (key in commonValues) "actual val" else "val"
-                            val typeLabel = if (resource.type == ValueResourceType.ARRAY) {
-                                "Array<ResourceId>"
-                            } else {
-                                "ResourceId"
-                            }
+                            val typeLabel = valueResourceTypeName(resource)
                             appendLine("        $keyword ${resource.name}: $typeLabel")
                             appendLine(
                                 "            get() = ${iosResourceGetter(resource, valuesLookup)}"
@@ -1038,7 +1068,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                         append(drawable.extension)
                     }
                     val keyword = if (drawable.id in commonDrawables) "actual val" else "val"
-                    appendLine("        $keyword ${drawable.id}: ResourceId")
+                    appendLine("        $keyword ${drawable.id}: ImageResourceId")
                     appendLine("            get() = resourceId(\"$path\")")
                 }
                 appendLine("    }")
@@ -1059,7 +1089,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                         append(raw.extension)
                     }
                     val keyword = if (raw.id in commonRaws) "actual val" else "val"
-                    appendLine("        $keyword ${raw.id}: ResourceId")
+                    appendLine("        $keyword ${raw.id}: RawResourceId")
                     appendLine("            get() = resourceId(\"$path\")")
                 }
                 appendLine("    }")

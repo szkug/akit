@@ -24,6 +24,7 @@ import cn.szkug.akit.graph.ninepatch.NinePatchChunk
 import cn.szkug.akit.graph.ninepatch.NinePatchPainter
 import cn.szkug.akit.graph.ninepatch.NinePatchType
 import cn.szkug.akit.graph.ninepatch.parseNinePatch
+import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import org.jetbrains.skia.Image
@@ -35,7 +36,16 @@ import platform.Foundation.dataWithContentsOfFile
 import platform.posix.memcpy
 import platform.UIKit.UIScreen
 
-actual typealias ResourceId = NSURL
+abstract class NSURLResourceId: NSURL()
+class NSURLResourceIdImpl: NSURLResourceId()
+
+actual typealias ResourceId = NSURLResourceId
+actual typealias StringResourceId = NSURLResourceIdImpl
+actual typealias PluralStringResourceId = NSURLResourceIdImpl
+actual typealias ColorResourceId = NSURLResourceIdImpl
+actual typealias RawResourceId = NSURLResourceIdImpl
+actual typealias ImageResourceId = NSURLResourceIdImpl
+actual typealias DimenResourceId = NSURLResourceIdImpl
 
 private data class ResourceInfo(
     val prefix: String,
@@ -70,7 +80,7 @@ private val dimenTableCache = mutableMapOf<String, Map<String, DimenValue>>()
 private val pluralTableCache = mutableMapOf<String, Map<String, Map<String, String>>>()
 
 @Composable
-actual fun stringResource(id: ResourceId, vararg formatArgs: Any): String {
+actual fun stringResource(id: StringResourceId, vararg formatArgs: Any): String {
     val info = decodeResourceId(id)
     val bundle = NSBundle.mainBundle
     val locales = preferredLocales(bundle, userDefaultsLanguage())
@@ -79,17 +89,20 @@ actual fun stringResource(id: ResourceId, vararg formatArgs: Any): String {
 }
 
 @Composable
-actual fun pluralStringResource(id: ResourceId, vararg formatArgs: Any): String {
+actual fun pluralStringResource(
+    id: PluralStringResourceId,
+    count: Int,
+    vararg formatArgs: Any
+): String {
     val info = decodeResourceId(id)
     val bundle = NSBundle.mainBundle
     val locales = preferredLocales(bundle, userDefaultsLanguage())
-    val count = (formatArgs.firstOrNull() as? Number)?.toInt() ?: 0
     val raw = loadLocalizedPlural(bundle, info.prefix, info.value, locales, count)
     return formatString(raw, formatArgs)
 }
 
 @Composable
-actual fun colorResource(id: ResourceId): Color {
+actual fun colorResource(id: ColorResourceId): Color {
     val info = decodeResourceId(id)
     val bundle = NSBundle.mainBundle
     val locales = preferredLocales(bundle, userDefaultsLanguage())
@@ -98,7 +111,7 @@ actual fun colorResource(id: ResourceId): Color {
 }
 
 @Composable
-actual fun painterResource(id: ResourceId): Painter {
+actual fun painterResource(id: ImageResourceId): Painter {
     val localeOverride = userDefaultsLanguage()
     return remember(id, localeOverride) {
         val info = decodeResourceId(id)
@@ -121,7 +134,7 @@ actual fun resolveResourcePath(id: ResourceId, localeOverride: String?): String?
 }
 
 @get:Composable
-actual val ResourceId.toDp: Dp
+actual val DimenResourceId.toDp: Dp
     get() {
         val info = decodeResourceId(this)
         val bundle = NSBundle.mainBundle
@@ -131,7 +144,7 @@ actual val ResourceId.toDp: Dp
     }
 
 @get:Composable
-actual val ResourceId.toSp: TextUnit
+actual val DimenResourceId.toSp: TextUnit
     get() {
         val info = decodeResourceId(this)
         val bundle = NSBundle.mainBundle
@@ -289,7 +302,11 @@ private fun userDefaultsLanguage(): String? {
 }
 
 
-private fun loadStringTable(bundle: NSBundle, prefix: String, locale: String): Map<String, String>? {
+private fun loadStringTable(
+    bundle: NSBundle,
+    prefix: String,
+    locale: String
+): Map<String, String>? {
     val directory = localizedResourceDirectory(prefix, "", locale)
     val path = bundle.pathForResource("Localizable", "strings", directory) ?: return null
     return stringTableCache.getOrPut(path) {
@@ -322,7 +339,8 @@ private fun loadDimenTable(
     locale: String,
 ): Map<String, DimenValue>? {
     val directory = localizedResourceDirectory(prefix, valuesDirectoryName, locale)
-    val path = bundle.pathForResource(valuesDimensFile, valuesFileExtension, directory) ?: return null
+    val path =
+        bundle.pathForResource(valuesDimensFile, valuesFileExtension, directory) ?: return null
     return dimenTableCache.getOrPut(path) {
         val raw = loadValuesTable(bundle, prefix, locale, valuesDimensFile).orEmpty()
         raw.mapNotNull { (key, value) ->
@@ -338,7 +356,8 @@ private fun loadPluralTable(
     locale: String,
 ): Map<String, Map<String, String>>? {
     val directory = localizedResourceDirectory(prefix, valuesDirectoryName, locale)
-    val path = bundle.pathForResource(valuesPluralsFile, valuesFileExtension, directory) ?: return null
+    val path =
+        bundle.pathForResource(valuesPluralsFile, valuesFileExtension, directory) ?: return null
     return pluralTableCache.getOrPut(path) {
         val raw = loadValuesTable(bundle, prefix, locale, valuesPluralsFile).orEmpty()
         parsePluralTable(raw)
@@ -375,7 +394,8 @@ private fun preferredLocales(bundle: NSBundle, overrideLocale: String?): List<St
 
 private val formatRegex = Regex("%(\\d+\\$)?[@sdif]")
 
-private val stringsEntryRegex = Regex("\"((?:\\\\.|[^\"\\\\])*)\"\\s*=\\s*\"((?:\\\\.|[^\"\\\\])*)\"\\s*;")
+private val stringsEntryRegex =
+    Regex("\"((?:\\\\.|[^\"\\\\])*)\"\\s*=\\s*\"((?:\\\\.|[^\"\\\\])*)\"\\s*;")
 
 private fun parseStringsFile(content: String): Map<String, String> {
     if (content.isBlank()) return emptyMap()
@@ -401,26 +421,31 @@ private fun unescapeIosString(value: String): String {
                     index += 2
                     continue
                 }
+
                 'r' -> {
                     out.append('\r')
                     index += 2
                     continue
                 }
+
                 't' -> {
                     out.append('\t')
                     index += 2
                     continue
                 }
+
                 '"' -> {
                     out.append('"')
                     index += 2
                     continue
                 }
+
                 '\\' -> {
                     out.append('\\')
                     index += 2
                     continue
                 }
+
                 'u' -> {
                     if (index + 5 < value.length) {
                         val hex = value.substring(index + 2, index + 6)
@@ -471,16 +496,19 @@ private fun unescapeValuesFileValue(value: String): String {
                     index += 2
                     continue
                 }
+
                 'r' -> {
                     out.append('\r')
                     index += 2
                     continue
                 }
+
                 't' -> {
                     out.append('\t')
                     index += 2
                     continue
                 }
+
                 '\\' -> {
                     out.append('\\')
                     index += 2
@@ -550,6 +578,7 @@ private fun parseColor(raw: String): Color {
             val b = hexByte("${hex[2]}${hex[2]}") ?: return Color.Unspecified
             (0xFF shl 24) or (r shl 16) or (g shl 8) or b
         }
+
         4 -> {
             val a = hexByte("${hex[0]}${hex[0]}") ?: return Color.Unspecified
             val r = hexByte("${hex[1]}${hex[1]}") ?: return Color.Unspecified
@@ -557,12 +586,14 @@ private fun parseColor(raw: String): Color {
             val b = hexByte("${hex[3]}${hex[3]}") ?: return Color.Unspecified
             (a shl 24) or (r shl 16) or (g shl 8) or b
         }
+
         6 -> {
             val r = hexByte(hex.substring(0, 2)) ?: return Color.Unspecified
             val g = hexByte(hex.substring(2, 4)) ?: return Color.Unspecified
             val b = hexByte(hex.substring(4, 6)) ?: return Color.Unspecified
             (0xFF shl 24) or (r shl 16) or (g shl 8) or b
         }
+
         8 -> {
             val a = hexByte(hex.substring(0, 2)) ?: return Color.Unspecified
             val r = hexByte(hex.substring(2, 4)) ?: return Color.Unspecified
@@ -570,6 +601,7 @@ private fun parseColor(raw: String): Color {
             val b = hexByte(hex.substring(6, 8)) ?: return Color.Unspecified
             (a shl 24) or (r shl 16) or (g shl 8) or b
         }
+
         else -> return Color.Unspecified
     }
     val packed = (argb.toLong() and 0xFFFFFFFFL).toULong()
@@ -688,7 +720,12 @@ private fun localizedResourceDirectory(prefix: String, directory: String, locale
     return parts.joinToString("/")
 }
 
-private fun pathForResource(bundle: NSBundle, name: String, extension: String, directory: String): String? {
+private fun pathForResource(
+    bundle: NSBundle,
+    name: String,
+    extension: String,
+    directory: String
+): String? {
     return if (directory.isBlank()) {
         bundle.pathForResource(name, extension)
     } else {

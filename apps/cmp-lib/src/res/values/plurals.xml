@@ -1,6 +1,0 @@
-<resources>
-    <plurals name="common_hours">
-        <item quantity="one">%s Hour</item>
-        <item quantity="other">%s Hours</item>
-    </plurals>
-</resources>

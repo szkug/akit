@@ -107,6 +107,11 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
             builtBy(prepareComposeResourcesTask)
         }
 
+        pluginManager.withPlugin("com.android.library") {
+            val libraryExt = extensions.getByType<LibraryExtension>()
+            extension.androidNamespace.convention(libraryExt.namespace)
+        }
+
         pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
             val kotlinExt = extensions.getByType<KotlinMultiplatformExtension>()
             with(kotlinExt) {

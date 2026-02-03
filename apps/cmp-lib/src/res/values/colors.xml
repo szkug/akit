@@ -1,4 +1,8 @@
 <resources>
     <color name="color_primary_gradient_session_0">#FF0FBFFE</color>
     <color name="color_accent">#FFFF7A00</color>
+    <array name="common_primaryGradient">
+        <item>@color/color_primary_gradient_session_0</item>
+        <item>@color/color_primary_gradient_session_1</item>
+    </array>
 </resources>

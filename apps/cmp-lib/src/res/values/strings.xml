@@ -14,4 +14,8 @@
     <string name="language_demo_sample">This is a localized sample sentence.</string>
     <string name="language_demo_image_label">Localized image</string>
     <string name="unused_cmp_string">This string should be pruned on iOS.</string>
+    <plurals name="common_hours">
+        <item quantity="one">%s Hour</item>
+        <item quantity="other">%s Hours</item>
+    </plurals>
 </resources>

@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import cn.szkug.akit.graph.lottie.LottieResource
 import cn.szkug.akit.graph.lottie.rememberLottiePainter
+import cn.szkug.akit.resources.runtime.ImageResourceId
 import cn.szkug.akit.resources.runtime.ResourceId
 import cn.szkug.akit.resources.runtime.painterResource
 
@@ -84,7 +85,7 @@ fun Modifier.akitAsyncBackground(
 
 @Composable
 private fun Any?.toCommonPainterModel(): PainterModel? = when (this) {
-    is ResourceId -> PainterModel(painterResource(this))
+    is ImageResourceId -> PainterModel(painterResource(this))
     is Painter -> PainterModel(this)
     is ImageBitmap -> remember(this) { PainterModel(BitmapPainter(this)) }
     is LottieResource -> PainterModel(rememberLottiePainter(this))

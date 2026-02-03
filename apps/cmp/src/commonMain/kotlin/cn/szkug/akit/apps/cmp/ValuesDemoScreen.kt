@@ -43,7 +43,7 @@ fun ValuesDemoPage(onBack: () -> Unit) {
             item {
                 Text(text = stringResource(Res.labels.values_demo_array_label))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Res.arrays.common_primaryGradient.forEach { id ->
+                    Res.colors.common_primaryGradient.forEach { id ->
                         ColorSwatch(colorResource(id))
                     }
                 }
@@ -51,8 +51,8 @@ fun ValuesDemoPage(onBack: () -> Unit) {
 
             item {
                 Text(text = stringResource(Res.labels.values_demo_plural_label))
-                Text(text = pluralStringResource(Res.plurals.common_hours, 1))
-                Text(text = pluralStringResource(Res.plurals.common_hours, 5))
+                Text(text = pluralStringResource(Res.strings.common_hours, 1, "1"))
+                Text(text = pluralStringResource(Res.strings.common_hours, 5, "5"))
             }
 
             item {
