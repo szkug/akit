@@ -36,16 +36,21 @@ import platform.Foundation.dataWithContentsOfFile
 import platform.posix.memcpy
 import platform.UIKit.UIScreen
 
-abstract class NSURLResourceId: NSURL()
-class NSURLResourceIdImpl: NSURLResourceId()
+abstract class NSResourceId {
+    abstract val path: String?
+}
+class NSURLResourceId(val url: NSURL): NSResourceId() {
+    override val path: String?
+        get() = url.path
+}
 
-actual typealias ResourceId = NSURLResourceId
-actual typealias StringResourceId = NSURLResourceIdImpl
-actual typealias PluralStringResourceId = NSURLResourceIdImpl
-actual typealias ColorResourceId = NSURLResourceIdImpl
-actual typealias RawResourceId = NSURLResourceIdImpl
-actual typealias ImageResourceId = NSURLResourceIdImpl
-actual typealias DimenResourceId = NSURLResourceIdImpl
+actual typealias ResourceId = NSResourceId
+actual typealias StringResourceId = NSURLResourceId
+actual typealias PluralStringResourceId = NSURLResourceId
+actual typealias ColorResourceId = NSURLResourceId
+actual typealias RawResourceId = NSURLResourceId
+actual typealias ImageResourceId = NSURLResourceId
+actual typealias DimenResourceId = NSURLResourceId
 
 private data class ResourceInfo(
     val prefix: String,
