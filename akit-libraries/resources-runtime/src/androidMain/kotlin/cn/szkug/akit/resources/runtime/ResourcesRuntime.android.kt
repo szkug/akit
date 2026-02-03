@@ -22,7 +22,7 @@ actual typealias StringResourceId = Int
 actual typealias PluralStringResourceId = Int
 actual typealias ColorResourceId = Int
 actual typealias RawResourceId = Int
-actual typealias ImageResourceId = Int
+actual typealias PaintableResourceId = Int
 actual typealias DimenResourceId = Int
 
 @Composable
@@ -45,7 +45,7 @@ actual fun colorResource(id: ColorResourceId): Color {
 }
 
 @Composable
-actual fun painterResource(id: ImageResourceId): Painter {
+actual fun painterResource(id: PaintableResourceId): Painter {
     val context = LocalContext.current
     return remember(context, id) {
         AppCompatResources.getDrawable(context, id)!!.toPainter()

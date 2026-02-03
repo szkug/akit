@@ -11,7 +11,7 @@ expect class StringResourceId : ResourceId
 expect class PluralStringResourceId : ResourceId
 expect class ColorResourceId : ResourceId
 expect class RawResourceId : ResourceId
-expect class ImageResourceId : ResourceId
+expect class PaintableResourceId : ResourceId
 expect class DimenResourceId : ResourceId
 
 @Composable
@@ -28,7 +28,7 @@ expect fun pluralStringResource(
 expect fun colorResource(id: ColorResourceId): Color
 
 @Composable
-expect fun painterResource(id: ImageResourceId): Painter
+expect fun painterResource(id: PaintableResourceId): Painter
 
 @get:Composable
 expect val DimenResourceId.toDp: Dp

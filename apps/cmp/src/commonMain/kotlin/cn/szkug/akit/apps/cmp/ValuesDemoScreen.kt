@@ -1,6 +1,7 @@
 package cn.szkug.akit.apps.cmp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.szkug.akit.resources.runtime.colorResource
+import cn.szkug.akit.resources.runtime.painterResource
 import cn.szkug.akit.resources.runtime.toDp
 import cn.szkug.akit.resources.runtime.pluralStringResource
 import cn.szkug.akit.resources.runtime.toSp
@@ -47,6 +49,15 @@ fun ValuesDemoPage(onBack: () -> Unit) {
                         ColorSwatch(colorResource(id))
                     }
                 }
+            }
+
+            item {
+                Text(text = stringResource(Res.labels.values_demo_vector_label))
+                Image(
+                    painter = painterResource(Res.drawable.vector_square),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                )
             }
 
             item {

@@ -596,7 +596,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val drawableDirs = resRoot.listFiles().orEmpty()
             .filter { it.isDirectory && it.name.startsWith("drawable") }
 
-        val allowedExtensions = setOf("png", "jpg", "jpeg", "webp", "gif")
+        val allowedExtensions = setOf("png", "jpg", "jpeg", "webp", "gif", "xml")
         val out = mutableListOf<DrawableSource>()
         for (dir in drawableDirs) {
             val localeInfo = drawableDirLocaleInfo(dir.name)
@@ -794,7 +794,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         return if (resource.type == ValueResourceType.ARRAY) {
             buildArrayExpression(resource, valuesLookup)
         } else {
-            "resourceId(\"${resource.name}\")"
+            "resourceId(resourcesPrefix, \"${resource.name}\")"
         }
     }
 
@@ -825,7 +825,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         ResourceRefType.COLOR -> "ColorResourceId"
         ResourceRefType.DIMEN -> "DimenResourceId"
         ResourceRefType.PLURAL -> "PluralStringResourceId"
-        ResourceRefType.DRAWABLE -> "ImageResourceId"
+        ResourceRefType.DRAWABLE -> "PaintableResourceId"
         ResourceRefType.RAW -> "RawResourceId"
     }
 
@@ -879,7 +879,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import cn.szkug.akit.resources.runtime.PluralStringResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.ColorResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.DimenResourceId")
-            appendLine("import cn.szkug.akit.resources.runtime.ImageResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.PaintableResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.RawResourceId")
             appendLine()
             appendLine("expect object Res {")
@@ -904,7 +904,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 appendLine("    }")
             } else {
                 for (drawable in drawables) {
-                    appendLine("        val ${drawable.id}: ImageResourceId")
+                    appendLine("        val ${drawable.id}: PaintableResourceId")
                 }
                 appendLine("    }")
             }
@@ -943,7 +943,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import cn.szkug.akit.resources.runtime.PluralStringResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.ColorResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.DimenResourceId")
-            appendLine("import cn.szkug.akit.resources.runtime.ImageResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.PaintableResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.RawResourceId")
             appendLine("import $androidNamespace.R")
             appendLine()
@@ -977,7 +977,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             } else {
                 for (drawable in drawables) {
                     val keyword = if (drawable.id in commonDrawables) "actual val" else "val"
-                    appendLine("        $keyword ${drawable.id}: ImageResourceId")
+                    appendLine("        $keyword ${drawable.id}: PaintableResourceId")
                     appendLine("            get() = R.drawable.${drawable.id}")
                 }
                 appendLine("    }")
@@ -1019,15 +1019,11 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             appendLine("import cn.szkug.akit.resources.runtime.PluralStringResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.ColorResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.DimenResourceId")
-            appendLine("import cn.szkug.akit.resources.runtime.ImageResourceId")
+            appendLine("import cn.szkug.akit.resources.runtime.PaintableResourceId")
             appendLine("import cn.szkug.akit.resources.runtime.RawResourceId")
-            appendLine("import platform.Foundation.NSURL")
+            appendLine("import cn.szkug.akit.resources.runtime.resourceId")
             appendLine()
             appendLine("private const val resourcesPrefix = \"$iosPrefix\"")
-            appendLine()
-            appendLine("private fun resourceId(value: String): StringResourceId =")
-            appendLine("    if (resourcesPrefix.isBlank()) NSURL.fileURLWithPath(value)")
-            appendLine("    else NSURL.fileURLWithPath(\"${'$'}resourcesPrefix|${'$'}value\")")
             appendLine()
             appendLine("actual object Res {")
             if (valuesByFile.isNotEmpty()) {
@@ -1068,8 +1064,8 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                         append(drawable.extension)
                     }
                     val keyword = if (drawable.id in commonDrawables) "actual val" else "val"
-                    appendLine("        $keyword ${drawable.id}: ImageResourceId")
-                    appendLine("            get() = resourceId(\"$path\")")
+                    appendLine("        $keyword ${drawable.id}: PaintableResourceId")
+                    appendLine("            get() = resourceId(resourcesPrefix, \"$path\")")
                 }
                 appendLine("    }")
             }
@@ -1090,7 +1086,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                     }
                     val keyword = if (raw.id in commonRaws) "actual val" else "val"
                     appendLine("        $keyword ${raw.id}: RawResourceId")
-                    appendLine("            get() = resourceId(\"$path\")")
+                    appendLine("            get() = resourceId(resourcesPrefix, \"$path\")")
                 }
                 appendLine("    }")
             }
@@ -1272,6 +1268,9 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
     }
 
     private fun buildIosDrawableFileName(baseName: String, extension: String, scale: Int?): String {
+        if (extension.equals("xml", ignoreCase = true)) {
+            return "$baseName.$extension"
+        }
         val normalizedScale = if (scale == null || scale <= 1) null else scale
         val name = if (normalizedScale == null) {
             baseName

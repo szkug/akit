@@ -2,6 +2,7 @@ import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 
@@ -26,7 +27,7 @@ val publishVersion = versionProperties.getProperty("publish.version")
 val mavenPublishPluginId = libs.plugins.maven.publish.get().pluginId
 
 allprojects {
-    tasks.withType<KotlinCompile> {
+    tasks.withType<KotlinCompilationTask<*>> {
         compilerOptions.freeCompilerArgs.addAll(
             "-Xexpect-actual-classes",
             "-opt-in=kotlin.ExperimentalStdlibApi"

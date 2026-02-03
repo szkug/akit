@@ -5,4 +5,5 @@
     <string name="values_demo_plural_label">Plural resource</string>
     <string name="values_demo_array_label">Array resource</string>
     <string name="values_demo_unit_label">Unit conversions</string>
+    <string name="values_demo_vector_label">XML drawable</string>
 </resources>
