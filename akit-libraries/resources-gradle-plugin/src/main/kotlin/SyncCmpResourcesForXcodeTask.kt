@@ -120,14 +120,21 @@ abstract class SyncCmpResourcesForXcodeTask : DefaultTask() {
  */
 private fun pruneUnusedResources(
     root: File,
-    _resFiles: Set<File>,
+    resFiles: Set<File>,
     klibFiles: Set<File>,
     klibToolPath: String?,
     buildDir: File,
     logEnabled: Boolean,
 ) {
-    val usageScanner = KlibIrUsageScanner()
     val outputScanner = OutputResourcesScanner()
+    val available = outputScanner.scan(root)
+    val stringIdsFromRes = ResFileStringIdScanner.scan(resFiles)
+    val stringIds = if (stringIdsFromRes.isEmpty()) {
+        available.strings
+    } else {
+        stringIdsFromRes + available.strings
+    }
+    val usageScanner = KlibIrUsageScanner(stringIds)
     val pruner = OutputResourcesPruner()
     val usageLogger = ResourceUsageLogger(logEnabled)
 
@@ -136,7 +143,6 @@ private fun pruneUnusedResources(
         AkitResourcesLog.info(AkitResourcesMessages.PRUNE_SKIP_NO_USAGE)
         return
     }
-    val available = outputScanner.scan(root)
     usageLogger.logUsage(used, available)
     pruner.prune(root, used)
 }

@@ -8,9 +8,20 @@
     <string name="language_demo_title">عرض اللغات</string>
     <string name="language_demo_desc">بدّل لغة التطبيق لمعاينة النصوص والصور المترجمة.</string>
     <string name="language_demo_current">اللغة الحالية: %s</string>
-    <string name="language_demo_button_system">النظام</string>
-    <string name="language_demo_button_en">الإنجليزية</string>
+    <string name="language_demo_button_system">System</string>
+    <string name="language_demo_button_en">English</string>
     <string name="language_demo_button_ar">العربية</string>
+    <string name="language_demo_button_ru">Русский</string>
+    <string name="language_demo_button_sl">Slovenščina</string>
+    <string name="language_demo_button_cy">Cymraeg</string>
     <string name="language_demo_sample">هذه جملة تجريبية مترجمة.</string>
     <string name="language_demo_image_label">صورة مترجمة</string>
+    <plurals name="common_files">
+        <item quantity="zero">لا ملفات لـ %2$s (zero)</item>
+        <item quantity="one">%1$d ملف لـ %2$s (one)</item>
+        <item quantity="two">%1$d ملفان لـ %2$s (two)</item>
+        <item quantity="few">%1$d ملفات لـ %2$s (few)</item>
+        <item quantity="many">%1$d ملفًا لـ %2$s (many)</item>
+        <item quantity="other">%1$d ملف لـ %2$s (other)</item>
+    </plurals>
 </resources>

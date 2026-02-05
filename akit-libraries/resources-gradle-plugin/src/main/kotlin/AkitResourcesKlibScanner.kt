@@ -12,6 +12,7 @@ import java.util.zip.ZipOutputStream
  * It also captures a short call chain based on the IR structure to aid debugging.
  */
 class KlibIrUsageScanner(
+    private val stringIds: Set<String> = emptySet(),
     private val logger: AkitResourcesLog = AkitResourcesLog
 ) {
     /**
@@ -158,6 +159,28 @@ class KlibIrUsageScanner(
                         rawCalls,
                         stringCalls
                     )
+                    return@forEach
+                }
+
+                if (stringIds.isNotEmpty()) {
+                    val anyPropertyMatch = AkitResourcesRegex.IR_ANY_PROPERTY.find(line)
+                    if (anyPropertyMatch != null) {
+                        if (isResFile(currentFile)) return@forEach
+                        val id = anyPropertyMatch.groupValues[2]
+                        if (id in stringIds) {
+                            recordUsage(
+                                ResourceKind.STRINGS,
+                                id,
+                                buildCallChain(currentFile, funStack, line),
+                                drawable,
+                                raw,
+                                strings,
+                                drawableCalls,
+                                rawCalls,
+                                stringCalls
+                            )
+                        }
+                    }
                 }
             }
         }

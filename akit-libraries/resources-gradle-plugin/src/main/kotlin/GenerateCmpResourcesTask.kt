@@ -255,6 +255,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         writeIosValueResources(iosResourcesDir, iosColorsByLocale, iosDimensByLocale, iosPluralsByLocale)
         writeIosDrawableResources(iosResourcesDir, iosDrawableSources)
         writeIosRawResources(iosResourcesDir, iosRawSources)
+        writeIosBundleInfo(iosResourcesDir, iosPrefix, pkg)
     }
 
     private fun <T> mergeByLocale(
@@ -1105,7 +1106,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             file.writeText(buildString {
                 val sorted = strings.sortedBy { it.name }
                 for (string in sorted) {
-                    val escaped = escapeIosString(string.value)
+                    val escaped = escapeIosString(convertAndroidFormatToIos(string.value))
                     append('"')
                     append(string.name)
                     append('"')
@@ -1128,14 +1129,14 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         val locales = (colorsByLocale.keys + dimensByLocale.keys + pluralsByLocale.keys).distinct()
             .sortedWith(compareBy<String> { it != "Base" }.thenBy { it })
         for (locale in locales) {
-            val valuesDir = iosValuesDir(outputDir, locale)
+            val lprojDir = iosLprojDir(outputDir, locale)
             val colors = colorsByLocale[locale].orEmpty()
             if (colors.isNotEmpty()) {
                 val entries = linkedMapOf<String, String>()
                 for (item in colors.sortedBy { it.name }) {
                     entries[item.name] = item.value
                 }
-                writeKeyValueFile(valuesDir.resolve("colors.txt"), entries)
+                writeIosStringsFile(lprojDir.resolve("Colors.strings"), entries)
             }
             val dimens = dimensByLocale[locale].orEmpty()
             if (dimens.isNotEmpty()) {
@@ -1143,41 +1144,74 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                 for (item in dimens.sortedBy { it.name }) {
                     entries[item.name] = item.value
                 }
-                writeKeyValueFile(valuesDir.resolve("dimens.txt"), entries)
+                writeIosStringsFile(lprojDir.resolve("Dimens.strings"), entries)
             }
             val plurals = pluralsByLocale[locale].orEmpty()
             if (plurals.isNotEmpty()) {
-                val entries = linkedMapOf<String, String>()
-                val sortedPlurals = plurals.sortedBy { it.name }
-                for (plural in sortedPlurals) {
-                    val quantities = plural.items.toSortedMap()
-                    for ((quantity, value) in quantities) {
-                        entries["${plural.name}.$quantity"] = value
-                    }
-                }
-                writeKeyValueFile(valuesDir.resolve("plurals.txt"), entries)
+                writeIosStringsDict(lprojDir.resolve("Localizable.stringsdict"), plurals.sortedBy { it.name })
             }
         }
     }
 
-    private fun iosValuesDir(outputDir: File, locale: String): File {
+    private fun iosLprojDir(outputDir: File, locale: String): File {
         return if (locale.isBlank()) {
-            outputDir.resolve("values")
+            outputDir
         } else {
-            outputDir.resolve("$locale.lproj").resolve("values")
+            outputDir.resolve("$locale.lproj")
         }
     }
 
-    private fun writeKeyValueFile(file: File, entries: Map<String, String>) {
+    private fun writeIosStringsFile(file: File, entries: Map<String, String>) {
         if (entries.isEmpty()) return
         file.parentFile?.mkdirs()
         file.writeText(buildString {
             for ((key, value) in entries.toSortedMap()) {
-                append(key)
-                append('=')
-                append(escapeValuesFileValue(value))
-                append('\n')
+                append('"')
+                append(escapeIosString(key))
+                append("\" = \"")
+                append(escapeIosString(value))
+                append("\";\n")
             }
+        })
+    }
+
+    private fun writeIosStringsDict(file: File, plurals: List<PluralResource>) {
+        if (plurals.isEmpty()) return
+        file.parentFile?.mkdirs()
+        file.writeText(buildString {
+            appendLine("""<?xml version="1.0" encoding="UTF-8"?>""")
+            appendLine(
+                """<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">"""
+            )
+            appendLine("""<plist version="1.0">""")
+            appendLine("<dict>")
+            for (plural in plurals) {
+                append("  <key>")
+                append(xmlEscape(plural.name))
+                appendLine("</key>")
+                appendLine("  <dict>")
+                appendLine("    <key>NSStringLocalizedFormatKey</key>")
+                appendLine("    <string>%#@value@</string>")
+                appendLine("    <key>value</key>")
+                appendLine("    <dict>")
+                appendLine("      <key>NSStringFormatSpecTypeKey</key>")
+                appendLine("      <string>NSStringPluralRuleType</string>")
+                appendLine("      <key>NSStringFormatValueTypeKey</key>")
+                appendLine("      <string>d</string>")
+                val quantities = plural.items.toSortedMap()
+                for ((quantity, value) in quantities) {
+                    append("      <key>")
+                    append(xmlEscape(quantity))
+                    appendLine("</key>")
+                    append("      <string>")
+                    append(xmlEscape(convertAndroidPluralFormatToIos(value)))
+                    appendLine("</string>")
+                }
+                appendLine("    </dict>")
+                appendLine("  </dict>")
+            }
+            appendLine("</dict>")
+            appendLine("</plist>")
         })
     }
 
@@ -1240,6 +1274,36 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             targetDir.mkdirs()
             source.file.copyTo(targetDir.resolve(key.fileName), overwrite = true)
         }
+    }
+
+    private fun writeIosBundleInfo(
+        outputDir: File,
+        prefix: String,
+        packageName: String,
+    ) {
+        val bundleName = if (prefix.isBlank()) "resources" else prefix
+        val file = outputDir.resolve("Info.plist")
+        if (file.exists()) return
+        file.writeText(
+            """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+              <key>CFBundleIdentifier</key>
+              <string>$packageName.$bundleName</string>
+              <key>CFBundleName</key>
+              <string>$bundleName</string>
+              <key>CFBundlePackageType</key>
+              <string>BNDL</string>
+              <key>CFBundleShortVersionString</key>
+              <string>1.0</string>
+              <key>CFBundleVersion</key>
+              <string>1</string>
+            </dict>
+            </plist>
+            """.trimIndent()
+        )
     }
 
     private fun iosCandidatePriority(scale: Int?, source: DrawableSource): Int {
@@ -1305,17 +1369,58 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         }
     }
 
-    private fun escapeValuesFileValue(value: String): String {
+    private fun convertAndroidFormatToIos(value: String): String {
+        if (!value.contains('%')) return value
+        val placeholder = "\u0000"
+        val escaped = value.replace("%%", placeholder)
+        val converted = Regex("%(\\d+\\$)?[@sdif]").replace(escaped) { match ->
+            val index = match.groups[1]?.value.orEmpty()
+            val spec = match.value.last()
+            val mapped = when (spec) {
+                's', 'd', 'i', 'f' -> '@'
+                else -> spec
+            }
+            "%$index$mapped"
+        }
+        return converted.replace(placeholder, "%%")
+    }
+
+    private fun convertAndroidPluralFormatToIos(value: String): String {
+        if (!value.contains('%')) return value
+        val placeholder = "\u0000"
+        val escaped = value.replace("%%", placeholder)
+        var nextIndex = 2
+        val converted = Regex("%(\\d+\\$)?[@sdif]").replace(escaped) { match ->
+            val rawIndex = match.groups[1]?.value
+            val index = if (rawIndex.isNullOrBlank()) {
+                "${nextIndex++}\$"
+            } else {
+                val parsed = rawIndex.dropLast(1).toIntOrNull() ?: return@replace match.value
+                "${parsed + 1}\$"
+            }
+            val spec = match.value.last()
+            val mapped = when (spec) {
+                's', 'd', 'i', 'f' -> '@'
+                else -> spec
+            }
+            "%$index$mapped"
+        }
+        return converted.replace(placeholder, "%%")
+    }
+
+    private fun xmlEscape(value: String): String {
         return buildString {
             for (ch in value) {
                 when (ch) {
-                    '\\' -> append("\\\\")
-                    '\n' -> append("\\n")
-                    '\r' -> append("\\r")
-                    '\t' -> append("\\t")
+                    '&' -> append("&amp;")
+                    '<' -> append("&lt;")
+                    '>' -> append("&gt;")
+                    '"' -> append("&quot;")
+                    '\'' -> append("&apos;")
                     else -> append(ch)
                 }
             }
         }
     }
+
 }

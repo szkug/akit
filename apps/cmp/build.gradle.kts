@@ -65,4 +65,5 @@ cmpResources {
     androidNamespace.set("cn.szkug.akit.apps.cmp")
     iosResourcesPrefix.set("AkitCmpHostRes")
     iosPruneUnused.set(true)
+    iosPruneLogEnabled = true
 }

@@ -1,4 +1,5 @@
 <resources>
+    <string name="resource_demo_title">Resource Demo</string>
     <string name="values_demo_title">Values Demo</string>
     <string name="values_demo_color_label">Color resource</string>
     <string name="values_demo_dimen_label">Dimen resource</string>

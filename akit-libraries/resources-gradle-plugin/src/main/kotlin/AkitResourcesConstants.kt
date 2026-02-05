@@ -13,6 +13,7 @@ object AkitResourcesConstants {
     const val RES_FILE_IOS = "Res.ios.kt"
     const val RES_FILE_COMMON = "Res.kt"
     const val STRINGS_FILE = "Localizable.strings"
+    const val STRINGS_DICT_FILE = "Localizable.stringsdict"
     const val LPROJ_SUFFIX = ".lproj"
 
     const val KLIB_COMMAND_DUMP_IR = "dump-ir"
@@ -100,6 +101,7 @@ object AkitResourcesRegex {
     val IR_SIGNATURE = Regex("""Res\.(strings|drawable|raw)[.#]<get-([A-Za-z0-9_]+)>""")
     val IR_PROPERTY = Regex("""Res\.(strings|drawable|raw)\.([A-Za-z0-9_]+)\.<get-([A-Za-z0-9_]+)>""")
     val IR_DIRECT = Regex("""Res\.(strings|drawable|raw)\.<get-([A-Za-z0-9_]+)>""")
+    val IR_ANY_PROPERTY = Regex("""Res\.([A-Za-z0-9_]+)\.([A-Za-z0-9_]+)\.<get-([A-Za-z0-9_]+)>""")
     val IR_FUN = Regex("""^\s*(FUN|CONSTRUCTOR)\b""")
     val IR_FILE = Regex("""^\s*FILE fqName:.*fileName:(.+)$""")
     val IR_SIGNATURE_BLOCK = Regex("""signature:\[[^\]]*<-\s*([^\]]+)\]""")

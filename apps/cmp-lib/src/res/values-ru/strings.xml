@@ -1,0 +1,23 @@
+<resources>
+    <string name="language_demo_title">Language Demo (RU)</string>
+    <string name="language_demo_desc">Plural test locale: Russian.</string>
+    <string name="language_demo_current">Current language: %s</string>
+    <string name="language_demo_button_system">System</string>
+    <string name="language_demo_button_en">English</string>
+    <string name="language_demo_button_ar">العربية</string>
+    <string name="language_demo_button_ru">Русский</string>
+    <string name="language_demo_button_sl">Slovenščina</string>
+    <string name="language_demo_button_cy">Cymraeg</string>
+    <string name="language_demo_sample">Plural rules sample (RU).</string>
+    <string name="language_demo_image_label">Localized image</string>
+    <plurals name="common_hours">
+        <item quantity="one">%s Hour</item>
+        <item quantity="other">%s Hours</item>
+    </plurals>
+    <plurals name="common_files">
+        <item quantity="one">%1$d file for %2$s (one)</item>
+        <item quantity="few">%1$d files for %2$s (few)</item>
+        <item quantity="many">%1$d files for %2$s (many)</item>
+        <item quantity="other">%1$d files for %2$s (other)</item>
+    </plurals>
+</resources>

@@ -86,6 +86,11 @@ class AkitCmpResourcesPlugin : Plugin<Project> {
         val prepareComposeResourcesTask = tasks.register(AkitResourcesGradleConstants.TASK_PREPARE_COMPOSE) {
             outputs.dir(resourcesDirProvider)
             dependsOn(generateTask)
+            inputs.dir(
+                generateTask.map {
+                    it.outputDir.get().asFile.resolve(AkitResourcesGradleConstants.GENERATED_IOS_RESOURCES_DIR)
+                }
+            )
             doLast {
                 val outputRoot = composeResourcesDir.get().asFile
                 if (!outputRoot.exists()) outputRoot.mkdirs()

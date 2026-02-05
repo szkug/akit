@@ -36,9 +36,11 @@ import kotlinx.cinterop.usePinned
 import org.jetbrains.skia.Image
 import platform.Foundation.NSBundle
 import platform.Foundation.NSData
+import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.dataWithContentsOfFile
+import platform.Foundation.localizedStringWithFormat
 import platform.posix.memcpy
 import platform.UIKit.UIScreen
 
@@ -88,14 +90,13 @@ private val preferredLocalesCache = mutableMapOf<String, List<String>>()
 private val scaleCandidatesCache = mutableMapOf<String, List<String>>()
 private val valuesTableCache = mutableMapOf<String, Map<String, String>>()
 private val dimenTableCache = mutableMapOf<String, Map<String, DimenValue>>()
-private val pluralTableCache = mutableMapOf<String, Map<String, Map<String, String>>>()
 
 @Composable
 actual fun stringResource(id: StringResourceId, vararg formatArgs: Any): String {
     val info = decodeResourceId(id)
     val bundle = NSBundle.mainBundle
     val locales = preferredLocales(bundle, userDefaultsLanguage())
-    val raw = loadLocalizedString(bundle, info.prefix, info.value, locales)
+    val raw = loadLocalizedStringOrThrow(bundle, info.prefix, info.value, locales)
     return formatString(raw, formatArgs)
 }
 
@@ -108,8 +109,7 @@ actual fun pluralStringResource(
     val info = decodeResourceId(id)
     val bundle = NSBundle.mainBundle
     val locales = preferredLocales(bundle, userDefaultsLanguage())
-    val raw = loadLocalizedPlural(bundle, info.prefix, info.value, locales, count)
-    return formatString(raw, formatArgs)
+    return loadLocalizedPluralOrThrow(bundle, info.prefix, info.value, locales, count, formatArgs)
 }
 
 @Composable
@@ -117,8 +117,19 @@ actual fun colorResource(id: ColorResourceId): Color {
     val info = decodeResourceId(id)
     val bundle = NSBundle.mainBundle
     val locales = preferredLocales(bundle, userDefaultsLanguage())
-    val raw = loadLocalizedValue(bundle, info.prefix, info.value, locales, valuesColorsFile)
-    return parseColor(raw)
+    val raw = loadLocalizedValueOrThrow(
+        bundle,
+        info.prefix,
+        info.value,
+        locales,
+        valuesColorsFile,
+        "color"
+    )
+    val color = parseColor(raw)
+    if (color == Color.Unspecified) {
+        error("Invalid color value for ${info.prefix}|${info.value}: \"$raw\"")
+    }
+    return color
 }
 
 @Composable
@@ -205,7 +216,7 @@ private fun parseResourcePath(value: String): ResourcePath {
     return ResourcePath(directory = directory, name = name, extension = extension)
 }
 
-private fun loadLocalizedString(
+private fun loadLocalizedStringOrThrow(
     bundle: NSBundle,
     prefix: String,
     key: String,
@@ -223,10 +234,21 @@ private fun loadLocalizedString(
             "strings"
         )
     }
-    if (attemptedPaths.isNotEmpty()) {
-        logMissingResource("string table", attemptedPaths)
+    val message = buildString {
+        append("Missing string resource: key=")
+        append(key)
+        if (prefix.isNotBlank()) {
+            append(" prefix=")
+            append(prefix)
+        }
+        append(". Searched paths:\n")
+        for (path in attemptedPaths) {
+            append(" - ")
+            append(path)
+            append('\n')
+        }
     }
-    return ""
+    error(message.trimEnd())
 }
 
 private fun loadLocalizedValue(
@@ -243,7 +265,7 @@ private fun loadLocalizedValue(
         if (value != null) return value
         attemptedPaths += fullResourcePath(
             bundle,
-            localizedResourceDirectory(prefix, valuesDirectoryName, locale),
+            localizedResourceDirectory(prefix, "", locale),
             fileBase,
             valuesFileExtension,
         )
@@ -252,6 +274,45 @@ private fun loadLocalizedValue(
         logMissingResource("$fileBase table", attemptedPaths)
     }
     return ""
+}
+
+private fun loadLocalizedValueOrThrow(
+    bundle: NSBundle,
+    prefix: String,
+    key: String,
+    locales: List<String>,
+    fileBase: String,
+    kind: String,
+): String {
+    val attemptedPaths = mutableListOf<String>()
+    for (locale in locales) {
+        val table = loadValuesTable(bundle, prefix, locale, fileBase)
+        val value = table?.get(key)
+        if (value != null) return value
+        attemptedPaths += fullResourcePath(
+            bundle,
+            localizedResourceDirectory(prefix, "", locale),
+            fileBase,
+            valuesFileExtension,
+        )
+    }
+    val message = buildString {
+        append("Missing ")
+        append(kind)
+        append(" resource: key=")
+        append(key)
+        if (prefix.isNotBlank()) {
+            append(" prefix=")
+            append(prefix)
+        }
+        append(". Searched paths:\n")
+        for (path in attemptedPaths) {
+            append(" - ")
+            append(path)
+            append('\n')
+        }
+    }
+    error(message.trimEnd())
 }
 
 private fun loadLocalizedDimen(
@@ -267,7 +328,7 @@ private fun loadLocalizedDimen(
         if (value != null) return value
         attemptedPaths += fullResourcePath(
             bundle,
-            localizedResourceDirectory(prefix, valuesDirectoryName, locale),
+            localizedResourceDirectory(prefix, "", locale),
             valuesDimensFile,
             valuesFileExtension,
         )
@@ -278,40 +339,138 @@ private fun loadLocalizedDimen(
     return DimenValue(0f, DimenUnit.NONE)
 }
 
-private fun loadLocalizedPlural(
+private fun loadLocalizedPluralOrThrow(
     bundle: NSBundle,
     prefix: String,
     key: String,
     locales: List<String>,
     count: Int,
+    formatArgs: Array<out Any>,
+): String {
+    return loadLocalizedPluralByFoundationOrThrow(
+        bundle,
+        prefix,
+        key,
+        locales,
+        count,
+        formatArgs,
+    )
+}
+
+private fun loadLocalizedPluralByFoundationOrThrow(
+    bundle: NSBundle,
+    prefix: String,
+    key: String,
+    locales: List<String>,
+    count: Int,
+    formatArgs: Array<out Any>,
 ): String {
     val attemptedPaths = mutableListOf<String>()
+    val sentinel = "\u0000__MISSING__\u0000"
+    val resourceBundle = bundleForPrefix(bundle, prefix)
     for (locale in locales) {
-        val table = loadPluralTable(bundle, prefix, locale)
-        val entries = table?.get(key)
-        if (entries != null) {
-            return selectPlural(entries, count)
+        val attemptedPath = if (locale.isBlank()) {
+            "${resourceBundle.bundlePath}/${valuesPluralsFile}.${valuesPluralsExtension}"
+        } else {
+            "${resourceBundle.bundlePath}/${locale}.lproj/${valuesPluralsFile}.${valuesPluralsExtension}"
         }
-        attemptedPaths += fullResourcePath(
-            bundle,
-            localizedResourceDirectory(prefix, valuesDirectoryName, locale),
-            valuesPluralsFile,
-            valuesFileExtension,
+        attemptedPaths += attemptedPath
+        val localizedBundle = localizedBundleForLocale(resourceBundle, locale) ?: continue
+        val candidate = localizedBundle.localizedStringForKey(key, sentinel, valuesPluralsFile)
+        if (candidate != sentinel) {
+            return formatPluralWithFoundation(candidate, count, formatArgs)
+        }
+    }
+    val message = buildString {
+        append("Missing plural resource: key=")
+        append(key)
+        if (prefix.isNotBlank()) {
+            append(" prefix=")
+            append(prefix)
+        }
+        append(". Searched paths:\n")
+        for (path in attemptedPaths) {
+            append(" - ")
+            append(path)
+            append('\n')
+        }
+    }
+    error(message.trimEnd())
+}
+
+private fun formatPluralWithFoundation(
+    format: String,
+    count: Int,
+    formatArgs: Array<out Any>,
+): String {
+    val normalizedArgs = formatArgs.map(::normalizeFoundationFormatArg)
+    return when (normalizedArgs.size) {
+        0 -> NSString.localizedStringWithFormat(format, count)
+        1 -> NSString.localizedStringWithFormat(format, count, normalizedArgs[0])
+        2 -> NSString.localizedStringWithFormat(format, count, normalizedArgs[0], normalizedArgs[1])
+        3 -> NSString.localizedStringWithFormat(
+            format,
+            count,
+            normalizedArgs[0],
+            normalizedArgs[1],
+            normalizedArgs[2],
         )
+        4 -> NSString.localizedStringWithFormat(
+            format,
+            count,
+            normalizedArgs[0],
+            normalizedArgs[1],
+            normalizedArgs[2],
+            normalizedArgs[3],
+        )
+        5 -> NSString.localizedStringWithFormat(
+            format,
+            count,
+            normalizedArgs[0],
+            normalizedArgs[1],
+            normalizedArgs[2],
+            normalizedArgs[3],
+            normalizedArgs[4],
+        )
+        6 -> NSString.localizedStringWithFormat(
+            format,
+            count,
+            normalizedArgs[0],
+            normalizedArgs[1],
+            normalizedArgs[2],
+            normalizedArgs[3],
+            normalizedArgs[4],
+            normalizedArgs[5],
+        )
+        7 -> NSString.localizedStringWithFormat(
+            format,
+            count,
+            normalizedArgs[0],
+            normalizedArgs[1],
+            normalizedArgs[2],
+            normalizedArgs[3],
+            normalizedArgs[4],
+            normalizedArgs[5],
+            normalizedArgs[6],
+        )
+        else -> error("Too many format args for plural resource: count=${formatArgs.size}")
     }
-    if (attemptedPaths.isNotEmpty()) {
-        logMissingResource("plurals table", attemptedPaths)
+}
+
+private fun normalizeFoundationFormatArg(value: Any): Any {
+    return when (value) {
+        is Byte, is Short, is Int, is Long, is Float, is Double, is Boolean, is Char -> value.toString()
+        else -> value
     }
-    return ""
 }
 
 private val stringTableCache = mutableMapOf<String, Map<String, String>>()
 
-private const val valuesDirectoryName = "values"
-private const val valuesFileExtension = "txt"
-private const val valuesColorsFile = "colors"
-private const val valuesDimensFile = "dimens"
-private const val valuesPluralsFile = "plurals"
+private const val valuesFileExtension = "strings"
+private const val valuesColorsFile = "Colors"
+private const val valuesDimensFile = "Dimens"
+private const val valuesPluralsFile = "Localizable"
+private const val valuesPluralsExtension = "stringsdict"
 private const val dpPerInch = 160f
 private const val dpPerMm = dpPerInch / 25.4f
 private const val dpPerPt = dpPerInch / 72f
@@ -351,13 +510,13 @@ private fun loadValuesTable(
     locale: String,
     fileBase: String,
 ): Map<String, String>? {
-    val directory = localizedResourceDirectory(prefix, valuesDirectoryName, locale)
+    val directory = localizedResourceDirectory(prefix, "", locale)
     val path = bundle.pathForResource(fileBase, valuesFileExtension, directory) ?: return null
     return valuesTableCache.getOrPut(path) {
         val data = NSData.dataWithContentsOfFile(path) ?: return@getOrPut emptyMap()
         val bytes = data.toByteArray()
         val text = bytes.decodeToString()
-        parseKeyValueFile(text)
+        parseStringsFile(text)
     }
 }
 
@@ -366,7 +525,7 @@ private fun loadDimenTable(
     prefix: String,
     locale: String,
 ): Map<String, DimenValue>? {
-    val directory = localizedResourceDirectory(prefix, valuesDirectoryName, locale)
+    val directory = localizedResourceDirectory(prefix, "", locale)
     val path =
         bundle.pathForResource(valuesDimensFile, valuesFileExtension, directory) ?: return null
     return dimenTableCache.getOrPut(path) {
@@ -378,19 +537,6 @@ private fun loadDimenTable(
     }
 }
 
-private fun loadPluralTable(
-    bundle: NSBundle,
-    prefix: String,
-    locale: String,
-): Map<String, Map<String, String>>? {
-    val directory = localizedResourceDirectory(prefix, valuesDirectoryName, locale)
-    val path =
-        bundle.pathForResource(valuesPluralsFile, valuesFileExtension, directory) ?: return null
-    return pluralTableCache.getOrPut(path) {
-        val raw = loadValuesTable(bundle, prefix, locale, valuesPluralsFile).orEmpty()
-        parsePluralTable(raw)
-    }
-}
 
 private fun preferredLocales(bundle: NSBundle, overrideLocale: String?): List<String> {
     val key = buildString {
@@ -493,63 +639,6 @@ private fun unescapeIosString(value: String): String {
     return out.toString()
 }
 
-private fun parseKeyValueFile(content: String): Map<String, String> {
-    if (content.isBlank()) return emptyMap()
-    val out = LinkedHashMap<String, String>()
-    val lines = content.split('\n')
-    for (line in lines) {
-        val trimmed = line.trim()
-        if (trimmed.isBlank()) continue
-        if (trimmed.startsWith("#") || trimmed.startsWith("//")) continue
-        val index = line.indexOf('=')
-        if (index <= 0) continue
-        val key = line.substring(0, index).trim()
-        if (key.isBlank()) continue
-        val rawValue = line.substring(index + 1).trimStart().trimEnd()
-        out[key] = unescapeValuesFileValue(rawValue)
-    }
-    return out
-}
-
-private fun unescapeValuesFileValue(value: String): String {
-    val out = StringBuilder(value.length)
-    var index = 0
-    while (index < value.length) {
-        val ch = value[index]
-        if (ch == '\\' && index + 1 < value.length) {
-            val next = value[index + 1]
-            when (next) {
-                'n' -> {
-                    out.append('\n')
-                    index += 2
-                    continue
-                }
-
-                'r' -> {
-                    out.append('\r')
-                    index += 2
-                    continue
-                }
-
-                't' -> {
-                    out.append('\t')
-                    index += 2
-                    continue
-                }
-
-                '\\' -> {
-                    out.append('\\')
-                    index += 2
-                    continue
-                }
-            }
-        }
-        out.append(ch)
-        index += 1
-    }
-    return out.toString()
-}
-
 private fun parseDimenValue(raw: String): DimenValue? {
     val trimmed = raw.trim()
     if (trimmed.isBlank()) return null
@@ -568,31 +657,6 @@ private fun parseDimenValue(raw: String): DimenValue? {
     return DimenValue(value, dimenUnit)
 }
 
-private fun parsePluralTable(raw: Map<String, String>): Map<String, Map<String, String>> {
-    if (raw.isEmpty()) return emptyMap()
-    val out = LinkedHashMap<String, LinkedHashMap<String, String>>()
-    for ((key, value) in raw) {
-        val name = key.substringBeforeLast('.', "")
-        val quantity = key.substringAfterLast('.', "")
-        if (name.isBlank() || quantity.isBlank()) continue
-        out.getOrPut(name) { LinkedHashMap() }[quantity] = value
-    }
-    return out.mapValues { it.value.toMap() }
-}
-
-private fun selectPlural(entries: Map<String, String>, count: Int): String {
-    val zero = entries["zero"]
-    if (count == 0 && zero != null) return zero
-    val one = entries["one"]
-    if (count == 1 && one != null) return one
-    val two = entries["two"]
-    if (count == 2 && two != null) return two
-    val few = entries["few"]
-    if (count in 3..4 && few != null) return few
-    val many = entries["many"]
-    if (count >= 5 && many != null) return many
-    return entries["other"] ?: entries.values.firstOrNull().orEmpty()
-}
 
 private fun parseColor(raw: String): Color {
     val trimmed = raw.trim()
@@ -632,8 +696,7 @@ private fun parseColor(raw: String): Color {
 
         else -> return Color.Unspecified
     }
-    val packed = (argb.toLong() and 0xFFFFFFFFL).toULong()
-    return Color(packed)
+    return Color(argb)
 }
 
 private fun formatString(template: String, formatArgs: Array<out Any?>): String {
@@ -697,6 +760,7 @@ private fun loadTextAtPath(filePath: String): String? {
     if (bytes.isEmpty()) return null
     return bytes.decodeToString()
 }
+
 
 private fun loadImageBitmapAtPath(filePath: String): ImageBitmap {
     val data = NSData.dataWithContentsOfFile(filePath)
@@ -832,7 +896,8 @@ private fun resolveVectorColor(
     val trimmed = raw.trim()
     val color = if (trimmed.startsWith("@color/")) {
         val key = trimmed.removePrefix("@color/")
-        parseColor(loadLocalizedValue(bundle, prefix, key, locales, valuesColorsFile))
+        val value = loadLocalizedValueOrThrow(bundle, prefix, key, locales, valuesColorsFile, "color")
+        parseColor(value)
     } else {
         parseColor(trimmed)
     }
@@ -868,6 +933,20 @@ private fun resourceDirectory1(prefix: String, directory: String): String {
     if (directory.isNotBlank()) parts += directory
     return parts.joinToString("/")
 }
+
+private fun bundleForPrefix(bundle: NSBundle, prefix: String): NSBundle {
+    val resourcePath = bundle.resourcePath ?: return bundle
+    val relative = resourceDirectory1(prefix, "")
+    val fullPath = if (relative.isBlank()) resourcePath else "$resourcePath/$relative"
+    return NSBundle.bundleWithPath(fullPath) ?: bundle
+}
+
+private fun localizedBundleForLocale(bundle: NSBundle, locale: String): NSBundle? {
+    if (locale.isBlank()) return bundle
+    val path = bundle.pathForResource(locale, "lproj") ?: return null
+    return NSBundle.bundleWithPath(path)
+}
+
 
 private fun localizedResourceDirectory(prefix: String, directory: String, locale: String): String {
     if (locale.isBlank()) return resourceDirectory1(prefix, directory)

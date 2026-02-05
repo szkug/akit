@@ -1,4 +1,5 @@
 import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
 
 /**
  * Scans the generated compose-resources output directory to find available resource ids.
@@ -31,6 +32,9 @@ class OutputResourcesScanner {
                     normalized.endsWith(AkitResourcesConstants.STRINGS_FILE) -> {
                         val entries = StringsFileCodec.parse(file.readText())
                         strings += entries.keys
+                    }
+                    normalized.endsWith(AkitResourcesConstants.STRINGS_DICT_FILE) -> {
+                        strings += StringsDictCodec.parseKeys(file)
                     }
                 }
             }
@@ -131,5 +135,57 @@ object StringsFileCodec {
                 append(AkitResourcesConstants.STRINGS_LINE_END)
             }
         }
+    }
+}
+
+/**
+ * Parser for Localizable.stringsdict files to extract plural keys.
+ */
+object StringsDictCodec {
+    fun parseKeys(file: File): Set<String> {
+        if (!file.exists()) return emptySet()
+        return runCatching { parseKeysFromXml(file.readText()) }.getOrDefault(emptySet())
+    }
+
+    private fun parseKeysFromXml(content: String): Set<String> {
+        val doc = DocumentBuilderFactory.newInstance().apply {
+            setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+            setFeature("http://xml.org/sax/features/external-general-entities", false)
+            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+        }.newDocumentBuilder().parse(content.byteInputStream())
+        val root = doc.documentElement ?: return emptySet()
+        val dict = root.getElementsByTagName("dict")?.item(0) ?: return emptySet()
+        val out = linkedSetOf<String>()
+        val children = dict.childNodes
+        for (i in 0 until children.length) {
+            val node = children.item(i)
+            if (node.nodeType != org.w3c.dom.Node.ELEMENT_NODE) continue
+            if (node.nodeName == "key") {
+                val key = node.textContent?.trim().orEmpty()
+                if (key.isNotBlank()) out += key
+            }
+        }
+        return out
+    }
+}
+
+/**
+ * Extracts string resource ids from generated Res.*.kt files.
+ */
+object ResFileStringIdScanner {
+    private val stringIdRegex = Regex("""\bval\s+([A-Za-z0-9_]+)\s*:\s*(StringResourceId|PluralStringResourceId)\b""")
+
+    fun scan(files: Set<File>): Set<String> {
+        if (files.isEmpty()) return emptySet()
+        val out = linkedSetOf<String>()
+        for (file in files) {
+            if (!file.exists()) continue
+            val content = file.readText()
+            for (match in stringIdRegex.findAll(content)) {
+                val id = match.groupValues[1]
+                if (id.isNotBlank()) out += id
+            }
+        }
+        return out
     }
 }

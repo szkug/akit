@@ -7,7 +7,10 @@ struct ComposeView: UIViewControllerRepresentable {
         MainViewControllerKt.MainViewController() as! UIViewController
     }
 
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        let format = NSLocalizedString("common_files", comment: "文件数量描述")
+        let message = String.localizedStringWithFormat(format, 10, "folderName")
+    }
 }
 
 struct ContentView: View {
