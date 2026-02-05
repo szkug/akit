@@ -110,11 +110,18 @@ fun ResourceDemoPage(onBack: () -> Unit) {
 
             item {
                 SectionTitle(text = stringResource(Res.labels.values_demo_vector_label))
-                Image(
-                    painter = painterResource(Res.drawable.vector_square),
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp),
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Image(
+                        painter = painterResource(Res.drawable.vector_square),
+                        contentDescription = "vector-square",
+                        modifier = Modifier.size(48.dp),
+                    )
+                    Image(
+                        painter = painterResource(Res.drawable.vector_circle),
+                        contentDescription = "vector-circle",
+                        modifier = Modifier.size(48.dp),
+                    )
+                }
             }
 
             item {
