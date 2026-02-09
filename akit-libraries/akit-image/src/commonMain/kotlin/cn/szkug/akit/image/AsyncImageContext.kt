@@ -4,8 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.text.intl.LocaleList
 import cn.szkug.akit.graph.renderscript.BlurConfig
 import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KClass
 
 
 interface AsyncImageLogger {
@@ -22,7 +24,6 @@ interface AsyncImageLogger {
     fun error(tag: String, message: String)
 }
 
-
 interface AsyncImageLoadListener {
     fun onStart(model: Any?) {}
     fun onSuccess(model: Any?) {}
@@ -31,7 +32,6 @@ interface AsyncImageLoadListener {
 }
 
 class AsyncImageContext(
-    val context: PlatformImageContext,
     val coroutineContext: CoroutineContext,
 
     val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
@@ -50,7 +50,6 @@ class AsyncImageContext(
 
 @Composable
 fun rememberAsyncImageContext(
-    vararg keys: Any?,
     ignoreImagePadding: Boolean = false,
     logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
     listener: AsyncImageLoadListener? = null,
@@ -58,12 +57,11 @@ fun rememberAsyncImageContext(
     blurConfig: BlurConfig? = null,
     // extension support
     supportNinepatch: Boolean = false,
+    vararg keys: Any?,
 ): AsyncImageContext {
 
-    val platformContext = LocalPlatformImageContext.current
     return remember(ignoreImagePadding, supportNinepatch, animationContext, blurConfig, *keys) {
         AsyncImageContext(
-            context = platformContext,
             ignoreImagePadding = ignoreImagePadding,
             logger = logger,
             listener = listener,
@@ -71,5 +69,24 @@ fun rememberAsyncImageContext(
             blurConfig = blurConfig,
             supportNinepatch = supportNinepatch
         )
+    }
+}
+
+
+
+typealias EngineContextProvider = @Composable () -> EngineContext
+object LocalEngineContextRegister {
+
+    private val registration = mutableMapOf<KClass<out AsyncRequestEngine<*>>, EngineContextProvider>()
+
+    fun register(type: KClass<out AsyncRequestEngine<*>>, provider: EngineContextProvider) {
+        registration[type] = provider
+    }
+
+    @Composable
+    fun resolve(engine: AsyncRequestEngine<*>): EngineContext {
+        val provider = registration[engine::class]
+            ?: error("No EngineContext provider found, it must register first.")
+        return provider.invoke()
     }
 }

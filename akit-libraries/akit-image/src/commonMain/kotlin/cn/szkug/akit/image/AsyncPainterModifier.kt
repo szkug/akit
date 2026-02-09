@@ -36,7 +36,7 @@ import kotlin.math.roundToInt
 
 private const val TRACE_SECTION_NAME = "AsyncPainterModifier"
 
-internal fun <Data : AsyncLoadData> Modifier.asyncPainterNode(
+internal fun Modifier.asyncPainterNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResourceModel?,
@@ -45,8 +45,9 @@ internal fun <Data : AsyncLoadData> Modifier.asyncPainterNode(
     contentScale: ContentScale,
     alpha: Float,
     colorFilter: ColorFilter?,
-    context: AsyncImageContext,
-    engine: AsyncRequestEngine<Data>
+    imageContext: AsyncImageContext,
+    engineContext: EngineContext,
+    engine: AsyncRequestEngine<*>
 ): Modifier = clipToBounds()
     .semantics {
         if (contentDescription != null) {
@@ -61,11 +62,12 @@ internal fun <Data : AsyncLoadData> Modifier.asyncPainterNode(
     contentScale = contentScale,
     alpha = alpha,
     colorFilter = colorFilter,
-    context = context,
-    engine = engine
+    imageContext = imageContext,
+    engineContext = engineContext,
+    engine = engine.asAsyncLoadDataEngine()
 )
 
-private data class AsyncPainterElement<Data : AsyncLoadData>(
+private data class AsyncPainterElement(
     val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val failureModel: ResourceModel?,
@@ -73,11 +75,12 @@ private data class AsyncPainterElement<Data : AsyncLoadData>(
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val context: AsyncImageContext,
-    val engine: AsyncRequestEngine<Data>
-) : ModifierNodeElement<AsyncPainterNode<Data>>() {
+    val imageContext: AsyncImageContext,
+    val engineContext: EngineContext,
+    val engine: AsyncRequestEngine<AsyncLoadData>
+) : ModifierNodeElement<AsyncPainterNode>() {
 
-    override fun create(): AsyncPainterNode<Data> {
+    override fun create(): AsyncPainterNode {
         return AsyncPainterNode(
             requestModel = requestModel,
             placeholderModel = placeholderModel,
@@ -86,21 +89,22 @@ private data class AsyncPainterElement<Data : AsyncLoadData>(
             contentScale = contentScale,
             alpha = alpha,
             colorFilter = colorFilter,
-            context = context,
+            imageContext = imageContext,
+            engineContext = engineContext,
             engine = engine
         )
     }
 
-    override fun update(node: AsyncPainterNode<Data>) {
+    override fun update(node: AsyncPainterNode) {
         node.alignment = alignment
         node.alpha = alpha
         node.colorFilter = colorFilter
 
-        node.update(requestModel, placeholderModel, failureModel, contentScale, context)
+        node.update(requestModel, placeholderModel, failureModel, contentScale, imageContext, engineContext)
     }
 
     override fun InspectorInfo.inspectableProperties() {
-        name = "GlidePainter"
+        name = "AsyncPainter"
         properties["requestModel"] = requestModel
         properties["placeholderModel"] = placeholderModel
         properties["failureModel"] = failureModel
@@ -111,7 +115,7 @@ private data class AsyncPainterElement<Data : AsyncLoadData>(
     }
 }
 
-internal class AsyncPainterNode<Data : AsyncLoadData>(
+internal class AsyncPainterNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResourceModel?,
@@ -119,14 +123,16 @@ internal class AsyncPainterNode<Data : AsyncLoadData>(
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    context: AsyncImageContext,
-    engine: AsyncRequestEngine<Data>
-) : AsyncRequestNode<Data>(
+    imageContext: AsyncImageContext,
+    engineContext: EngineContext,
+    engine: AsyncRequestEngine<AsyncLoadData>
+) : AsyncRequestNode(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
     failureModel = failureModel,
     contentScale = contentScale,
-    context = context,
+    imageContext = imageContext,
+    engineContext = engineContext,
     engine = engine
 ), LayoutModifierNode, DrawModifierNode {
 
@@ -140,9 +146,9 @@ internal class AsyncPainterNode<Data : AsyncLoadData>(
     ): MeasureResult = trace("$TRACE_SECTION_NAME.measure") {
         val modified = modifyConstraints(constraints)
 
-        val inferredGlideSize = modified.inferredSize()
+        val inferredSize = modified.inferredSize()
 
-        size.putSize(inferredGlideSize)
+        size.putSize(inferredSize)
         hasFixedSize = modified.hasFixedSize()
 
         val placeable = measurable.measure(modified)
@@ -349,9 +355,10 @@ internal class AsyncPainterNode<Data : AsyncLoadData>(
         placeholderModel: PainterModel?,
         failureModel: ResourceModel?,
         contentScale: ContentScale,
-        context: AsyncImageContext,
+        imageContext: AsyncImageContext,
+        engineContext: EngineContext,
     ) {
-        super.update(requestModel, placeholderModel, failureModel, contentScale, context)
+        super.update(requestModel, placeholderModel, failureModel, contentScale, imageContext, engineContext)
         invalidateMeasurement()
         invalidateDraw()
     }

@@ -10,7 +10,7 @@ Current version: 2.0.0-CMP-21
 
 - Resources (plugin + runtime): generate `Res` and typed `ResourceId` for cross-platform resources.
   Details: [docs/README_RESOURCE.md](./docs/README_RESOURCE.md)
-- Image: async image loading with NinePatch, Lottie, GIF, and blur support.
+- Image: async image loading with NinePatch, Lottie, GIF, and blur support (engines in `akit-image-engine-glide` / `akit-image-engine-coil`).
   Details: [docs/README_IMAGE.md](./docs/README_IMAGE.md)
 - Graph: NinePatch parsing/painter, Lottie painter, RenderScript Toolkit, shadow modifier.
   Details: [docs/README_GRAPH.md](./docs/README_GRAPH.md)
@@ -54,10 +54,14 @@ Image(painter = painterResource(Res.drawable.logo), contentDescription = null)
 ```
 
 ```kotlin
+val engine = GlideRequestEngine.Normal // Android
+// val engine = CoilRequestEngine.Normal // iOS
+
 AkitAsyncImage(
     model = "https://example.com/avatar.png",
     contentDescription = null,
     modifier = Modifier.size(96.dp),
+    engine = engine,
 )
 ```
 

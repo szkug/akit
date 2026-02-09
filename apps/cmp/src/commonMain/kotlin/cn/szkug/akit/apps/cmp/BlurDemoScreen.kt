@@ -41,6 +41,7 @@ private fun BlurDemoScreen(modifier: Modifier = Modifier) {
     var enabled by remember { mutableStateOf(true) }
     var radiusValue by remember { mutableStateOf(12f) }
     var repeatValue by remember { mutableStateOf(1f) }
+    val engine = rememberDemoAsyncEngine()
 
     val radius = radiusValue.roundToInt().coerceIn(0, 25)
     val repeat = repeatValue.roundToInt().coerceIn(1, 5)
@@ -83,6 +84,7 @@ private fun BlurDemoScreen(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(220.dp),
             contentScale = ContentScale.Crop,
+            engine = engine,
         )
 
         Text(text = "Blurred")
@@ -94,6 +96,7 @@ private fun BlurDemoScreen(modifier: Modifier = Modifier) {
                 .height(220.dp),
             contentScale = ContentScale.Crop,
             context = blurContext,
+            engine = engine,
         )
 
         Spacer(modifier = Modifier.size(8.dp))

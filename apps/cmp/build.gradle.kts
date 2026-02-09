@@ -34,13 +34,18 @@ kotlin {
             api(projects.akitLibraries.akitGraph)
             implementation(projects.apps.cmpLib2)
             api(projects.akitLibraries.resourcesRuntime)
+            implementation(projects.akitLibraries.akitImageEngineCoil)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.core.ktx)
+            implementation(projects.akitLibraries.akitImageEngineGlide)
         }
-        iosMain {}
+        iosMain {
+            dependencies {
+            }
+        }
     }
 
     jvmToolchain(17)

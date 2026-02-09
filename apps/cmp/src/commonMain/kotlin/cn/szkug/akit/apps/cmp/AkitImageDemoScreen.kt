@@ -21,6 +21,7 @@ fun AkitImageDemoScreen(
     modifier: Modifier = Modifier,
 ) {
     DefaultPlatformAsyncImageLogger.setLevel(AsyncImageLogger.Level.DEBUG)
+    val engine = rememberDemoAsyncEngine()
     val placeholder = PainterModel(painterResource(SharedDrawable.nine_patch_2))
 
     Column(
@@ -36,6 +37,7 @@ fun AkitImageDemoScreen(
                 .akitAsyncBackground(
                     painterResource(SharedDrawable.nine_patch_2),
                     contentScale = ContentScale.FillBounds,
+                    engine = engine,
                 )
                 .padding(8.dp),
         )
@@ -46,6 +48,7 @@ fun AkitImageDemoScreen(
                 .akitAsyncBackground(
                     painterResource(SharedDrawable.nine_patch_2),
                     contentScale = ContentScale.FillBounds,
+                    engine = engine,
                 )
                 .padding(8.dp),
         )
@@ -56,6 +59,7 @@ fun AkitImageDemoScreen(
                 .akitAsyncBackground(
                     painterResource(SharedDrawable.nine_patch_2),
                     contentScale = ContentScale.FillBounds,
+                    engine = engine,
                 )
                 .padding(8.dp),
         )
@@ -67,6 +71,7 @@ fun AkitImageDemoScreen(
             modifier = Modifier.akitAsyncBackground(
                 model = url,
                 placeholder = placeholder,
+                engine = engine,
             ),
         )
 
@@ -75,6 +80,7 @@ fun AkitImageDemoScreen(
             modifier = Modifier.akitAsyncBackground(
                 model = url,
                 placeholder = placeholder,
+                engine = engine,
             ),
         )
 
@@ -83,6 +89,7 @@ fun AkitImageDemoScreen(
             modifier = Modifier.akitAsyncBackground(
                 model = url,
                 placeholder = placeholder,
+                engine = engine,
             ),
         )
     }

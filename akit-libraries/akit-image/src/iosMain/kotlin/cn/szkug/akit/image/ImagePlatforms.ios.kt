@@ -1,36 +1,18 @@
 package cn.szkug.akit.image
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
-import cn.szkug.akit.image.coil.CoilRequestEngine
-import cn.szkug.akit.image.coil.PainterAsyncLoadData
-import coil3.compose.LocalPlatformContext
-
-actual val SDK_SIZE_ORIGINAL: Int = -1
-
-actual typealias PlatformAsyncLoadData = PainterAsyncLoadData
-
-actual val LocalPlatformAsyncRequestEngine: ProvidableCompositionLocal<AsyncRequestEngine<PlatformAsyncLoadData>> =
-    compositionLocalOf { CoilRequestEngine.Normal }
-
+import androidx.compose.ui.graphics.asComposeImageBitmap
 
 @Composable
 actual fun Any?.platformResourceModel(): ResourceModel? = when (this) {
     else -> null
 }
 
-
 @Composable
 actual fun Any?.platformPainterModel(): PainterModel? = when (this) {
     else -> null
 }
 
-
-actual typealias PlatformImageContext = coil3.PlatformContext
-
-actual val LocalPlatformImageContext: ProvidableCompositionLocal<PlatformImageContext> =
-    LocalPlatformContext
 
 actual object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
 

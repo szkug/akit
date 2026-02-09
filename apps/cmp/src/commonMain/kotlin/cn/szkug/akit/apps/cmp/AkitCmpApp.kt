@@ -58,7 +58,9 @@ private fun HomeScreen(onNavigate: (DemoPage) -> Unit) {
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        val engine = rememberDemoAsyncEngine()
         Text(text = "Akit CMP Demo")
+        Text(text = "Engine: ${engine::class.qualifiedName}")
         Text(text = "Select a page:")
         Button(onClick = { onNavigate(DemoPage.ImageDemo) }) {
             Text(text = "NinePatch Demo")
@@ -94,6 +96,8 @@ private fun ImageNinePatchPage(onBack: () -> Unit) {
 
 @Composable
 private fun AnimatedImageListPage(onBack: () -> Unit) {
+    val engine = rememberDemoAsyncEngine()
+
     Column(modifier = Modifier.fillMaxSize()) {
         PageHeader(title = "Animated Image List", onBack = onBack)
         LazyColumn(
@@ -113,6 +117,7 @@ private fun AnimatedImageListPage(onBack: () -> Unit) {
                             .fillMaxWidth()
                             .height(200.dp),
                         contentScale = ContentScale.Crop,
+                        engine = engine,
                     )
                 }
             }

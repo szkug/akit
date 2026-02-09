@@ -1,15 +1,33 @@
 # AKit Image
 
-Akit Image provides Compose Multiplatform async image loading with a unified API, powered by
-Glide on Android and Coil 3 on iOS.
+Akit Image provides Compose Multiplatform async image loading with a unified API. Engine
+implementations live in separate modules so you can pick the platform backends you need.
 
 ## Features
 
 - `AkitAsyncImage` composable and `Modifier.akitAsyncBackground`.
-- Platform engines: Glide (Android) / Coil 3 (iOS).
+- Engine modules: Glide (Android) / Coil 3 (iOS).
 - Supports `.9` NinePatch, GIF, and Lottie.
 - Optional blur via `BlurConfig`.
 - Pluggable `AsyncRequestEngine` for custom loaders.
+
+## Engine modules
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.akit:akit-image:$akitVersion")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.akit:akit-image-engine-glide:$akitVersion")
+        }
+        iosMain.dependencies {
+            implementation("cn.szkug.akit:akit-image-engine-coil:$akitVersion")
+        }
+    }
+}
+```
 
 ## Main APIs
 
@@ -26,7 +44,7 @@ fun AkitAsyncImage(
     alpha: Float = 1f,
     colorFilter: ColorFilter? = null,
     context: AsyncImageContext = rememberAsyncImageContext(),
-    engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
+    engine: AsyncRequestEngine<*>
 )
 ```
 
@@ -39,7 +57,7 @@ fun Modifier.akitAsyncBackground(
     alpha: Float = 1f,
     colorFilter: ColorFilter? = null,
     context: AsyncImageContext = rememberAsyncImageContext(supportNinepatch = true),
-    engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
+    engine: AsyncRequestEngine<*>
 ): Modifier
 ```
 
@@ -53,10 +71,14 @@ Common model types:
 ## Usage
 
 ```kotlin
+val engine = GlideRequestEngine.Normal // Android
+// val engine = CoilRequestEngine.Normal // iOS
+
 AkitAsyncImage(
     model = "https://example.com/avatar.png",
     contentDescription = null,
     modifier = Modifier.size(96.dp),
+    engine = engine,
 )
 ```
 
@@ -72,6 +94,7 @@ Text(
                 supportNinepatch = true,
                 ignoreImagePadding = true,
             ),
+            engine = engine,
         )
         .padding(8.dp)
 )
@@ -101,7 +124,7 @@ instead of using `rememberAsyncImageContext`.
 
 ## Custom engine
 
-You can pass a custom engine per call or via `LocalPlatformAsyncRequestEngine`:
+You can provide a custom engine instance per call:
 
 ```kotlin
 // Android

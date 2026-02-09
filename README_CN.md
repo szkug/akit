@@ -8,7 +8,7 @@ Compose Multiplatform 的资源、图片加载与图形辅助库。
 
 - Resources（插件 + 运行时）：生成 `Res` 与强类型 `ResourceId`，跨平台访问资源。
   详情见：[docs/README_RESOURCE_CN.md](./docs/README_RESOURCE_CN.md)
-- Image：异步图片加载，支持 NinePatch、Lottie、GIF 与模糊。
+- Image：异步图片加载，支持 NinePatch、Lottie、GIF 与模糊（引擎模块为 `akit-image-engine-glide` / `akit-image-engine-coil`）。
   详情见：[docs/README_IMAGE_CN.md](./docs/README_IMAGE_CN.md)
 - Graph：NinePatch 解析/绘制、Lottie Painter、RenderScript Toolkit、阴影 Modifier。
   详情见：[docs/README_GRAPH_CN.md](./docs/README_GRAPH_CN.md)
@@ -51,10 +51,14 @@ Image(painter = painterResource(Res.drawable.logo), contentDescription = null)
 ```
 
 ```kotlin
+val engine = GlideRequestEngine.Normal // Android
+// val engine = CoilRequestEngine.Normal // iOS
+
 AkitAsyncImage(
     model = "https://example.com/avatar.png",
     contentDescription = null,
     modifier = Modifier.size(96.dp),
+    engine = engine,
 )
 ```
 

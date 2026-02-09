@@ -23,15 +23,9 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
-            api(libs.androidx.appcompat.resources)
-            implementation(libs.bundles.glide)
-            compileOnly(libs.glide.annotations)
-            implementation(libs.lottie)
+            implementation(libs.androidx.appcompat.resources)
         }
         iosMain.dependencies {
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor3)
-            implementation(libs.ktor.client.darwin)
         }
     }
 

@@ -1,15 +1,33 @@
 # AKit Image
 
-Akit Image 提供 Compose Multiplatform 异步图片加载能力，Android 使用 Glide，iOS 使用
-Coil 3。
+Akit Image 提供 Compose Multiplatform 异步图片加载能力。引擎实现被拆分为独立模块，
+可按需选择。
 
 ## 功能概览
 
 - `AkitAsyncImage` 与 `Modifier.akitAsyncBackground`。
-- 平台引擎：Glide（Android）/ Coil 3（iOS）。
+- 引擎模块：Glide（Android）/ Coil 3（iOS）。
 - 支持 `.9` NinePatch、GIF、Lottie。
 - 可选高斯模糊（`BlurConfig`）。
 - 可替换 `AsyncRequestEngine` 实现自定义加载器。
+
+## 引擎模块依赖
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.akit:akit-image:$akitVersion")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.akit:akit-image-engine-glide:$akitVersion")
+        }
+        iosMain.dependencies {
+            implementation("cn.szkug.akit:akit-image-engine-coil:$akitVersion")
+        }
+    }
+}
+```
 
 ## 主要 API
 
@@ -26,7 +44,7 @@ fun AkitAsyncImage(
     alpha: Float = 1f,
     colorFilter: ColorFilter? = null,
     context: AsyncImageContext = rememberAsyncImageContext(),
-    engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
+    engine: AsyncRequestEngine<*>
 )
 ```
 
@@ -39,7 +57,7 @@ fun Modifier.akitAsyncBackground(
     alpha: Float = 1f,
     colorFilter: ColorFilter? = null,
     context: AsyncImageContext = rememberAsyncImageContext(supportNinepatch = true),
-    engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
+    engine: AsyncRequestEngine<*>
 ): Modifier
 ```
 
@@ -53,10 +71,14 @@ fun Modifier.akitAsyncBackground(
 ## 用法示例
 
 ```kotlin
+val engine = GlideRequestEngine.Normal // Android
+// val engine = CoilRequestEngine.Normal // iOS
+
 AkitAsyncImage(
     model = "https://example.com/avatar.png",
     contentDescription = null,
     modifier = Modifier.size(96.dp),
+    engine = engine,
 )
 ```
 
@@ -72,6 +94,7 @@ Text(
                 supportNinepatch = true,
                 ignoreImagePadding = true,
             ),
+            engine = engine,
         )
         .padding(8.dp)
 )
@@ -100,7 +123,7 @@ val context = rememberAsyncImageContext(
 
 ## 自定义引擎
 
-支持按调用传入或通过 `LocalPlatformAsyncRequestEngine` 全局替换：
+可按调用传入自定义引擎实例：
 
 ```kotlin
 // Android

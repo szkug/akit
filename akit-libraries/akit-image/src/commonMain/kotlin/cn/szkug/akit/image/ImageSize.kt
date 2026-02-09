@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import kotlin.math.roundToInt
 
-private fun Float.roundFiniteToInt() = if (isFinite()) roundToInt() else SDK_SIZE_ORIGINAL
+private fun Float.roundFiniteToInt(sizeOriginal: Int) = if (isFinite()) roundToInt() else sizeOriginal
 
 data class ImageSize(val width: Int, val height: Int)
 
@@ -19,7 +19,7 @@ interface ResolvableImageSize {
     fun readySize(): ImageSize?
 }
 
-internal class AsyncImageSize : ResolvableImageSize {
+internal class AsyncImageSize(val sizeOriginal: Int) : ResolvableImageSize {
 
     private val drawSize = MutableSharedFlow<Size>(
         replay = 1,
@@ -48,13 +48,13 @@ internal class AsyncImageSize : ResolvableImageSize {
             .mapNotNull {
                 when {
                     it.isUnspecified -> ImageSize(
-                        width = SDK_SIZE_ORIGINAL,
-                        height = SDK_SIZE_ORIGINAL
+                        width = sizeOriginal,
+                        height = sizeOriginal
                     )
 
                     else -> ImageSize(
-                        width = it.width.roundFiniteToInt(),
-                        height = it.height.roundFiniteToInt()
+                        width = it.width.roundFiniteToInt(sizeOriginal),
+                        height = it.height.roundFiniteToInt(sizeOriginal)
                     )
                 }
             }.first().also {

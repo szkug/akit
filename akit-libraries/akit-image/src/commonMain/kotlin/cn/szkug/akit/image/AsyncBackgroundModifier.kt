@@ -31,15 +31,16 @@ import cn.szkug.akit.graph.ImagePadding
 import kotlin.math.roundToInt
 
 
-internal fun <Data : AsyncLoadData> Modifier.asyncBackgroundNode(
+internal fun Modifier.asyncBackgroundNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     alignment: Alignment,
     contentScale: ContentScale,
     alpha: Float,
     colorFilter: ColorFilter?,
-    context: AsyncImageContext,
-    engine: AsyncRequestEngine<Data>,
+    imageContext: AsyncImageContext,
+    engineContext: EngineContext,
+    engine: AsyncRequestEngine<*>,
 ): Modifier = this then AsyncBackgroundElement(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
@@ -47,22 +48,24 @@ internal fun <Data : AsyncLoadData> Modifier.asyncBackgroundNode(
     contentScale = contentScale,
     alpha = alpha,
     colorFilter = colorFilter,
-    context = context,
-    engine = engine,
+    imageContext = imageContext,
+    engineContext = engineContext,
+    engine = engine.asAsyncLoadDataEngine(),
 )
 
-private data class AsyncBackgroundElement<Data : AsyncLoadData>(
+private data class AsyncBackgroundElement(
     val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
     val colorFilter: ColorFilter?,
-    val context: AsyncImageContext,
-    val engine: AsyncRequestEngine<Data>,
-) : ModifierNodeElement<AsyncBackgroundNode<Data>>() {
+    val imageContext: AsyncImageContext,
+    val engineContext: EngineContext,
+    val engine: AsyncRequestEngine<AsyncLoadData>,
+) : ModifierNodeElement<AsyncBackgroundNode>() {
 
-    override fun create(): AsyncBackgroundNode<Data> {
+    override fun create(): AsyncBackgroundNode {
         return AsyncBackgroundNode(
             requestModel = requestModel,
             placeholderModel = placeholderModel,
@@ -70,20 +73,21 @@ private data class AsyncBackgroundElement<Data : AsyncLoadData>(
             contentScale = contentScale,
             alpha = alpha,
             colorFilter = colorFilter,
-            context = context,
+            imageContext = imageContext,
+            engineContext = engineContext,
             engine = engine
         )
     }
 
-    override fun update(node: AsyncBackgroundNode<Data>) {
+    override fun update(node: AsyncBackgroundNode) {
         node.alignment = alignment
         node.alpha = alpha
         node.colorFilter = colorFilter
-        node.update(requestModel, placeholderModel, null, contentScale, context)
+        node.update(requestModel, placeholderModel, null, contentScale, imageContext, engineContext)
     }
 
     override fun InspectorInfo.inspectableProperties() {
-        name = "GlideBackground"
+        name = "AsyncBackground"
         properties["requestModel"] = requestModel
         properties["placeholderModel"] = placeholderModel
         properties["alignment"] = alignment
@@ -93,23 +97,25 @@ private data class AsyncBackgroundElement<Data : AsyncLoadData>(
     }
 }
 
-private const val TRACE_SECTION_NAME = "GlideBackgroundNode"
+private const val TRACE_SECTION_NAME = "AsyncBackgroundNode"
 
-private class AsyncBackgroundNode<Data : AsyncLoadData>(
+private class AsyncBackgroundNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     contentScale: ContentScale,
     var alignment: Alignment,
     var alpha: Float,
     var colorFilter: ColorFilter?,
-    context: AsyncImageContext,
-    engine: AsyncRequestEngine<Data>
-) : AsyncRequestNode<Data>(
+    imageContext: AsyncImageContext,
+    engineContext: EngineContext,
+    engine: AsyncRequestEngine<AsyncLoadData>
+) : AsyncRequestNode(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
     failureModel = null,
     contentScale = contentScale,
-    context = context,
+    imageContext = imageContext,
+    engineContext = engineContext,
     engine = engine
 ), LayoutModifierNode, DrawModifierNode {
 
@@ -119,7 +125,7 @@ private class AsyncBackgroundNode<Data : AsyncLoadData>(
         invalidateDraw()
     }
 
-    private fun drawPadding(): ImagePadding = if (!context.ignoreImagePadding) {
+    private fun drawPadding(): ImagePadding = if (!imageContext.ignoreImagePadding) {
         (painter as? HasPaddingPainter)?.padding ?: ImagePadding()
     } else ImagePadding()
 
@@ -135,8 +141,8 @@ private class AsyncBackgroundNode<Data : AsyncLoadData>(
         constraints: Constraints
     ): MeasureResult = trace("$TRACE_SECTION_NAME.measure") {
 
-        val inferredGlideSize = constraints.inferredSize()
-        size.putSize(inferredGlideSize)
+        val inferredSize = constraints.inferredSize()
+        size.putSize(inferredSize)
 
         // measure with padding.
         // This could be zero.
@@ -213,9 +219,10 @@ private class AsyncBackgroundNode<Data : AsyncLoadData>(
         placeholderModel: PainterModel?,
         failureModel: ResourceModel?,
         contentScale: ContentScale,
-        context: AsyncImageContext,
+        imageContext: AsyncImageContext,
+        engineContext: EngineContext
     ) {
-        super.update(requestModel, placeholderModel, failureModel, contentScale, context)
+        super.update(requestModel, placeholderModel, failureModel, contentScale, imageContext, engineContext)
         if (!drawPadding().isEmpty) invalidateMeasurement()
         invalidateDraw()
     }

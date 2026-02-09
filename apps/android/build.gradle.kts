@@ -95,6 +95,7 @@ dependencies {
 
     // project modules
     implementation(projects.akitLibraries.akitImage)
+    implementation(projects.akitLibraries.akitImageEngineGlide)
     implementation(projects.apps.cmp)
     implementation(projects.apps.cmpLib2)
 

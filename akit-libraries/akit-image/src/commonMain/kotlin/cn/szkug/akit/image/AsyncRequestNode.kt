@@ -21,8 +21,11 @@ interface AsyncRequestEngine<Data : AsyncLoadData> {
 
     companion object {}
 
+    val engineSizeOriginal: Int
+
     suspend fun flowRequest(
-        context: AsyncImageContext,
+        engineContext: EngineContext,
+        imageContext: AsyncImageContext,
         size: ResolvableImageSize,
         contentScale: ContentScale,
         requestModel: RequestModel,
@@ -30,12 +33,18 @@ interface AsyncRequestEngine<Data : AsyncLoadData> {
     ): Flow<AsyncLoadResult<Data>>
 }
 
-internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
-    private val engine: AsyncRequestEngine<Data>,
+internal fun AsyncRequestEngine<*>.asAsyncLoadDataEngine(): AsyncRequestEngine<AsyncLoadData> {
+    @Suppress("UNCHECKED_CAST")
+    return this as AsyncRequestEngine<AsyncLoadData>
+}
+
+internal abstract class AsyncRequestNode(
+    private val engine: AsyncRequestEngine<AsyncLoadData>,
     protected var requestModel: RequestModel,
     private var placeholderModel: PainterModel?,
     private var failureModel: ResourceModel?,
-    context: AsyncImageContext,
+    imageContext: AsyncImageContext,
+    engineContext: EngineContext,
     contentScale: ContentScale,
 ) : Modifier.Node() {
 
@@ -43,24 +52,17 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
     protected fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.isFinite()
     protected fun Size.hasSpecifiedAndFiniteHeight() = this != Size.Unspecified && height.isFinite()
 
-    protected val size: ResolvableImageSize = AsyncImageSize()
+    protected val size: ResolvableImageSize = AsyncImageSize(engine.engineSizeOriginal)
 
     protected fun Constraints.inferredSize(): Size {
-        val width = if (hasBoundedWidth) {
-            maxWidth
-        } else {
-            SDK_SIZE_ORIGINAL
-        }
-        val height =
-            if (hasBoundedHeight) {
-                maxHeight
-            } else {
-                SDK_SIZE_ORIGINAL
-            }
+        val width = if (hasBoundedWidth) maxWidth else engine.engineSizeOriginal
+        val height = if (hasBoundedHeight) maxHeight else engine.engineSizeOriginal
         return Size(width.toFloat(), height.toFloat())
     }
 
-    var context: AsyncImageContext = context
+    var imageContext: AsyncImageContext = imageContext
+        private set
+    var engineContext: EngineContext = engineContext
         private set
 
     var contentScale: ContentScale = contentScale
@@ -84,7 +86,7 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
 
     protected open fun onPainterChanged(old: Painter, new: Painter) {
         if (old is AnimatablePainter) old.stopAnimation()
-        if (new is AnimatablePainter) new.startAnimation(context.coroutineContext)
+        if (new is AnimatablePainter) new.startAnimation(imageContext.coroutineContext)
     }
 
     protected open fun onStopRequest() {
@@ -92,7 +94,7 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
     }
 
     protected fun resolvePainter(
-        result: AsyncLoadResult<Data>,
+        result: AsyncLoadResult<AsyncLoadData>,
         failurePainter: Painter?,
         placeholderPainter: Painter,
     ): Painter {
@@ -111,7 +113,7 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
     protected fun startRequest(requestModel: RequestModel) =
         sideEffect {
 
-            context.logger.debug("startRequest") { "cur:$requestModel req:$requestModel ${rememberJob?.isActive}" }
+            imageContext.logger.debug("startRequest") { "cur:$requestModel req:$requestModel ${rememberJob?.isActive}" }
 
             if (this.requestModel != requestModel) return@sideEffect
 
@@ -128,13 +130,14 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
                         painter = model
                         onCollectResult(model)
                     } else engine.flowRequest(
-                        context,
+                        engineContext,
+                        imageContext,
                         size,
                         contentScale,
                         requestModel,
                         failureModel
                     ).collectLatest { result ->
-                        context.logger.debug("collectLatest") { "$requestModel $result" }
+                        imageContext.logger.debug("collectLatest") { "$requestModel $result" }
 
                         val nextPainter = resolvePainter(result, failurePainter, placeholderPainter)
 
@@ -158,7 +161,7 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
      */
     open fun setup() {
         val current = painter
-        if (current is AnimatablePainter) current.startAnimation(context.coroutineContext)
+        if (current is AnimatablePainter) current.startAnimation(imageContext.coroutineContext)
         startRequest(requestModel)
     }
 
@@ -177,7 +180,8 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
         placeholderModel: PainterModel?,
         failureModel: ResourceModel?,
         contentScale: ContentScale,
-        context: AsyncImageContext,
+        imageContext: AsyncImageContext,
+        engineContext: EngineContext
     ) {
         var hasModify = false
         if (requestModel != this.requestModel) {
@@ -196,31 +200,35 @@ internal abstract class AsyncRequestNode<Data : AsyncLoadData>(
             this.contentScale = contentScale
             hasModify = true
         }
-        if (context != this.context) {
-            this.context = context
+        if (imageContext != this.imageContext) {
+            this.imageContext = imageContext
+            hasModify = true
+        }
+        if (engineContext != this.engineContext) {
+            this.engineContext = engineContext
             hasModify = true
         }
         if (!hasModify) return
-        context.logger.debug("update") { "${this.requestModel} -> $requestModel" }
+        imageContext.logger.debug("update") { "${this.requestModel} -> $requestModel" }
         reset()
         setup()
     }
 
     override fun onAttach() {
         super.onAttach()
-        context.logger.debug("attach") { "$requestModel" }
+        imageContext.logger.debug("attach") { "$requestModel" }
         setup()
     }
 
     override fun onDetach() {
         super.onDetach()
-        context.logger.debug("detach") { "$requestModel" }
+        imageContext.logger.debug("detach") { "$requestModel" }
         reset()
     }
 
     override fun onReset() {
         super.onReset()
-        context.logger.debug("reset") { "$requestModel" }
+        imageContext.logger.debug("reset") { "$requestModel" }
         reset()
     }
 }

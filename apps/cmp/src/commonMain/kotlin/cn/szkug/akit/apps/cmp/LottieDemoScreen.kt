@@ -26,6 +26,7 @@ fun LottieDemoPage(onBack: () -> Unit) {
 
 @Composable
 private fun LottieDemoScreen(modifier: Modifier = Modifier) {
+    val engine = rememberDemoAsyncEngine()
     val samples = listOf(
         LottieSample("Pulse 1", LottieResource(Res.raw.lottie_pulse)),
         LottieSample("Pulse 2", LottieResource(Res.raw.lottie_pulse)),
@@ -43,6 +44,7 @@ private fun LottieDemoScreen(modifier: Modifier = Modifier) {
                     model = sample.resource,
                     contentDescription = sample.title,
                     modifier = Modifier.size(160.dp),
+                    engine = engine,
 
                 )
             }

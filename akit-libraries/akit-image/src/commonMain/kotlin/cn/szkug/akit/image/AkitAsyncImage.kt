@@ -31,7 +31,7 @@ fun AkitAsyncImage(
     alpha: Float = AsyncImageDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = AsyncImageDefaults.DefaultColorFilter,
     context: AsyncImageContext = rememberAsyncImageContext(),
-    engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
+    engine: AsyncRequestEngine<*>
 ) {
     Layout(
         modifier = modifier
@@ -44,7 +44,8 @@ fun AkitAsyncImage(
                 contentScale = contentScale,
                 alpha = alpha,
                 colorFilter = colorFilter,
-                context = context,
+                imageContext = context,
+                engineContext = LocalEngineContextRegister.resolve(engine),
                 engine = engine
             ),
         measurePolicy = { _, constraints ->
@@ -64,10 +65,8 @@ fun Modifier.akitAsyncBackground(
     contentScale: ContentScale = AsyncImageDefaults.DefaultContentScale,
     alpha: Float = AsyncImageDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = AsyncImageDefaults.DefaultColorFilter,
-    context: AsyncImageContext = rememberAsyncImageContext(
-        supportNinepatch = true
-    ),
-    engine: AsyncRequestEngine<PlatformAsyncLoadData> = LocalPlatformAsyncRequestEngine.current
+    context: AsyncImageContext = rememberAsyncImageContext(supportNinepatch = true),
+    engine: AsyncRequestEngine<*>
 ): Modifier = composed {
 
     asyncBackgroundNode(
@@ -77,7 +76,8 @@ fun Modifier.akitAsyncBackground(
         contentScale = contentScale,
         alpha = alpha,
         colorFilter = colorFilter,
-        context = context,
+        imageContext = context,
+        engineContext = LocalEngineContextRegister.resolve(engine),
         engine = engine
     )
 }

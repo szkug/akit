@@ -1,29 +1,8 @@
 package cn.szkug.akit.image
 
-
-import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.graphics.drawable.toDrawable
-import cn.szkug.akit.graph.toPainter
-import cn.szkug.akit.image.glide.DrawableAsyncLoadData
-import cn.szkug.akit.image.glide.GlideRequestEngine
-import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
 
-actual val SDK_SIZE_ORIGINAL: Int = SIZE_ORIGINAL
-
-
-actual typealias PlatformImageContext = Context
-actual val LocalPlatformImageContext: ProvidableCompositionLocal<PlatformImageContext> = LocalContext
 
 actual object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
 
@@ -62,11 +41,4 @@ actual object DefaultPlatformAsyncImageLogger : AsyncImageLogger {
 }
 
 
-actual typealias PlatformAsyncLoadData = DrawableAsyncLoadData
-
 data class DrawableModel(val drawable: Drawable) : ResourceModel
-
-interface DrawableRequestEngine : AsyncRequestEngine<PlatformAsyncLoadData>
-
-actual val LocalPlatformAsyncRequestEngine: ProvidableCompositionLocal<AsyncRequestEngine<PlatformAsyncLoadData>> =
-    compositionLocalOf { GlideRequestEngine.Normal }

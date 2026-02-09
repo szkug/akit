@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cn.szkug.akit.image.engine.glide">
+    <application>
+        <meta-data
+            android:name="cn.szkug.akit.image.glide.extensions.AkitManifestGlideModule"
+            android:value="GlideModule" />
+    </application>
+</manifest>

@@ -40,6 +40,8 @@ fun includeAkitLibraries(vararg module: String) {
 includeAkitLibraries(
     ":akit-graph",
     ":akit-image",
+    ":akit-image-engine-coil",
+    ":akit-image-engine-glide",
     ":resources-runtime",
 )
 
