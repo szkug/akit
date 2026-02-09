@@ -1,7 +1,6 @@
-package cn.szkug.akit.image.coil
+package cn.szkug.akit.image.coil.support
 
-import cn.szkug.akit.image.coil.support.LottieDecodeEnabled
-import cn.szkug.akit.image.coil.support.LottiePlatform
+import cn.szkug.akit.image.coil.LottieCoilImage
 import coil3.ImageLoader
 import coil3.decode.DecodeResult
 import coil3.decode.Decoder
@@ -26,7 +25,7 @@ internal class LottieDecoder(
         if (bytes.isEmpty()) {
             error("Lottie source is empty.")
         }
-        val result = LottiePlatform.decode(bytes, options)
+        val result = decodeLottie(bytes, options)
         return DecodeResult(image = result.image, isSampled = result.isSampled)
     }
 
@@ -41,3 +40,5 @@ internal class LottieDecoder(
         }
     }
 }
+
+internal expect fun decodeLottie(bytes: ByteArray, options: Options): LottieDecodeResult

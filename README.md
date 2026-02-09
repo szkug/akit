@@ -4,7 +4,7 @@
 
 Compose Multiplatform utilities for shared resources, image loading, and graphics helpers.
 
-Current version: 2.0.0-CMP-21
+Current version: last_version
 
 ## Modules
 
@@ -18,7 +18,7 @@ Current version: 2.0.0-CMP-21
 ## Install
 
 ```kotlin
-val akitVersion = "2.0.0-CMP-21"
+val last_version = "last_version"
 ```
 
 Runtime libraries:
@@ -27,9 +27,9 @@ Runtime libraries:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.szkug.akit:resources-runtime:$akitVersion")
-            implementation("cn.szkug.akit:akit-image:$akitVersion")
-            implementation("cn.szkug.akit:akit-graph:$akitVersion")
+            implementation("cn.szkug.akit:resources-runtime:$last_version")
+            implementation("cn.szkug.akit:akit-image:$last_version")
+            implementation("cn.szkug.akit:akit-graph:$last_version")
         }
     }
 }
@@ -40,7 +40,7 @@ transitive resources):
 
 ```kotlin
 plugins {
-    id("cn.szkug.akit.resources") version akitVersion
+    id("cn.szkug.akit.resources") version last_version
 }
 ```
 

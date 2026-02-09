@@ -2,7 +2,7 @@
 
 Compose Multiplatform 的资源、图片加载与图形辅助库。
 
-当前版本：2.0.0-CMP-21
+当前版本：last_version
 
 ## 组件
 
@@ -16,7 +16,7 @@ Compose Multiplatform 的资源、图片加载与图形辅助库。
 ## 依赖
 
 ```kotlin
-val akitVersion = "2.0.0-CMP-21"
+val last_version = "last_version"
 ```
 
 运行时库：
@@ -25,9 +25,9 @@ val akitVersion = "2.0.0-CMP-21"
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.szkug.akit:resources-runtime:$akitVersion")
-            implementation("cn.szkug.akit:akit-image:$akitVersion")
-            implementation("cn.szkug.akit:akit-graph:$akitVersion")
+            implementation("cn.szkug.akit:resources-runtime:$last_version")
+            implementation("cn.szkug.akit:akit-image:$last_version")
+            implementation("cn.szkug.akit:akit-graph:$last_version")
         }
     }
 }
@@ -37,7 +37,7 @@ kotlin {
 
 ```kotlin
 plugins {
-    id("cn.szkug.akit.resources") version akitVersion
+    id("cn.szkug.akit.resources") version last_version
 }
 ```
 

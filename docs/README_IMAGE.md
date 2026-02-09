@@ -17,13 +17,13 @@ implementations live in separate modules so you can pick the platform backends y
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.szkug.akit:akit-image:$akitVersion")
+            implementation("cn.szkug.akit:akit-image:$last_version")
         }
         androidMain.dependencies {
-            implementation("cn.szkug.akit:akit-image-engine-glide:$akitVersion")
+            implementation("cn.szkug.akit:akit-image-engine-glide:$last_version")
         }
         iosMain.dependencies {
-            implementation("cn.szkug.akit:akit-image-engine-coil:$akitVersion")
+            implementation("cn.szkug.akit:akit-image-engine-coil:$last_version")
         }
     }
 }

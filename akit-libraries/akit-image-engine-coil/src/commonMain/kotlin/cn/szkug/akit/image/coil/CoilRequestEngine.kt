@@ -1,6 +1,5 @@
 package cn.szkug.akit.image.coil
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import cn.szkug.akit.image.AsyncLoadData
@@ -14,11 +13,15 @@ import cn.szkug.akit.graph.lottie.LottieResource
 import cn.szkug.akit.image.EngineContext
 import cn.szkug.akit.image.EngineContextProvider
 import cn.szkug.akit.image.LocalEngineContextRegister
+import cn.szkug.akit.image.coil.support.GaussianBlurTransformation
+import cn.szkug.akit.image.coil.support.GifDecoder
 import cn.szkug.akit.resources.runtime.ResourceId
 import cn.szkug.akit.resources.runtime.resolveResourcePath
 import cn.szkug.akit.image.coil.support.LottieDecodeEnabled
+import cn.szkug.akit.image.coil.support.LottieDecoder
 import cn.szkug.akit.image.coil.support.LottieIterationsKey
 import cn.szkug.akit.image.coil.support.NinePatchDecodeEnabled
+import cn.szkug.akit.image.coil.support.NinePatchDecoder
 import coil3.Image
 import coil3.ImageLoader
 import coil3.PlatformContext

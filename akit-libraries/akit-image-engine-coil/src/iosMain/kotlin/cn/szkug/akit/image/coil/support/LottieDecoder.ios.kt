@@ -9,13 +9,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import cn.szkug.akit.graph.AnimatablePainter
 import cn.szkug.akit.image.coil.LottieCoilImage
-import cn.szkug.akit.image.coil.LottieDecodeResult
 import coil3.asImage
 import coil3.getExtra
 import coil3.request.Options
@@ -31,31 +30,33 @@ import kotlin.coroutines.CoroutineContext
 
 private const val DEFAULT_DURATION_SEC = 1f
 
-internal actual object LottiePlatform {
-    actual fun decode(bytes: ByteArray, options: Options): LottieDecodeResult {
-        val json = bytes.decodeToString()
-        val animation = Animation.makeFromString(json)
-        val iterations = options.getExtra(LottieIterationsKey)
-        val width = animation.width.toInt()
-        val height = animation.height.toInt()
+internal actual fun decodeLottie(
+    bytes: ByteArray,
+    options: Options
+): LottieDecodeResult {
+    val json = bytes.decodeToString()
+    val animation = Animation.makeFromString(json)
+    val iterations = options.getExtra(LottieIterationsKey)
+    val width = animation.width.toInt()
+    val height = animation.height.toInt()
 
-        val painter = LottiePainter(animation, iterations)
-        val firstFrameBitmap = Bitmap().apply { allocN32Pixels(width, height) }
-        val firstFrameCanvas = Canvas(firstFrameBitmap)
-        animation.seekFrameTime(0f)
-        val dst = Rect.makeXYWH(0f, 0f, width.toFloat(), height.toFloat())
-        animation.render(firstFrameCanvas, dst)
-        val image = LottieCoilImage(
-            firstFrame = firstFrameBitmap.asImage(),
-            painter = painter,
-            width = width,
-            height = height,
-            size = (width.toLong() * height.toLong() * 4L).coerceAtLeast(0L),
-            shareable = false,
-        )
-        return LottieDecodeResult(image = image, isSampled = false)
-    }
+    val painter = LottiePainter(animation, iterations)
+    val firstFrameBitmap = Bitmap().apply { allocN32Pixels(width, height) }
+    val firstFrameCanvas = Canvas(firstFrameBitmap)
+    animation.seekFrameTime(0f)
+    val dst = Rect.makeXYWH(0f, 0f, width.toFloat(), height.toFloat())
+    animation.render(firstFrameCanvas, dst)
+    val image = LottieCoilImage(
+        firstFrame = firstFrameBitmap.asImage(),
+        painter = painter,
+        width = width,
+        height = height,
+        size = (width.toLong() * height.toLong() * 4L).coerceAtLeast(0L),
+        shareable = false,
+    )
+    return LottieDecodeResult(image = image, isSampled = false)
 }
+
 
 private class LottiePainter(
     private val animation: Animation,

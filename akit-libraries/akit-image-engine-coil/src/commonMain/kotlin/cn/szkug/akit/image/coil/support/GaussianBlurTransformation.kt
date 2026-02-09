@@ -1,4 +1,4 @@
-package cn.szkug.akit.image.coil
+package cn.szkug.akit.image.coil.support
 
 import cn.szkug.akit.graph.renderscript.BlurConfig
 import coil3.Bitmap

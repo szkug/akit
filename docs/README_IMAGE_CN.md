@@ -17,13 +17,13 @@ Akit Image 提供 Compose Multiplatform 异步图片加载能力。引擎实现�
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("cn.szkug.akit:akit-image:$akitVersion")
+            implementation("cn.szkug.akit:akit-image:$last_version")
         }
         androidMain.dependencies {
-            implementation("cn.szkug.akit:akit-image-engine-glide:$akitVersion")
+            implementation("cn.szkug.akit:akit-image-engine-glide:$last_version")
         }
         iosMain.dependencies {
-            implementation("cn.szkug.akit:akit-image-engine-coil:$akitVersion")
+            implementation("cn.szkug.akit:akit-image-engine-coil:$last_version")
         }
     }
 }

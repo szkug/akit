@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import cn.szkug.akit.graph.AnimatablePainter
 import cn.szkug.akit.image.coil.GifCoilImage
-import cn.szkug.akit.image.coil.GifDecodeResult
 import coil3.asImage
 import coil3.request.Options
 import kotlinx.coroutines.CoroutineScope
@@ -28,55 +27,57 @@ import kotlin.coroutines.CoroutineContext
 
 private const val DEFAULT_DURATION_MS = 1000
 
-internal actual object GifPlatform {
-    actual fun decode(bytes: ByteArray, options: Options): GifDecodeResult {
-        val movie = Movie.decodeByteArray(bytes, 0, bytes.size)
-            ?: error("Unable to decode GIF")
+internal actual fun decodeGif(
+    bytes: ByteArray,
+    options: Options
+): GifDecodeResult {
+    val movie = Movie.decodeByteArray(bytes, 0, bytes.size)
+        ?: error("Unable to decode GIF")
 
-        val srcWidth = movie.width()
-        val srcHeight = movie.height()
-        if (srcWidth <= 0 || srcHeight <= 0) {
-            error("Invalid GIF size: ${srcWidth}x${srcHeight}")
-        }
-
-        val (outWidth, outHeight) = computeOutputSize(srcWidth, srcHeight, options)
-        val isSampled = outWidth < srcWidth || outHeight < srcHeight
-        val durationMs = movie.duration().takeIf { it > 0 } ?: DEFAULT_DURATION_MS
-        val repeatCount = gifRepeatCount(parseGifLoopCount(bytes))
-
-        val firstFrame = Bitmap.createBitmap(
-            outWidth.coerceAtLeast(1),
-            outHeight.coerceAtLeast(1),
-            Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(firstFrame)
-        canvas.scale(
-            outWidth.toFloat() / srcWidth.toFloat(),
-            outHeight.toFloat() / srcHeight.toFloat()
-        )
-        movie.setTime(0)
-        movie.draw(canvas, 0f, 0f)
-
-        val painter = MovieGifPainter(
-            movie = movie,
-            durationMs = durationMs,
-            repeatCount = repeatCount,
-            intrinsicWidth = outWidth,
-            intrinsicHeight = outHeight,
-        )
-
-        val image = GifCoilImage(
-            firstFrame = firstFrame.asImage(),
-            painter = painter,
-            width = outWidth,
-            height = outHeight,
-            size = outWidth.toLong() * outHeight.toLong() * 4L,
-            shareable = false,
-        )
-
-        return GifDecodeResult(image = image, isSampled = isSampled)
+    val srcWidth = movie.width()
+    val srcHeight = movie.height()
+    if (srcWidth <= 0 || srcHeight <= 0) {
+        error("Invalid GIF size: ${srcWidth}x${srcHeight}")
     }
+
+    val (outWidth, outHeight) = computeOutputSize(srcWidth, srcHeight, options)
+    val isSampled = outWidth < srcWidth || outHeight < srcHeight
+    val durationMs = movie.duration().takeIf { it > 0 } ?: DEFAULT_DURATION_MS
+    val repeatCount = gifRepeatCount(bytes)
+
+    val firstFrame = Bitmap.createBitmap(
+        outWidth.coerceAtLeast(1),
+        outHeight.coerceAtLeast(1),
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(firstFrame)
+    canvas.scale(
+        outWidth.toFloat() / srcWidth.toFloat(),
+        outHeight.toFloat() / srcHeight.toFloat()
+    )
+    movie.setTime(0)
+    movie.draw(canvas, 0f, 0f)
+
+    val painter = MovieGifPainter(
+        movie = movie,
+        durationMs = durationMs,
+        repeatCount = repeatCount,
+        intrinsicWidth = outWidth,
+        intrinsicHeight = outHeight,
+    )
+
+    val image = GifCoilImage(
+        firstFrame = firstFrame.asImage(),
+        painter = painter,
+        width = outWidth,
+        height = outHeight,
+        size = outWidth.toLong() * outHeight.toLong() * 4L,
+        shareable = false,
+    )
+
+    return GifDecodeResult(image = image, isSampled = isSampled)
 }
+
 
 private class MovieGifPainter(
     private val movie: Movie,
