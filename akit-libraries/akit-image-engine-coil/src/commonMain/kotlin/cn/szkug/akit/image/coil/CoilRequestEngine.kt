@@ -46,7 +46,7 @@ private value class CoilEngineContext(val context: PlatformContext) : EngineCont
 
 private val CoilEngineContextProvider: EngineContextProvider =
     { CoilEngineContext(LocalPlatformContext.current) }
-private val EngineContext.context get() = (this as CoilEngineContext).context
+val EngineContext.context get() = (this as CoilEngineContext).context
 
 class PainterAsyncLoadData(val painter: Painter) : AsyncLoadData {
     override fun painter(): Painter {

@@ -26,6 +26,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import cn.szkug.akit.image.glide.extensions.ninepatch.NinepatchEnableOption
+import cn.szkug.akit.image.glide.transformation.BitmapTransformation
+import cn.szkug.akit.image.glide.transformation.DrawableTransformation
+import cn.szkug.akit.image.glide.transformation.GaussianBlurTransformation
+import cn.szkug.akit.image.glide.transformation.setupTransforms
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.signature.ObjectKey
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +38,7 @@ import java.io.File
 @JvmInline
 internal value class AndroidContext(val context: Context) : EngineContext
 
-internal val EngineContext.context get() = (this as AndroidContext).context
+val EngineContext.context get() = (this as AndroidContext).context
 
 private val GlideEngineContextProvider: EngineContextProvider =
     { AndroidContext(LocalContext.current) }

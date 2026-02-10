@@ -6,8 +6,8 @@ import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
-import cn.szkug.akit.image.glide.LargeBitmapLimitConfig
-import cn.szkug.akit.image.glide.LargeBitmapLimitOption
+import cn.szkug.akit.image.glide.transformation.LargeBitmapLimitConfig
+import cn.szkug.akit.image.glide.transformation.LargeBitmapLimitOption
 
 
 @GlideModule

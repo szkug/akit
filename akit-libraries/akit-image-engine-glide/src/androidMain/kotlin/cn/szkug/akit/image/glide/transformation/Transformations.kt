@@ -1,13 +1,12 @@
-package cn.szkug.akit.image.glide
+package cn.szkug.akit.image.glide.transformation
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.NinePatchDrawable
-import android.util.Log
 import androidx.compose.ui.layout.ContentScale
 import cn.szkug.akit.image.ImageTransformation
+import cn.szkug.akit.image.glide.AndroidContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.Key.CHARSET
@@ -15,11 +14,8 @@ import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.load.resource.bitmap.DrawableTransformation
 import com.bumptech.glide.request.autoCloneEnabled
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.drawable.DrawableResource
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.util.Util
@@ -81,7 +77,7 @@ abstract class DrawableTransformation : ImageTransformation<Drawable>, Transform
         val toTransform = resource.get()
 
         val targetWidth =
-            if (outWidth == com.bumptech.glide.request.target.Target.SIZE_ORIGINAL) toTransform.intrinsicWidth else outWidth
+            if (outWidth == Target.SIZE_ORIGINAL) toTransform.intrinsicWidth else outWidth
         val targetHeight =
             if (outHeight == Target.SIZE_ORIGINAL) toTransform.intrinsicHeight else outHeight
         val transformed = transform(AndroidContext(context), toTransform, targetWidth, targetHeight)

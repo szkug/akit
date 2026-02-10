@@ -1,4 +1,4 @@
-package cn.szkug.akit.image.glide
+package cn.szkug.akit.image.glide.transformation
 
 import android.graphics.Bitmap
 import cn.szkug.akit.graph.renderscript.BlurConfig

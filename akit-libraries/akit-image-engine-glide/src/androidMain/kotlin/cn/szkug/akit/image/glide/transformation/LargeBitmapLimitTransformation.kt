@@ -1,4 +1,4 @@
-package cn.szkug.akit.image.glide
+package cn.szkug.akit.image.glide.transformation
 
 import android.graphics.Bitmap
 import android.util.Log
@@ -7,6 +7,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.visibleGlideContext
 import cn.szkug.akit.image.EngineContext
+import cn.szkug.akit.image.glide.context
 import kotlin.math.min
 
 data class LargeBitmapLimitConfig(val maxWidth: Int, val maxHeight: Int)
