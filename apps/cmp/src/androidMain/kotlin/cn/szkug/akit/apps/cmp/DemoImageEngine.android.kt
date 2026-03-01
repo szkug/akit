@@ -6,4 +6,4 @@ import cn.szkug.akit.image.glide.GlideRequestEngine
 import cn.szkug.akit.image.coil.CoilRequestEngine
 
 @Composable
-actual fun rememberDemoAsyncEngine(): AsyncRequestEngine<*> = CoilRequestEngine.Normal // GlideRequestEngine.Normal
+actual fun rememberDemoAsyncEngine(): AsyncRequestEngine<*> = GlideRequestEngine.Normal // GlideRequestEngine.Normal

@@ -62,6 +62,7 @@ private class DrawableFlowTarget(
         isFirstResource: Boolean
     ): Boolean {
         context.logger.error("FlowTarget", e)
+        context.listener?.onFailure(model, e ?: GlideException("unknow exception"))
         return false
     }
 
@@ -75,6 +76,7 @@ private class DrawableFlowTarget(
         context.logger.info("FlowTarget") {
             "onResourceReady first:$isFirstResource source:$dataSource model:$model"
         }
+        context.listener?.onSuccess(model)
 
         return false
     }
