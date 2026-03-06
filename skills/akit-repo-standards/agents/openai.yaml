@@ -1,0 +1,4 @@
+interface:
+  display_name: "AKit Repo Standards"
+  short_description: "Apply AKit repo architecture and code conventions."
+  default_prompt: "Use this skill when changing the AKit repository to follow its architecture, code style, and design conventions."
