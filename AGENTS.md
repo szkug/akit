@@ -72,15 +72,10 @@ Repository standards skill:
 
 ## Trigger Rules
 
-Always load and use `agent-self-optimizing-loop` when any request matches one or more of these intents:
+Always load and use `agent-self-optimizing-loop` for every task in this repository.
 
-1. Introduce or operate self-optimization workflow in this repository.
-2. Log task token/duration/success/rework metrics.
-3. Compare skill impact vs baseline (`token_reduction_pct`, `duration_reduction_pct`, success/rework deltas).
-4. Run weekly incident/error review.
-5. Analyze pre/post efficiency around a cutover date.
-6. Discover optimization opportunities for existing skills.
-7. Open or use the local dashboard for metric filtering and optimization triggering.
+This is a global default, not a scenario-only trigger. It applies to functional coding tasks,
+bug fixes, refactors, reviews, and documentation changes.
 
 Always load and use `akit-repo-standards` when any request matches one or more of these intents:
 
@@ -94,13 +89,13 @@ Always load and use `akit-repo-standards` when any request matches one or more o
 1. Ensure workspace data is initialized:
 
 ```bash
-./.agent-loop/scripts/setup_loop_workspace.sh --workspace "$(pwd)"
+./.agent-loop/skills/agent-self-optimizing-loop/scripts/setup_loop_workspace.sh --workspace "$(pwd)"
 ```
 
-2. At task completion, auto-run collection + analysis + weekly review:
+2. At task completion, always auto-run collection + analysis + weekly review:
 
 ```bash
-./.agent-loop/scripts/auto_run_loop.sh \
+./.agent-loop/skills/agent-self-optimizing-loop/scripts/auto_run_loop.sh \
   --task-id <task-id> \
   --task-type <task-type> \
   --project akit \
@@ -116,13 +111,13 @@ Always load and use `akit-repo-standards` when any request matches one or more o
 3. For interactive analysis, use dashboard:
 
 ```bash
-./.agent-loop/scripts/dashboard_server.sh --host 127.0.0.1 --port 8765
+./.agent-loop/skills/agent-self-optimizing-loop/scripts/dashboard_server.sh --host 127.0.0.1 --port 8765
 ```
 
 4. For per-skill optimization plan generation:
 
 ```bash
-./.agent-loop/scripts/optimize_skill.sh --skill <skill-name>
+./.agent-loop/skills/agent-self-optimizing-loop/scripts/optimize_skill.sh --skill <skill-name>
 ```
 
 When `akit-repo-standards` is triggered:
@@ -147,7 +142,7 @@ cat skills/akit-repo-standards/references/architecture-and-conventions.md
 A task is considered complete only when all applicable checks pass:
 
 1. Requested code/doc change is complete.
-2. If optimization skill was triggered, at least one new row is added to `.agent-loop-data/metrics/task-runs.csv`.
+2. For each completed task, at least one new row is added to `.agent-loop-data/metrics/task-runs.csv`.
 3. For analysis/optimization requests, expected report artifacts are generated under `.agent-loop-data/reports/`.
 4. If `akit-repo-standards` was triggered:
    - architecture/style constraints were applied,
