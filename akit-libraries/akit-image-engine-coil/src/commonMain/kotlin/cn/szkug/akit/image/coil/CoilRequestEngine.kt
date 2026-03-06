@@ -23,6 +23,7 @@ import cn.szkug.akit.image.coil.support.LottieDecoder
 import cn.szkug.akit.image.coil.support.LottieIterationsKey
 import cn.szkug.akit.image.coil.support.NinePatchDecodeEnabled
 import cn.szkug.akit.image.coil.support.NinePatchDecoder
+import cn.szkug.akit.image.coil.support.platformDecoderFactories
 import coil3.Image
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -67,7 +68,8 @@ open class CoilImageLoaderSingletonFactory : CoilImageLoaderFactory {
     final override fun get(context: PlatformContext): ImageLoader {
         return reference.value ?: create(
             context,
-            listOf(NinePatchDecoder.Factory(), GifDecoder.Factory(), LottieDecoder.Factory())
+            listOf(NinePatchDecoder.Factory(), GifDecoder.Factory(), LottieDecoder.Factory()) +
+                platformDecoderFactories()
         ).also {
             reference.value = it
         }

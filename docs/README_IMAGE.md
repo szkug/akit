@@ -6,8 +6,9 @@ implementations live in separate modules so you can pick the platform backends y
 ## Features
 
 - `AkitAsyncImage` composable and `Modifier.akitAsyncBackground`.
-- Engine modules: Glide (Android) / Coil 3 (iOS).
+- Engine modules: Glide (Android) / Coil 3 (Android & iOS).
 - Supports `.9` NinePatch, GIF, and Lottie.
+- Supports loading video URL as thumbnail (first key frame) on Coil (Android & iOS).
 - Optional blur via `BlurConfig`.
 - Pluggable `AsyncRequestEngine` for custom loaders.
 
@@ -79,6 +80,17 @@ AkitAsyncImage(
     contentDescription = null,
     modifier = Modifier.size(96.dp),
     engine = engine,
+)
+```
+
+Video first-frame thumbnail (Coil on Android + iOS):
+
+```kotlin
+AkitAsyncImage(
+    model = "https://example.com/video.mp4",
+    contentDescription = null,
+    modifier = Modifier.size(120.dp),
+    engine = CoilRequestEngine.Normal,
 )
 ```
 
