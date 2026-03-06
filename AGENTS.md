@@ -84,67 +84,22 @@ Always load and use `akit-repo-standards` when any request matches one or more o
 3. Add or adjust KMP `expect/actual`, Compose APIs, resources runtime/plugin behavior, image engines, or graph utilities.
 4. Perform repository-level code review against local conventions and design constraints.
 
-## Required Workflow When Triggered
+## Skill Execution Source of Truth
 
-1. Ensure workspace data is initialized:
-
-```bash
-./.agent-loop/skills/agent-self-optimizing-loop/scripts/setup_loop_workspace.sh --workspace "$(pwd)"
-```
-
-2. At task completion, always auto-run collection + analysis + weekly review:
-
-```bash
-./.agent-loop/skills/agent-self-optimizing-loop/scripts/auto_run_loop.sh \
-  --task-id <task-id> \
-  --task-type <task-type> \
-  --project akit \
-  --model <model> \
-  --used-skill true \
-  --skill-name agent-self-optimizing-loop \
-  --total-tokens <tokens> \
-  --duration-sec <duration-sec> \
-  --success <true|false> \
-  --rework-count <count>
-```
-
-3. For interactive analysis, use dashboard:
-
-```bash
-./.agent-loop/skills/agent-self-optimizing-loop/scripts/dashboard_server.sh --host 127.0.0.1 --port 8765
-```
-
-4. For per-skill optimization plan generation:
-
-```bash
-./.agent-loop/skills/agent-self-optimizing-loop/scripts/optimize_skill.sh --skill <skill-name>
-```
-
-When `akit-repo-standards` is triggered:
-
-1. Load the skill:
-
-```bash
-cat skills/akit-repo-standards/SKILL.md
-```
-
-2. For non-trivial changes, load detailed reference:
-
-```bash
-cat skills/akit-repo-standards/references/architecture-and-conventions.md
-```
-
-3. Before editing, map requested changes to module boundaries (library/app/plugin/build-logic).
-4. Before completion, run checklist validation from the skill (dependency direction, source-set placement, API typing, docs impact).
+- Do not duplicate self-optimization workflow commands in this file.
+- For `agent-self-optimizing-loop`, follow execution rules in:
+  - `./.agent-loop/skills/agent-self-optimizing-loop/SKILL.md`
+- For `akit-repo-standards`, follow execution rules in:
+  - `./skills/akit-repo-standards/SKILL.md`
+  - `./skills/akit-repo-standards/references/architecture-and-conventions.md` (for non-trivial changes)
 
 ## Definition of Done
 
 A task is considered complete only when all applicable checks pass:
 
 1. Requested code/doc change is complete.
-2. For each completed task, at least one new row is added to `.agent-loop-data/metrics/task-runs.csv`.
-3. For analysis/optimization requests, expected report artifacts are generated under `.agent-loop-data/reports/`.
-4. If `akit-repo-standards` was triggered:
+2. Triggered skill workflows were followed based on their own `SKILL.md` rules.
+3. If `akit-repo-standards` was triggered:
    - architecture/style constraints were applied,
    - at least one relevant module-level compile/test check ran (or a blocker is explicitly reported),
    - public-facing behavior changes are documented (or explicitly confirmed as not needed).
