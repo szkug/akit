@@ -4,9 +4,10 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
 import cn.szkug.akit.image.AsyncLoadResult
-import cn.szkug.akit.image.ImageSize
 import cn.szkug.akit.image.AsyncImageContext
+import cn.szkug.akit.image.AsyncImageSizeLimit
 import cn.szkug.akit.image.ResolvableImageSize
+import cn.szkug.akit.image.clampTo
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -40,9 +41,10 @@ internal fun flowOfId(
 internal fun RequestBuilder<Drawable>.flowDrawableOfSize(
     context: AsyncImageContext,
     size: ResolvableImageSize,
+    sizeLimit: AsyncImageSizeLimit?,
 ): Flow<AsyncLoadResult<DrawableAsyncLoadData>> {
     return callbackFlow {
-        val target = DrawableFlowTarget(context, this, size)
+        val target = DrawableFlowTarget(context, this, size, sizeLimit)
         // use add listener
         addListener(target).into(target)
         awaitClose { manager.clear(target) }
@@ -53,6 +55,7 @@ private class DrawableFlowTarget(
     private val context: AsyncImageContext,
     private val scope: ProducerScope<AsyncLoadResult<DrawableAsyncLoadData>>,
     private val size: ResolvableImageSize,
+    private val sizeLimit: AsyncImageSizeLimit?,
 ) : Target<Drawable>, RequestListener<Drawable> {
 
     override fun onLoadFailed(
@@ -83,7 +86,14 @@ private class DrawableFlowTarget(
 
     override fun getSize(cb: SizeReadyCallback) {
         scope.launch(Dispatchers.IO) {
-            val complete = size.awaitSize()
+            val requested = size.awaitSize()
+            val complete = requested.clampTo(sizeLimit)
+            if (requested != complete && sizeLimit != null) {
+                context.logger.warn(
+                    "LargeBitmapLimit",
+                    "clamp request size: $requested -> $complete by limit=$sizeLimit"
+                )
+            }
             context.logger.debug("FlowTarget") { "getSize $complete" }
             cb.onSizeReady(complete.width, complete.height)
         }

@@ -137,7 +137,7 @@ private fun RequestBuilder<Drawable>.extendCenterCrop(
     drawables: List<Transformation<Drawable>>,
 ) =
     optionalCenterCrop().optionalTransforms(
-        bitmaps + LargeBitmapLimitTransformation,
+        bitmaps,
         drawables
     )
 
@@ -146,7 +146,7 @@ private fun RequestBuilder<Drawable>.extendCenterInside(
     drawables: List<Transformation<Drawable>>,
 ) =
     optionalCenterInside().optionalTransforms(
-        bitmaps + LargeBitmapLimitTransformation,
+        bitmaps,
         drawables
     )
 

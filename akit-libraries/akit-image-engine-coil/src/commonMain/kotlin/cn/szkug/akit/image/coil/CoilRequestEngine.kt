@@ -9,6 +9,7 @@ import cn.szkug.akit.image.AsyncRequestEngine
 import cn.szkug.akit.image.RequestModel
 import cn.szkug.akit.image.ResolvableImageSize
 import cn.szkug.akit.image.ResourceModel
+import cn.szkug.akit.image.clampTo
 import cn.szkug.akit.graph.lottie.LottieResource
 import cn.szkug.akit.image.EngineContext
 import cn.szkug.akit.image.EngineContextProvider
@@ -99,7 +100,14 @@ class CoilRequestEngine(
         failureModel: ResourceModel?,
     ): Flow<AsyncLoadResult<PainterAsyncLoadData>> = callbackFlow {
 
-        val size = size.awaitSize()
+        val requestedSize = size.awaitSize()
+        val resolvedSize = requestedSize.clampTo(imageContext.sizeLimit)
+        if (requestedSize != resolvedSize && imageContext.sizeLimit != null) {
+            imageContext.logger.warn(
+                "CoilRequestEngine",
+                "clamp request size: $requestedSize -> $resolvedSize by limit=${imageContext.sizeLimit}"
+            )
+        }
         val rawModel = requestModel.model
         val resolvedModel = when (rawModel) {
             is LottieResource -> resolveLottieResource(rawModel.resource)
@@ -130,7 +138,7 @@ class CoilRequestEngine(
         val target = CoilFlowTarget(imageContext, engineContext, this)
 
         val request = builder
-            .size(size.width, size.height)
+            .size(resolvedSize.width, resolvedSize.height)
             .listener(target)
             .target(target)
             .build()

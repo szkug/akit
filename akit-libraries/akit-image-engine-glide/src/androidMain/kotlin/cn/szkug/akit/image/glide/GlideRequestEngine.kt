@@ -12,6 +12,7 @@ import cn.szkug.akit.graph.toPainter
 import cn.szkug.akit.image.AsyncLoadData
 import cn.szkug.akit.image.AsyncLoadResult
 import cn.szkug.akit.image.AsyncImageContext
+import cn.szkug.akit.image.AsyncImageSizeLimit
 import cn.szkug.akit.image.AsyncRequestEngine
 import cn.szkug.akit.image.DrawableModel
 import cn.szkug.akit.image.RequestModel
@@ -75,14 +76,15 @@ class GlideRequestEngine(
         } else {
             bitmapTransformations + GaussianBlurTransformation(blurConfig)
         }
+        val sizeLimit = imageContext.sizeLimit
         return requestBuilder(engineContext, imageContext).setupTransforms(
             contentScale,
             contextBitmapTransformations,
-            drawableTransformations
+            drawableTransformations,
         ).setupContext(imageContext, requestModel)
             .setupSize(size)
             .setupFailure(failureModel)
-            .flowOfRequest(imageContext, engineContext.context, requestModel, size)
+            .flowOfRequest(imageContext, engineContext.context, requestModel, size, sizeLimit)
     }
 
     private fun <T> RequestBuilder<T>.setupContext(
@@ -133,6 +135,7 @@ class GlideRequestEngine(
         context: Context,
         requestModel: RequestModel,
         size: ResolvableImageSize,
+        sizeLimit: AsyncImageSizeLimit?,
     ): Flow<AsyncLoadResult<DrawableAsyncLoadData>> {
         return when (val model = requestModel.model) {
             is Int -> return flowOfId(context, model)
@@ -143,7 +146,7 @@ class GlideRequestEngine(
             is Bitmap -> load(model)
             is Drawable -> load(model)
             else -> load(model)
-        }.flowDrawableOfSize(imageContext, size)
+        }.flowDrawableOfSize(imageContext, size, sizeLimit)
     }
 
     companion object {

@@ -149,20 +149,23 @@ AkitAsyncImage(
 
 ## Android large-bitmap guard
 
-Akit ships a Glide transformation to prevent `draw too large bitmap` crashes. Configure it via
-Glide options:
+Akit supports request size clamping via `AsyncImageContext.sizeLimit` to prevent
+`draw too large bitmap` crashes:
 
 ```kotlin
-@GlideModule
-class GlideAppModuleImpl : AppGlideModule() {
-    override fun applyOptions(context: Context, builder: GlideBuilder) {
-        val metrics = context.resources.displayMetrics
-        builder.setDefaultRequestOptions(
-            RequestOptions().set(
-                LargeBitmapLimitOption,
-                LargeBitmapLimitConfig(metrics.widthPixels, metrics.heightPixels),
-            ),
-        )
-    }
-}
+val metrics = LocalContext.current.resources.displayMetrics
+val context = rememberAsyncImageContext(
+    sizeLimit = AsyncImageSizeLimit(
+        maxWidth = metrics.widthPixels,
+        maxHeight = metrics.heightPixels,
+    ),
+)
+
+AkitAsyncImage(
+    model = url,
+    contentDescription = null,
+    modifier = Modifier.size(120.dp),
+    context = context,
+    engine = GlideRequestEngine.Normal,
+)
 ```

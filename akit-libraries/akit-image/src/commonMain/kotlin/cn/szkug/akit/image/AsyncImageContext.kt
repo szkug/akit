@@ -1,10 +1,8 @@
 package cn.szkug.akit.image
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.text.intl.LocaleList
 import cn.szkug.akit.graph.renderscript.BlurConfig
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
@@ -31,6 +29,11 @@ interface AsyncImageLoadListener {
     fun onCancel(model: Any?) {}
 }
 
+data class AsyncImageSizeLimit(
+    val maxWidth: Int = 0,
+    val maxHeight: Int = 0,
+)
+
 class AsyncImageContext(
     val coroutineContext: CoroutineContext,
 
@@ -40,6 +43,7 @@ class AsyncImageContext(
 
     val animationIterations: Int = -1,
     val blurConfig: BlurConfig? = null,
+    val sizeLimit: AsyncImageSizeLimit? = null,
 
     // extension support
     val supportNinepatch: Boolean = false,
@@ -55,18 +59,20 @@ fun rememberAsyncImageContext(
     listener: AsyncImageLoadListener? = null,
     animationContext: CoroutineContext = rememberCoroutineScope().coroutineContext,
     blurConfig: BlurConfig? = null,
+    sizeLimit: AsyncImageSizeLimit? = null,
     // extension support
     supportNinepatch: Boolean = false,
     vararg keys: Any?,
 ): AsyncImageContext {
 
-    return remember(ignoreImagePadding, supportNinepatch, animationContext, blurConfig, *keys) {
+    return remember(ignoreImagePadding, supportNinepatch, animationContext, blurConfig, sizeLimit, *keys) {
         AsyncImageContext(
             ignoreImagePadding = ignoreImagePadding,
             logger = logger,
             listener = listener,
             coroutineContext = animationContext,
             blurConfig = blurConfig,
+            sizeLimit = sizeLimit,
             supportNinepatch = supportNinepatch
         )
     }
