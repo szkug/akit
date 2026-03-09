@@ -1,0 +1,2 @@
+date,task_id,task_type,project,model,used_skill,skill_name,total_tokens,duration_sec,success,rework_count
+2026-03-09,TASK-20260309-AKIT-PATH-VERIFY,verify,akit,gpt-5,true,agent-self-optimizing-loop,0,0,true,0
