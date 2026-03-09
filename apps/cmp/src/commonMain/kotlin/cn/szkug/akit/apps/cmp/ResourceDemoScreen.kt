@@ -166,6 +166,7 @@ fun ResourceDemoPage(onBack: () -> Unit) {
 
             item {
                 SectionTitle(text = stringResource(Res.labels.values_demo_title))
+                Text(text = stringResource(Res.strings.android_escape_apostrophe_demo))
                 Text(text = stringResource(Res.strings.sample_short))
                 Text(text = stringResource(Res.strings.sample_medium))
                 Text(text = stringResource(Res.strings.sample_long))

@@ -1106,7 +1106,9 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
             file.writeText(buildString {
                 val sorted = strings.sortedBy { it.name }
                 for (string in sorted) {
-                    val escaped = escapeIosString(convertAndroidFormatToIos(string.value))
+                    val escaped = escapeIosString(
+                        convertAndroidFormatToIos(unescapeAndroidString(string.value))
+                    )
                     append('"')
                     append(string.name)
                     append('"')
@@ -1204,7 +1206,7 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
                     append(xmlEscape(quantity))
                     appendLine("</key>")
                     append("      <string>")
-                    append(xmlEscape(convertAndroidPluralFormatToIos(value)))
+                    append(xmlEscape(convertAndroidPluralFormatToIos(unescapeAndroidString(value))))
                     appendLine("</string>")
                 }
                 appendLine("    </dict>")
@@ -1352,6 +1354,74 @@ abstract class GenerateCmpResourcesTask : DefaultTask() {
         } else {
             "$name$suffix"
         }
+    }
+
+    private fun unescapeAndroidString(value: String): String {
+        if (!value.contains('\\')) return value
+        val out = StringBuilder(value.length)
+        var index = 0
+        while (index < value.length) {
+            val ch = value[index]
+            if (ch == '\\' && index + 1 < value.length) {
+                val next = value[index + 1]
+                when (next) {
+                    'n' -> {
+                        out.append('\n')
+                        index += 2
+                        continue
+                    }
+                    'r' -> {
+                        out.append('\r')
+                        index += 2
+                        continue
+                    }
+                    't' -> {
+                        out.append('\t')
+                        index += 2
+                        continue
+                    }
+                    '"' -> {
+                        out.append('"')
+                        index += 2
+                        continue
+                    }
+                    '\'' -> {
+                        out.append('\'')
+                        index += 2
+                        continue
+                    }
+                    '\\' -> {
+                        out.append('\\')
+                        index += 2
+                        continue
+                    }
+                    '@' -> {
+                        out.append('@')
+                        index += 2
+                        continue
+                    }
+                    '?' -> {
+                        out.append('?')
+                        index += 2
+                        continue
+                    }
+                    'u' -> {
+                        if (index + 5 < value.length) {
+                            val hex = value.substring(index + 2, index + 6)
+                            val code = hex.toIntOrNull(16)
+                            if (code != null) {
+                                out.append(code.toChar())
+                                index += 6
+                                continue
+                            }
+                        }
+                    }
+                }
+            }
+            out.append(ch)
+            index += 1
+        }
+        return out.toString()
     }
 
     private fun escapeIosString(value: String): String {

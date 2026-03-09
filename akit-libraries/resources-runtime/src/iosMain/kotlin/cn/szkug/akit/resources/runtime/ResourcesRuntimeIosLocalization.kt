@@ -402,6 +402,11 @@ internal object LocalizationIos {
                         index += 2
                         continue
                     }
+                    '\'' -> {
+                        out.append('\'')
+                        index += 2
+                        continue
+                    }
                     '\\' -> {
                         out.append('\\')
                         index += 2
