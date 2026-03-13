@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Optsmith"
+  short_description: "Run measurable agent optimization workflow in any software project."
+  default_prompt: "Use this skill when asked to introduce, operate, or measure a project-level Agent Optsmith workflow."

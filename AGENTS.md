@@ -6,6 +6,8 @@ Use project-local skills and scripts to deliver high-quality outcomes with measu
 For code changes in this repository, prioritize module boundaries, Kotlin Multiplatform portability,
 typed APIs, and predictable validation.
 
+Project-local skills live under `./.agents/skills/`.
+
 ## Repository Architecture Snapshot
 
 AKit is a multi-project Gradle repository (Kotlin DSL) with included builds:
@@ -60,22 +62,7 @@ Main module responsibilities:
 3. Cross-platform features should define Android/iOS parity clearly (or explicitly document gaps).
 4. Public module API changes should be reflected in `docs/README_RESOURCE*`, `docs/README_IMAGE*`, or `docs/README_GRAPH*`.
 
-## Skill Source
-
-Primary optimization skill is vendored via submodule:
-
-- path: `.agent-loop/skills/agent-self-optimizing-loop/SKILL.md`
-
-Repository standards skill:
-
-- path: `skills/akit-repo-standards/SKILL.md`
-
 ## Trigger Rules
-
-Always load and use `agent-self-optimizing-loop` for every task in this repository.
-
-This is a global default, not a scenario-only trigger. It applies to functional coding tasks,
-bug fixes, refactors, reviews, and documentation changes.
 
 Always load and use `akit-repo-standards` when any request matches one or more of these intents:
 
@@ -86,12 +73,9 @@ Always load and use `akit-repo-standards` when any request matches one or more o
 
 ## Skill Execution Source of Truth
 
-- Do not duplicate self-optimization workflow commands in this file.
-- For `agent-self-optimizing-loop`, follow execution rules in:
-  - `./.agent-loop/skills/agent-self-optimizing-loop/SKILL.md`
 - For `akit-repo-standards`, follow execution rules in:
-  - `./skills/akit-repo-standards/SKILL.md`
-  - `./skills/akit-repo-standards/references/architecture-and-conventions.md` (for non-trivial changes)
+  - `./.agents/skills/akit-repo-standards/SKILL.md`
+  - `./.agents/skills/akit-repo-standards/references/architecture-and-conventions.md` (for non-trivial changes)
 
 ## Definition of Done
 
@@ -103,3 +87,11 @@ A task is considered complete only when all applicable checks pass:
    - architecture/style constraints were applied,
    - at least one relevant module-level compile/test check ran (or a blocker is explicitly reported),
    - public-facing behavior changes are documented (or explicitly confirmed as not needed).
+
+<!-- OPTSMITH-SKILL:START -->
+## Agent Optsmith Integration
+- skill: `agent-optsmith`
+- skill_dir: `.agents/skills`
+- data_dir: `.agents/optsmith-data`
+- At task completion, run `optsmith run ...`.
+<!-- OPTSMITH-SKILL:END -->

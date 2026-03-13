@@ -1,3 +1,0 @@
-[submodule ".agent-loop"]
-	path = .agent-loop
-	url = git@github.com:korilin/agent-auto-self-optimizing-closed-loop.git
