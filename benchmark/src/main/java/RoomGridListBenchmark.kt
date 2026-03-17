@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace.benchmark
+package akit.sample.benchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode

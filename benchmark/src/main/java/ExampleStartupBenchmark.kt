@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace.benchmark
+package akit.sample.benchmark
 
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
@@ -16,7 +16,7 @@ class ExampleStartupBenchmark {
 
     @Test
     fun startup() = benchmarkRule.measureRepeated(
-        packageName = "cn.szkug.samples.compose.trace",
+        packageName = "akit.sample",
         metrics = listOf(StartupTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.COLD,

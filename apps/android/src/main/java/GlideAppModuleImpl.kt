@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace
+package akit.sample
 
 import android.content.Context
 import com.bumptech.glide.GlideBuilder

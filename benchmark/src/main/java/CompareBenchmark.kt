@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace.benchmark
+package akit.sample.benchmark
 
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric

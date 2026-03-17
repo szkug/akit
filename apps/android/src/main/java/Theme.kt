@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace.theme
+package akit.sample.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

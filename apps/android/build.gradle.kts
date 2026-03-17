@@ -17,12 +17,12 @@ android {
             initWith(debug)
         }
     }
-    namespace = "cn.szkug.samples.compose.trace"
+    namespace = "akit.sample"
     compileSdk = 35
 
 
     defaultConfig {
-        applicationId = "cn.szkug.samples.compose.trace"
+        applicationId = "akit.sample"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

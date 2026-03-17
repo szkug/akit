@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace
+package akit.sample
 
 import android.graphics.Rect
 import android.graphics.drawable.NinePatchDrawable

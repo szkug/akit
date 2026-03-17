@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace.theme
+package akit.sample.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

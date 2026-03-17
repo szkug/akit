@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace.stash
+package akit.sample.stash
 
 import android.os.Build
 import android.view.View

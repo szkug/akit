@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "cn.szkug.samples.compose.trace.benchmark"
+    namespace = "akit.sample.benchmark"
     compileSdk = 35
 
     defaultConfig {

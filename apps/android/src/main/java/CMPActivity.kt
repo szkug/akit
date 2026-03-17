@@ -1,4 +1,4 @@
-package cn.szkug.samples.compose.trace.acts
+package akit.sample.acts
 
 import android.content.Context
 import android.os.Bundle
