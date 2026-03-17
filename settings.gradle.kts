@@ -26,7 +26,7 @@ dependencyResolutionManagement {
 // open projects accessors feature
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "akit"
+rootProject.name = "munchikin-sample"
 
 // build logic
 includeBuild("plugins")

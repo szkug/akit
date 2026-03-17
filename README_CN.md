@@ -1,68 +1,21 @@
-# AKit
+# Munchkin Sample
 
-Compose Multiplatform 的资源、图片加载与图形辅助库。
+Munchkin Compose Multiplatform 组件库的示例工作区。
 
-当前版本：last_version
+当前仓库会逐步拆分为一个 sample 宿主仓库，以及 `libs/` 下的三个子模块仓库：
 
-## 组件
+- `libs/graph`：[munchkin-graph](./libs/graph)
+- `libs/image`：[munchkin-image](./libs/image)
+- `libs/resource`：[munchkin-resource](./libs/resource)
 
-- Resources（插件 + 运行时）：生成 `Res` 与强类型 `ResourceId`，跨平台访问资源。
-  详情见：[docs/README_RESOURCE_CN.md](./docs/README_RESOURCE_CN.md)
-- Image：异步图片加载，支持 NinePatch、Lottie、GIF 与模糊（引擎模块为 `akit-image-engine-glide` / `akit-image-engine-coil`）。
-  详情见：[docs/README_IMAGE_CN.md](./docs/README_IMAGE_CN.md)
-- Graph：NinePatch 解析/绘制、Lottie Painter、RenderScript Toolkit、阴影 Modifier。
-  详情见：[docs/README_GRAPH_CN.md](./docs/README_GRAPH_CN.md)
+## 当前仓库保留内容
 
-## 依赖
+- `apps/*`：Android 与 Compose Multiplatform Demo
+- `benchmark`：基准测试工程
+- `plugins/*`：sample 本地构建逻辑
+- 供 sample 与本地库源码联调的仓库级集成配置
 
-```kotlin
-val last_version = "last_version"
-```
+## 拆分计划
 
-运行时库：
-
-```kotlin
-kotlin {
-    sourceSets {
-        commonMain.dependencies {
-            implementation("cn.szkug.akit:resources-runtime:$last_version")
-            implementation("cn.szkug.akit:akit-image:$last_version")
-            implementation("cn.szkug.akit:akit-graph:$last_version")
-        }
-    }
-}
-```
-
-资源插件（仅需要资源的模块使用；iOS 入口模块必须应用以同步传递依赖资源）：
-
-```kotlin
-plugins {
-    id("cn.szkug.akit.resources") version last_version
-}
-```
-
-## 快速示例
-
-```kotlin
-Text(text = stringResource(Res.strings.app_name))
-Text(text = pluralStringResource(Res.strings.common_hours, 2, 2))
-Box(Modifier.background(colorResource(Res.colors.primary)))
-Image(painter = painterResource(Res.drawable.logo), contentDescription = null)
-```
-
-```kotlin
-val engine = GlideRequestEngine.Normal // Android
-// val engine = CoilRequestEngine.Normal // iOS
-
-AkitAsyncImage(
-    model = "https://example.com/avatar.png",
-    contentDescription = null,
-    modifier = Modifier.size(96.dp),
-    engine = engine,
-)
-```
-
-```kotlin
-val lottiePainter = rememberLottiePainter(LottieResource(Res.raw.loading))
-Image(painter = lottiePainter, contentDescription = null)
-```
+当前库源码还暂时保留在本仓内，后续提交会逐步迁移到对应的子仓库中，
+再由当前 sample 工作区通过 `libs/` 进行引用。
