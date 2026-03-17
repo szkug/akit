@@ -1,13 +1,14 @@
 # Munchkin Resource
 
-用于生成强类型 Compose Multiplatform 资源访问 API 的 Gradle 插件和运行时仓库。
+把 Android 风格资源生成为 Compose Multiplatform 可直接使用的强类型资源访问 API。
 
-## 模块
+## 你会得到什么
 
-- `runtime`：`stringResource`、`colorResource`、`painterResource`、`toDp`、`toSp` 等运行时 API
-- `gradle-plugin`：`cn.szkug.munchkin.resources`，负责生成 `Res` 并同步 iOS 资源
+- 生成的 `Res.strings`、`Res.colors`、`Res.dimens`、`Res.drawable`、`Res.raw`
+- 共享运行时 API：`stringResource`、`pluralStringResource`、`colorResource`、`painterResource`、`toDp`、`toSp`
+- KMP 工程下自动完成 iOS 资源同步
 
-## 依赖方式
+## 接入方式
 
 ```kotlin
 plugins {
@@ -21,22 +22,46 @@ kotlin {
         }
     }
 }
+
+android {
+    namespace = "sample.resources"
+}
+
+cmpResources {
+    packageName.set("sample.resources")
+}
 ```
 
-## 能力
+## 资源目录约定
 
-- 生成 `Res.strings`、`Res.colors`、`Res.dimens`、`Res.drawable`、`Res.raw`
-- 提供 Android/iOS 运行时字符串、复数、颜色、Painter、Dimen 解析能力
-- 将 compose 资源同步到 iOS bundle
-- 支持基于 KLIB IR 的 iOS 未使用资源裁剪
+把共享资源放在 `src/res` 下，例如：
 
-## 发布
+- `src/res/values/strings.xml`
+- `src/res/values/colors.xml`
+- `src/res/values/dimens.xml`
+- `src/res/drawable/*`
+- `src/res/raw/*`
 
-```bash
-./gradlew :runtime:publishToMavenLocal :gradle-plugin:publishToMavenLocal
-./gradlew :runtime:publishToMavenCentral
-./gradlew :runtime:publishAndReleaseToMavenCentral
-./gradlew :gradle-plugin:publishPlugins
+如果你还需要 Android 独有资源，可以继续放在 `src/androidMain/res`，并通过 `androidExtraResDir` 暴露给插件。
+
+## 使用生成后的 API
+
+```kotlin
+Text(text = stringResource(Res.strings.title))
+Text(text = pluralStringResource(Res.strings.common_files, 3, 3, "Kori"))
+
+Box(
+    modifier = Modifier
+        .size(Res.dimens.button_width.toDp, Res.dimens.button_height.toDp)
+        .background(colorResource(Res.colors.color_accent))
+)
+
+Image(
+    painter = painterResource(Res.drawable.banner),
+    contentDescription = null,
+)
 ```
 
-`runtime` 发布到 Maven Central。`gradle-plugin` 发布到 Gradle Plugin Portal，需要提供 `GRADLE_PUBLISH_KEY` 和 `GRADLE_PUBLISH_SECRET`。
+## iOS 说明
+
+插件会自动把生成后的资源同步到 iOS 输出目录。如果你的工程会产出多个 framework 或 bundle，建议设置 `iosResourcesPrefix`，保证资源目录名稳定。

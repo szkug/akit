@@ -1,14 +1,13 @@
 # Munchkin Image
 
-Compose Multiplatform async image loading with a shared API and pluggable engines.
+A shared async image API for Compose Multiplatform with Coil and Glide engines.
 
-## Modules
+## Choose An Engine
 
-- `image`: core async image API and Compose modifiers
-- `engine-coil`: Coil 3 engine for Android and iOS
-- `engine-glide`: Glide engine for Android
+- `engine-coil`: use this when you need Android + iOS support with one engine choice
+- `engine-glide`: use this when you want Android-only integration with Glide
 
-## Coordinates
+## Install
 
 ```kotlin
 kotlin {
@@ -17,8 +16,8 @@ kotlin {
             implementation("cn.szkug.munchkin:image:<version>")
         }
         androidMain.dependencies {
-            implementation("cn.szkug.munchkin:engine-glide:<version>")
             implementation("cn.szkug.munchkin:engine-coil:<version>")
+            // or implementation("cn.szkug.munchkin:engine-glide:<version>")
         }
         iosMain.dependencies {
             implementation("cn.szkug.munchkin:engine-coil:<version>")
@@ -27,20 +26,71 @@ kotlin {
 }
 ```
 
-## Features
+## Basic Usage
 
-- `MunchkinAsyncImage` and `Modifier.munchkinAsyncBackground`
-- Glide and Coil engine backends
-- NinePatch, GIF, Lottie, video first-frame thumbnails
-- Optional blur and request size limiting
-- Engine-agnostic request pipeline
-
-## Publish
-
-```bash
-./gradlew :image:publishToMavenLocal :engine-coil:publishToMavenLocal :engine-glide:publishToMavenLocal
-./gradlew :image:publishToMavenCentral :engine-coil:publishToMavenCentral :engine-glide:publishToMavenCentral
-./gradlew :image:publishAndReleaseToMavenCentral :engine-coil:publishAndReleaseToMavenCentral :engine-glide:publishAndReleaseToMavenCentral
+```kotlin
+MunchkinAsyncImage(
+    model = "https://example.com/banner.png",
+    contentDescription = null,
+    modifier = Modifier.size(120.dp),
+    engine = CoilRequestEngine.Normal,
+)
 ```
 
-Publish after `munchkin-graph` and `munchkin-resource:runtime` for the same version are already available.
+On Android, you can switch to Glide without changing the UI API:
+
+```kotlin
+MunchkinAsyncImage(
+    model = "https://example.com/banner.png",
+    contentDescription = null,
+    modifier = Modifier.size(120.dp),
+    engine = GlideRequestEngine.Normal,
+)
+```
+
+## Background Images
+
+```kotlin
+Box(
+    modifier = Modifier
+        .size(160.dp)
+        .munchkinAsyncBackground(
+            model = "https://example.com/cover.png",
+            engine = CoilRequestEngine.Normal,
+        )
+)
+```
+
+## Request Options
+
+```kotlin
+val context = rememberAsyncImageContext(
+    blurConfig = BlurConfig(radius = 12),
+    sizeLimit = AsyncImageSizeLimit(maxWidth = 1080, maxHeight = 1080),
+    supportNinepatch = true,
+)
+
+MunchkinAsyncImage(
+    model = imageUrl,
+    contentDescription = null,
+    context = context,
+    modifier = Modifier.size(160.dp),
+    engine = CoilRequestEngine.Normal,
+)
+```
+
+## Supported Models
+
+The exact model types depend on the engine and platform, but common cases include:
+
+- HTTP URL `String`
+- generated resource ids such as `Res.drawable.*` or `Res.raw.*`
+- `LottieResource`
+- Android `Uri`, `File`, `Int` resource id, `Bitmap`, and `Drawable`
+
+## What The Shared API Gives You
+
+- `MunchkinAsyncImage` for image content
+- `Modifier.munchkinAsyncBackground` for background rendering
+- one request context model for blur, animation iterations, and size limiting
+- engine-specific decoding kept out of your UI layer

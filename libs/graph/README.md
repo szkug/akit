@@ -1,14 +1,15 @@
 # Munchkin Graph
 
-Compose Multiplatform graphics helpers shared across Android and iOS.
+Graphics utilities for Compose Multiplatform on Android and iOS.
 
-## Features
+## When To Use It
 
-- NinePatch parsing and rendering
-- Lottie painter support
-- RenderScript Toolkit bridge on Android and Accelerate-backed processing on iOS
-- `Modifier.munchkinShadow` soft shadow helper
-- Painter utilities for Compose image rendering
+Use `munchkin-graph` when your UI needs:
+
+- NinePatch parsing and drawing in shared Compose code
+- Lottie files rendered as a `Painter`
+- soft shadow rendering with `Modifier.munchkinShadow`
+- cross-platform blur and image-processing helpers
 
 ## Install
 
@@ -22,32 +23,33 @@ kotlin {
 }
 ```
 
-## Publish
-
-```bash
-./gradlew publishToMavenLocal
-./gradlew publishToMavenCentral
-./gradlew publishAndReleaseToMavenCentral
-```
-
-Remote publishing requires Maven Central credentials and in-memory GPG signing via Gradle properties or environment variables.
-
-## Key APIs
+## NinePatch In Shared UI
 
 ```kotlin
 val source = ImageBitmapNinePatchSource(imageBitmap)
 val parsed = parseNinePatch(source, chunkBytes = null)
 val painter = NinePatchPainter(imageBitmap, parsed.chunk ?: NinePatchChunk.createEmptyChunk())
 
-Image(painter = painter, contentDescription = null)
+Image(
+    painter = painter,
+    contentDescription = null,
+)
 ```
+
+## Lottie As A Painter
 
 ```kotlin
 val painter = rememberLottiePainter(
-    LottieResource(Res.raw.loading, iterations = LottieIterations.Forever)
+    LottieResource(Res.raw.loading)
 )
-Image(painter = painter, contentDescription = null)
+
+Image(
+    painter = painter,
+    contentDescription = null,
+)
 ```
+
+## Soft Shadow
 
 ```kotlin
 Box(
@@ -60,3 +62,8 @@ Box(
         )
 )
 ```
+
+## Platform Notes
+
+- Android uses native toolkit support for blur and pixel processing.
+- iOS uses platform-native implementations while keeping the shared API unchanged.

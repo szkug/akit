@@ -1,16 +1,17 @@
 # Munchkin Graph
 
-跨 Android / iOS 共享的 Compose Multiplatform 图形辅助库。
+面向 Android 和 iOS 的 Compose Multiplatform 图形能力库。
 
-## 功能
+## 适合什么场景
 
-- NinePatch 解析与绘制
-- Lottie Painter
-- Android RenderScript Toolkit / iOS Accelerate 图像处理能力
-- `Modifier.munchkinShadow` 软阴影能力
-- Compose Painter 辅助工具
+当你的 UI 需要下面这些能力时，可以接入 `munchkin-graph`：
 
-## 依赖
+- 在共享 Compose 代码里解析和绘制 NinePatch
+- 以 `Painter` 的方式渲染 Lottie 文件
+- 通过 `Modifier.munchkinShadow` 绘制软阴影
+- 使用跨平台的模糊和图像处理能力
+
+## 依赖方式
 
 ```kotlin
 kotlin {
@@ -22,32 +23,33 @@ kotlin {
 }
 ```
 
-## 发布
-
-```bash
-./gradlew publishToMavenLocal
-./gradlew publishToMavenCentral
-./gradlew publishAndReleaseToMavenCentral
-```
-
-远端发布需要通过 Gradle 属性或环境变量提供 Maven Central 凭据和内存 GPG 签名信息。
-
-## 关键 API
+## 在共享 UI 中使用 NinePatch
 
 ```kotlin
 val source = ImageBitmapNinePatchSource(imageBitmap)
 val parsed = parseNinePatch(source, chunkBytes = null)
 val painter = NinePatchPainter(imageBitmap, parsed.chunk ?: NinePatchChunk.createEmptyChunk())
 
-Image(painter = painter, contentDescription = null)
+Image(
+    painter = painter,
+    contentDescription = null,
+)
 ```
+
+## 把 Lottie 当作 Painter 使用
 
 ```kotlin
 val painter = rememberLottiePainter(
-    LottieResource(Res.raw.loading, iterations = LottieIterations.Forever)
+    LottieResource(Res.raw.loading)
 )
-Image(painter = painter, contentDescription = null)
+
+Image(
+    painter = painter,
+    contentDescription = null,
+)
 ```
+
+## 软阴影
 
 ```kotlin
 Box(
@@ -60,3 +62,8 @@ Box(
         )
 )
 ```
+
+## 平台说明
+
+- Android 侧模糊和像素处理使用原生 toolkit 能力。
+- iOS 侧使用平台原生实现，但共享 API 保持一致。

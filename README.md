@@ -2,54 +2,34 @@
 
 [中文文档](./README_CN.md)
 
-Sample workspace and source monorepo for the Munchkin Compose Multiplatform libraries.
+Munchkin Cats is the sample app and reference integration workspace for the Munchkin Compose Multiplatform libraries.
 
-## Repository layout
+## Start Here
 
-- `apps/android`: Android sample app host
-- `apps/cmp`: Compose Multiplatform demo host
-- `apps/cmp-lib`, `apps/cmp-lib2`: shared demo/resource modules
-- `benchmark`: macrobenchmark project for `apps/android`
-- `plugins`: local Gradle build logic used by the workspace
-- `libs/graph`: graphics toolkit module
-- `libs/image`: image modules (`image`, `engine-coil`, `engine-glide`)
-- `libs/resource`: resource modules (`runtime`, `gradle-plugin`)
+Use this repository when you want to:
 
-## Documentation
+- try the libraries before integrating them into your app
+- copy working sample code for Android or Compose Multiplatform
+- verify behavior such as resources, async image loading, NinePatch, Lottie, blur, and shadows
 
-Library-specific documentation lives with each module directory:
+## Run The Demos
 
-- `libs/graph/README.md`
-- `libs/image/README.md`
-- `libs/resource/README.md`
+- `apps/android`: Android sample app with image and resource demos
+- `apps/cmp`: Compose Multiplatform sample app for Android and iOS
 
-Use this root repository for source development, sample integration, publishing, and end-to-end verification.
+Open the project in Android Studio or IntelliJ IDEA, then run either sample app from the IDE.
 
-## Publishing
+## Pick The Guide You Need
 
-Publish the libraries from this workspace root with the aggregate script:
+- [Munchkin Graph](./libs/graph/README.md): NinePatch, Lottie painter, blur helpers, and shadow rendering
+- [Munchkin Image](./libs/image/README.md): `MunchkinAsyncImage`, background image loading, Coil, and Glide
+- [Munchkin Resource](./libs/resource/README.md): generated `Res` accessors and runtime resource APIs
 
-```bash
-./scripts/publish-all.sh --version 0.1.0
-```
+## What You Can Learn From The Samples
 
-Useful variants:
+- how to load remote and local images with one Compose API
+- how to choose Coil on Android/iOS or Glide on Android
+- how to generate strongly typed resource accessors from Android-style resources
+- how to render NinePatch, Lottie, blur, and soft shadows in shared UI
 
-```bash
-./scripts/publish-all.sh --local
-./scripts/publish-all.sh --version 0.1.0 --skip-plugin-portal
-```
-
-The script publishes in dependency order:
-
-1. `libs:graph`
-2. `libs:resource:runtime`
-3. `libs:image:image`
-4. `libs:image:engine-coil`
-5. `libs:image:engine-glide`
-6. `libs/resource/gradle-plugin`
-
-Remote publishing requires these environment variables:
-
-- Maven Central: `ORG_GRADLE_PROJECT_mavenCentralUsername`, `ORG_GRADLE_PROJECT_mavenCentralPassword`, `ORG_GRADLE_PROJECT_signingInMemoryKey`, `ORG_GRADLE_PROJECT_signingInMemoryKeyPassword`
-- Gradle Plugin Portal: `GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`
+If you are integrating a library directly, start with the README in `libs/graph`, `libs/image`, or `libs/resource`.

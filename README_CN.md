@@ -1,53 +1,33 @@
 # Munchkin Cats
 
-Munchkin Compose Multiplatform 组件库的源码与示例 Monorepo。
+Munchkin Cats 是 Munchkin Compose Multiplatform 组件库的示例应用和参考接入工程。
 
-## 仓库结构
+## 从这里开始
 
-- `apps/android`：Android 示例宿主
-- `apps/cmp`：Compose Multiplatform Demo 宿主
-- `apps/cmp-lib`、`apps/cmp-lib2`：共享 Demo / 资源模块
-- `benchmark`：面向 `apps/android` 的 Macrobenchmark 工程
-- `plugins`：工作区使用的本地 Gradle 构建逻辑
-- `libs/graph`：图形能力模块
-- `libs/image`：图片模块（`image`、`engine-coil`、`engine-glide`）
-- `libs/resource`：资源模块（`runtime`、`gradle-plugin`）
+当你需要下面这些内容时，优先看这个仓库：
 
-## 文档位置
+- 在正式接入前先体验组件库能力
+- 直接参考 Android / Compose Multiplatform 的可运行示例代码
+- 验证资源、多端图片加载、NinePatch、Lottie、模糊、阴影等效果
 
-库能力相关文档跟随模块目录维护：
+## 运行 Demo
 
-- `libs/graph/README.md`
-- `libs/image/README.md`
-- `libs/resource/README.md`
+- `apps/android`：Android 示例应用，包含图片和资源相关 Demo
+- `apps/cmp`：Compose Multiplatform 示例应用，可用于 Android 和 iOS
 
-此仓库用于源码开发、sample 集成、发布和端到端验证。
+直接用 Android Studio 或 IntelliJ IDEA 打开工程，然后从 IDE 运行对应示例应用即可。
 
-## 发布
+## 按需求选择文档
 
-在根仓使用聚合脚本发布库：
+- [Munchkin Graph](./libs/graph/README_CN.md)：NinePatch、Lottie Painter、模糊能力、阴影绘制
+- [Munchkin Image](./libs/image/README_CN.md)：`MunchkinAsyncImage`、背景图加载、Coil、Glide
+- [Munchkin Resource](./libs/resource/README_CN.md)：生成式 `Res` 访问器和运行时资源 API
 
-```bash
-./scripts/publish-all.sh --version 0.1.0
-```
+## 你可以从示例中学到什么
 
-常用变体：
+- 如何用一套 Compose API 统一加载网络图和本地资源
+- 如何在 Android / iOS 上选择 Coil，或在 Android 上选择 Glide
+- 如何从 Android 风格资源生成强类型 `Res` 访问器
+- 如何在共享 UI 中使用 NinePatch、Lottie、模糊和软阴影
 
-```bash
-./scripts/publish-all.sh --local
-./scripts/publish-all.sh --version 0.1.0 --skip-plugin-portal
-```
-
-脚本会按依赖顺序发布：
-
-1. `libs:graph`
-2. `libs:resource:runtime`
-3. `libs:image:image`
-4. `libs:image:engine-coil`
-5. `libs:image:engine-glide`
-6. `libs/resource/gradle-plugin`
-
-远端发布依赖这些环境变量：
-
-- Maven Central：`ORG_GRADLE_PROJECT_mavenCentralUsername`、`ORG_GRADLE_PROJECT_mavenCentralPassword`、`ORG_GRADLE_PROJECT_signingInMemoryKey`、`ORG_GRADLE_PROJECT_signingInMemoryKeyPassword`
-- Gradle Plugin Portal：`GRADLE_PUBLISH_KEY`、`GRADLE_PUBLISH_SECRET`
+如果你是直接接入某个库，请优先阅读 `libs/graph`、`libs/image` 或 `libs/resource` 下各自的 README。

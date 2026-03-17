@@ -1,13 +1,14 @@
 # Munchkin Resource
 
-Gradle plugin and runtime for generating strongly typed Compose Multiplatform resources.
+Generate strongly typed Compose Multiplatform resource accessors from Android-style resources.
 
-## Modules
+## What You Get
 
-- `runtime`: runtime APIs such as `stringResource`, `colorResource`, `painterResource`, `toDp`, `toSp`
-- `gradle-plugin`: `cn.szkug.munchkin.resources`, which generates `Res` accessors and syncs iOS resources
+- generated `Res.strings`, `Res.colors`, `Res.dimens`, `Res.drawable`, and `Res.raw`
+- shared runtime APIs such as `stringResource`, `pluralStringResource`, `colorResource`, `painterResource`, `toDp`, and `toSp`
+- automatic iOS resource syncing for KMP projects
 
-## Coordinates
+## Setup
 
 ```kotlin
 plugins {
@@ -21,22 +22,46 @@ kotlin {
         }
     }
 }
+
+android {
+    namespace = "sample.resources"
+}
+
+cmpResources {
+    packageName.set("sample.resources")
+}
 ```
 
-## Capabilities
+## Resource Layout
 
-- Generates `Res.strings`, `Res.colors`, `Res.dimens`, `Res.drawable`, `Res.raw`
-- Supports Android/iOS runtime resolution for strings, plurals, colors, painters, and dimens
-- Syncs compose resources into the iOS bundle
-- Supports optional iOS unused-resource pruning through KLIB IR scanning
+Put your shared resources under `src/res`, for example:
 
-## Publish
+- `src/res/values/strings.xml`
+- `src/res/values/colors.xml`
+- `src/res/values/dimens.xml`
+- `src/res/drawable/*`
+- `src/res/raw/*`
 
-```bash
-./gradlew :runtime:publishToMavenLocal :gradle-plugin:publishToMavenLocal
-./gradlew :runtime:publishToMavenCentral
-./gradlew :runtime:publishAndReleaseToMavenCentral
-./gradlew :gradle-plugin:publishPlugins
+If you still need Android-only resources, you can keep them in `src/androidMain/res` and expose that directory with `androidExtraResDir`.
+
+## Use The Generated APIs
+
+```kotlin
+Text(text = stringResource(Res.strings.title))
+Text(text = pluralStringResource(Res.strings.common_files, 3, 3, "Kori"))
+
+Box(
+    modifier = Modifier
+        .size(Res.dimens.button_width.toDp, Res.dimens.button_height.toDp)
+        .background(colorResource(Res.colors.color_accent))
+)
+
+Image(
+    painter = painterResource(Res.drawable.banner),
+    contentDescription = null,
+)
 ```
 
-`runtime` publishes to Maven Central. `gradle-plugin` publishes to the Gradle Plugin Portal and requires `GRADLE_PUBLISH_KEY` plus `GRADLE_PUBLISH_SECRET`.
+## iOS Notes
+
+The plugin syncs generated resources into the iOS output automatically. If your project produces multiple frameworks or bundles, set `iosResourcesPrefix` so the resource directory name stays stable.
