@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-34" "platforms;android-35" "build-tools;34.0.0" "build-tools;35.0.0"
+      - name: Verify sample workspace
+        run: ./gradlew :apps:cmp:compileDebugKotlinAndroid :apps:cmp:compileKotlinIosSimulatorArm64 :apps:android:compileDebugKotlin :benchmark:compileBenchmarkKotlin
