@@ -29,4 +29,4 @@ git submodule update --init --recursive
 - `libs/image/README.md`
 - `libs/resource/README.md`
 
-根仓库主要用于 sample 集成、submodule 本地联调，以及跨仓的端到端验证。
+此仓库主要用于 sample 集成、submodule 本地联调，以及跨仓的端到端验证。
