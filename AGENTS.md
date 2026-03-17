@@ -10,7 +10,7 @@ Project-local skills live under `./.agents/skills/`.
 
 ## Repository Architecture Snapshot
 
-Munchkin Sample is a Gradle multi-project workspace (Kotlin DSL) that develops against extracted library repos through Git submodules and composite builds.
+Munchkin Cats is a Gradle multi-project workspace (Kotlin DSL) that develops against extracted library repos through Git submodules and composite builds.
 
 - build logic: `plugins`
 - library submodules: `libs/graph`, `libs/image`, `libs/resource`

@@ -26,7 +26,7 @@ dependencyResolutionManagement {
 // open projects accessors feature
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "munchkin-sample"
+rootProject.name = "munchkin-cats"
 
 // build logic
 includeBuild("plugins")

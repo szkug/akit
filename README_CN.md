@@ -1,4 +1,4 @@
-# Munchkin Sample
+# Munchkin Cats
 
 Munchkin Compose Multiplatform 组件库的示例工作区。
 
