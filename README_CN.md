@@ -30,3 +30,32 @@ git submodule update --init --recursive
 - `libs/resource/README.md`
 
 此仓库主要用于 sample 集成、submodule 本地联调，以及跨仓的端到端验证。
+
+## 发布
+
+在根仓使用聚合脚本发布拆分后的库：
+
+```bash
+./scripts/publish-all.sh --version 0.1.0
+```
+
+常用变体：
+
+```bash
+./scripts/publish-all.sh --local
+./scripts/publish-all.sh --version 0.1.0 --skip-plugin-portal
+```
+
+脚本会按依赖顺序发布：
+
+1. `libs/graph`
+2. `libs/resource:runtime`
+3. `libs/image:image`
+4. `libs/image:engine-coil`
+5. `libs/image:engine-glide`
+6. `libs/resource:gradle-plugin`
+
+远端发布依赖这些环境变量：
+
+- Maven Central：`ORG_GRADLE_PROJECT_mavenCentralUsername`、`ORG_GRADLE_PROJECT_mavenCentralPassword`、`ORG_GRADLE_PROJECT_signingInMemoryKey`、`ORG_GRADLE_PROJECT_signingInMemoryKeyPassword`
+- Gradle Plugin Portal：`GRADLE_PUBLISH_KEY`、`GRADLE_PUBLISH_SECRET`
