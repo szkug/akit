@@ -33,7 +33,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.image.engine.coil3"
+    namespace = "akit.image.engine.coil3"
     buildFeatures.compose = true
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 }

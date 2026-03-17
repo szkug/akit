@@ -52,7 +52,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.apps.cmp"
+    namespace = "akit.apps.cmp"
 
     compileSdk = AndroidSdkVersions.COMPILE
 
@@ -66,8 +66,8 @@ android {
 }
 
 cmpResources {
-    packageName.set("cn.szkug.akit.apps.cmp.host")
-    androidNamespace.set("cn.szkug.akit.apps.cmp")
+    packageName.set("akit.apps.cmp.host")
+    androidNamespace.set("akit.apps.cmp")
     iosResourcesPrefix.set("AkitCmpHostRes")
     iosPruneUnused.set(true)
     iosPruneLogEnabled = true

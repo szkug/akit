@@ -33,7 +33,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.graph"
+    namespace = "akit.graph"
 
     buildFeatures.compose = true
 

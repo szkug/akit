@@ -45,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.apps.cmp.lib2"
+    namespace = "akit.apps.cmp.lib2"
 
     compileSdk = AndroidSdkVersions.COMPILE
 

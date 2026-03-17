@@ -45,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.apps.cmp.lib"
+    namespace = "akit.apps.cmp.lib"
 
     compileSdk = AndroidSdkVersions.COMPILE
 
@@ -59,8 +59,8 @@ android {
 }
 
 cmpResources {
-    packageName.set("cn.szkug.akit.apps.cmp")
-    androidNamespace.set("cn.szkug.akit.apps.cmp.lib")
+    packageName.set("akit.apps.cmp")
+    androidNamespace.set("akit.apps.cmp.lib")
     androidExtraResDir.set(layout.projectDirectory.dir("src/androidMain/res"))
     iosResourcesPrefix.set("AkitCmpLibRes")
 }

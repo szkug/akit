@@ -33,7 +33,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.compose.image"
+    namespace = "akit.compose.image"
 
     compileSdk = AndroidSdkVersions.COMPILE
 

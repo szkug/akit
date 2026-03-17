@@ -29,7 +29,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.image.engine.glide"
+    namespace = "akit.image.engine.glide"
     buildFeatures.compose = true
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 }

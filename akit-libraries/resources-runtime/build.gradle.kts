@@ -30,7 +30,7 @@ kotlin {
 }
 
 android {
-    namespace = "cn.szkug.akit.resources.runtime"
+    namespace = "akit.resources.runtime"
 
     buildFeatures.compose = true
 
