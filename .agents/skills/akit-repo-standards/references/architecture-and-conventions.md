@@ -1,4 +1,4 @@
-# AKit Architecture And Conventions
+# Munchkin Sample Architecture And Conventions
 
 ## 1. Repository Topology
 
@@ -7,17 +7,20 @@
 - Gradle multi-project with Kotlin DSL
 - Included builds:
   - `plugins` (local Gradle plugin build logic)
-  - `akit-libraries/resources-gradle-plugin` (publishable plugin build)
+  - `libs/graph`
+  - `libs/image`
+  - `libs/resource`
 - Feature preview enabled: `TYPESAFE_PROJECT_ACCESSORS`
 
 ### Primary Modules
 
-1. Libraries (`akit-libraries/*`)
-   - `resources-runtime`: shared typed resource APIs
-   - `akit-graph`: NinePatch/Lottie/shadow/graphics toolkit
-   - `akit-image`: engine-agnostic async image layer
-   - `akit-image-engine-glide`: Android Glide engine
-   - `akit-image-engine-coil`: Coil engine (Android/iOS)
+1. Extracted libraries (`libs/*`)
+   - `libs/graph`: NinePatch/Lottie/shadow/graphics toolkit
+   - `libs/image:image`: engine-agnostic async image layer
+   - `libs/image:engine-coil`: Coil engine (Android/iOS)
+   - `libs/image:engine-glide`: Glide engine (Android)
+   - `libs/resource:runtime`: shared typed resource APIs
+   - `libs/resource:gradle-plugin`: resource generation and iOS sync plugin
 2. Apps (`apps/*`)
    - `apps/cmp`: KMP demo host module
    - `apps/cmp-lib`, `apps/cmp-lib2`: shared demo/resource modules
@@ -25,20 +28,19 @@
 3. Benchmark
    - `benchmark`: macrobenchmark target for `:apps:android`
 4. Build Logic
-   - `plugins/modules`: defines `cn.szkug.akit.alib`
-   - `akit-libraries/resources-gradle-plugin`: defines `cn.szkug.akit.resources`
+   - `plugins/modules`: defines `cn.szkug.munchkin.alib`
 
 ## 2. Dependency Boundary Rules
 
-1. Keep `akit-image` engine-agnostic.
+1. Keep `libs/image:image` engine-agnostic.
    - Allowed: shared Compose/image abstractions, graph/runtime helpers.
    - Not allowed: direct Glide/Coil implementation coupling.
-2. Keep engine-specific behavior in `akit-image-engine-*`.
-3. Keep shared resource access through generated `Res` + `resources-runtime`.
+2. Keep engine-specific behavior in `libs/image:engine-*`.
+3. Keep shared resource access through generated `Res` plus `libs/resource:runtime`.
 4. Keep plugin/runtime concerns separated.
-   - Generation/sync logic in plugin modules.
-   - Runtime APIs in library modules.
-5. Demo behavior belongs in `apps/*`, not core libraries.
+   - Generation and sync logic in `libs/resource:gradle-plugin`.
+   - Runtime APIs in `libs/resource:runtime`.
+5. Demo behavior belongs in `apps/*`, not extracted library modules.
 
 ## 3. KMP Source-Set Pattern
 
@@ -55,30 +57,29 @@ sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
 ## 4. Gradle Conventions
 
-1. Prefer version catalog aliases (`libs.*`) for external dependencies.
-2. Prefer type-safe project accessors (`projects.*`) for internal dependencies.
-3. Library modules typically apply:
+1. Prefer version catalog aliases (`libs.*`) for external dependencies and extracted library coordinates.
+2. Prefer type-safe project accessors (`projects.*`) for root sample modules.
+3. Library and shared KMP modules generally apply:
    - `kotlin-multiplatform`
    - `org.jetbrains.compose`
    - `org.jetbrains.kotlin.plugin.compose`
-   - `cn.szkug.akit.alib`
-4. Prefer centralized Android SDK constants for libraries (`AndroidSdkVersions`).
-5. Library KMP modules generally use `jvmToolchain(17)` unless the module already requires
-   another version.
+4. Root sample modules that need Android library defaults should use `cn.szkug.munchkin.alib`.
+5. Use `jvmToolchain(17)` unless a touched module already requires another version.
 
 ## 5. Kotlin And Compose Style
 
 1. Package naming
-   - `cn.szkug.akit.<domain>` for libraries
-   - `cn.szkug.akit.apps.<domain>` for app/demo modules
+   - `munchkin.<domain>` for libraries
+   - `munchkin.apps.<domain>` for demo modules
+   - `munchkin.sample.<domain>` for sample app and benchmark code
 2. API shape
    - Keep public composables explicit with named arguments.
    - Keep defaults centralized (`AsyncImageDefaults` style).
 3. Type safety
-   - Prefer typed IDs/wrappers (`ResourceId`, inline classes, sealed results).
+   - Prefer typed IDs and wrappers (`ResourceId`, inline classes, sealed results).
    - Avoid exposing raw primitive values where a domain model exists.
 4. Compose ergonomics
-   - Prefer extension points for call-site clarity (`Modifier.akitAsyncBackground`, `toDp/toSp`).
+   - Prefer extension points for call-site clarity (`Modifier.munchkinAsyncBackground`, `toDp`, `toSp`).
 5. Cross-platform behavior
    - Keep parity expectations explicit for Android and iOS.
    - Document intentional behavior gaps.
@@ -93,8 +94,8 @@ sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
 ### Image
 
-- Keep request pipeline abstractions in `akit-image`.
-- Add new backend-specific decoders/transforms in corresponding engine module.
+- Keep request pipeline abstractions in `libs/image:image`.
+- Add new backend-specific decoders or transforms in the corresponding engine module.
 - Preserve placeholder/failure and animation lifecycle behavior.
 
 ### Graph
@@ -102,19 +103,24 @@ sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 - Keep NinePatch/Lottie core APIs stable and type-safe.
 - For native operations, preserve platform fallback behavior.
 
+### Sample Apps
+
+- Keep app-only wiring, demo data, and showcase flows inside `apps/*`.
+- Prefer consuming extracted libraries through the published coordinates already defined in the root version catalog.
+
 ## 7. Change Decision Matrix
 
 1. New cross-platform API:
-   - Add contract in `commonMain`.
+   - Add the contract in the appropriate extracted library `commonMain` source set.
    - Add `actual` implementations per target as needed.
-   - Expose typed API surface.
+   - Expose a typed API surface.
 2. New image backend feature:
-   - Add extension in engine module first.
+   - Add the extension in `libs/image:engine-*` first.
    - Wire through shared abstractions only if broadly reusable.
 3. Resource pipeline change:
-   - Update plugin generation or runtime, not ad-hoc app-side logic.
+   - Update `libs/resource:gradle-plugin` or `libs/resource:runtime`, not ad-hoc app-side logic.
 4. Demo-only behavior:
-   - Keep in `apps/*`.
+   - Keep it in `apps/*`.
 
 ## 8. Validation Commands (Examples)
 
@@ -122,21 +128,22 @@ Use the smallest command that validates the touched scope.
 
 ```bash
 ./gradlew :apps:android:compileDebugKotlin
-./gradlew :apps:cmp:compileKotlinAndroid
-./gradlew :akit-libraries:akit-image:compileKotlinAndroid
-./gradlew :akit-libraries:resources-runtime:compileKotlinAndroid
+./gradlew :apps:cmp:compileDebugKotlinAndroid
+./gradlew :benchmark:compileBenchmarkKotlin
+(cd libs/graph && ./gradlew allTests assembleDebug compileKotlinIosSimulatorArm64)
+(cd libs/resource && ./gradlew :gradle-plugin:test :runtime:compileDebugKotlinAndroid :runtime:compileKotlinIosSimulatorArm64)
+(cd libs/image && ./gradlew :image:allTests :engine-coil:allTests :engine-glide:compileDebugKotlinAndroid :image:compileKotlinIosSimulatorArm64 :engine-coil:compileKotlinIosSimulatorArm64)
 ```
-
-For plugin/build logic changes, run the relevant plugin module compile/check task.
 
 If a command cannot run in the current environment, report the blocker explicitly.
 
 ## 9. Documentation Update Rule
 
-When public behavior changes, update corresponding docs:
+When public behavior changes, update the corresponding docs where that code now lives:
 
-- `docs/README_RESOURCE.md` / `docs/README_RESOURCE_CN.md`
-- `docs/README_IMAGE.md` / `docs/README_IMAGE_CN.md`
-- `docs/README_GRAPH.md` / `docs/README_GRAPH_CN.md`
+- `libs/graph/README.md` / `libs/graph/README_CN.md`
+- `libs/image/README.md` / `libs/image/README_CN.md`
+- `libs/resource/README.md` / `libs/resource/README_CN.md`
+- `README.md` / `README_CN.md` for root sample workspace behavior
 
 If no doc change is needed, state why.

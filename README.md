@@ -4,21 +4,31 @@
 
 Sample workspace for the Munchkin Compose Multiplatform libraries.
 
-This repository is being split into a sample host plus three library submodules under `libs/`:
+This repository keeps the demo apps, benchmark target, and local build logic. Library source code is split into Git submodules under `libs/`.
 
+## Initialize submodules
+
+```bash
+git submodule update --init --recursive
+```
+
+## Repository layout
+
+- `apps/android`: Android sample app host
+- `apps/cmp`: Compose Multiplatform demo host
+- `apps/cmp-lib`, `apps/cmp-lib2`: shared demo/resource modules
+- `benchmark`: macrobenchmark project for `apps/android`
+- `plugins`: local Gradle build logic used by the sample workspace
 - `libs/graph`: [munchkin-graph](./libs/graph)
 - `libs/image`: [munchkin-image](./libs/image)
 - `libs/resource`: [munchkin-resource](./libs/resource)
 
-## What stays here
+## Documentation
 
-- `apps/*`: Android and Compose Multiplatform demo applications
-- `benchmark`: app benchmark verification
-- `plugins/*`: local sample build logic
-- repository integration glue for developing the sample against local library sources
+Library-specific documentation now lives with each extracted repository:
 
-## Split plan
+- `libs/graph/README.md`
+- `libs/image/README.md`
+- `libs/resource/README.md`
 
-The library sources currently still exist in this repository while the extraction is in progress.
-They will be moved to the submodule repositories in follow-up commits, then referenced from this
-sample workspace through `libs/`.
+Use this root repository for sample integration, local composite-build development, and end-to-end verification across the submodules.

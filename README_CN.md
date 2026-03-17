@@ -2,20 +2,31 @@
 
 Munchkin Compose Multiplatform 组件库的示例工作区。
 
-当前仓库会逐步拆分为一个 sample 宿主仓库，以及 `libs/` 下的三个子模块仓库：
+当前仓库只保留 Demo、Benchmark 和本地构建逻辑，库源码已经拆分为 `libs/` 下的 Git Submodule。
 
+## 初始化子模块
+
+```bash
+git submodule update --init --recursive
+```
+
+## 仓库结构
+
+- `apps/android`：Android 示例宿主
+- `apps/cmp`：Compose Multiplatform Demo 宿主
+- `apps/cmp-lib`、`apps/cmp-lib2`：共享 Demo / 资源模块
+- `benchmark`：面向 `apps/android` 的 Macrobenchmark 工程
+- `plugins`：sample 使用的本地 Gradle 构建逻辑
 - `libs/graph`：[munchkin-graph](./libs/graph)
 - `libs/image`：[munchkin-image](./libs/image)
 - `libs/resource`：[munchkin-resource](./libs/resource)
 
-## 当前仓库保留内容
+## 文档位置
 
-- `apps/*`：Android 与 Compose Multiplatform Demo
-- `benchmark`：基准测试工程
-- `plugins/*`：sample 本地构建逻辑
-- 供 sample 与本地库源码联调的仓库级集成配置
+库能力相关文档已经跟随拆分后的仓库维护：
 
-## 拆分计划
+- `libs/graph/README.md`
+- `libs/image/README.md`
+- `libs/resource/README.md`
 
-当前库源码还暂时保留在本仓内，后续提交会逐步迁移到对应的子仓库中，
-再由当前 sample 工作区通过 `libs/` 进行引用。
+根仓库主要用于 sample 集成、submodule 本地联调，以及跨仓的端到端验证。

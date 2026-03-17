@@ -4,70 +4,68 @@
 
 Use project-local skills and scripts to deliver high-quality outcomes with measurable engineering impact.
 For code changes in this repository, prioritize module boundaries, Kotlin Multiplatform portability,
-typed APIs, and predictable validation.
+typed APIs, predictable validation, and clean sample-to-library separation.
 
 Project-local skills live under `./.agents/skills/`.
 
 ## Repository Architecture Snapshot
 
-AKit is a multi-project Gradle repository (Kotlin DSL) with included builds:
+Munchkin Sample is a Gradle multi-project workspace (Kotlin DSL) that develops against extracted library repos through Git submodules and composite builds.
 
-- build logic: `plugins` and `akit-libraries/resources-gradle-plugin`
-- core libraries: `akit-libraries/*`
+- build logic: `plugins`
+- library submodules: `libs/graph`, `libs/image`, `libs/resource`
 - apps and demos: `apps/*`
 - perf verification: `benchmark`
 
-Main module responsibilities:
+Main responsibilities:
 
-1. `akit-libraries/resources-runtime`:
-   - Typed resource IDs and runtime APIs (`stringResource`, `colorResource`, `painterResource`, `toDp`, `toSp`)
-   - Android/iOS `expect/actual` runtime implementation
-2. `akit-libraries/akit-graph`:
-   - NinePatch parser/painter, Lottie painter, shadow helpers, native toolkit integration
-3. `akit-libraries/akit-image`:
-   - Engine-agnostic async image API for Compose Multiplatform
-4. `akit-libraries/akit-image-engine-glide`:
-   - Android-focused Glide engine implementation
-5. `akit-libraries/akit-image-engine-coil`:
-   - Coil-based engine with Android/iOS support
-6. `apps/cmp`, `apps/cmp-lib`, `apps/cmp-lib2`, `apps/android`:
-   - Integration demos and host applications
-7. `plugins/modules`:
-   - Local Gradle plugin `cn.szkug.akit.alib` for Android library defaults
-8. `akit-libraries/resources-gradle-plugin`:
-   - Gradle plugin `cn.szkug.akit.resources` for generating `Res` and syncing iOS resources
+1. `libs/graph`
+   - Graphics toolkit: NinePatch parser/painter, Lottie painter, shadow helpers, native toolkit integration
+2. `libs/image`
+   - `:image`: engine-agnostic async image API for Compose Multiplatform
+   - `:engine-coil`: Coil-based engine with Android/iOS support
+   - `:engine-glide`: Android-focused Glide engine implementation
+3. `libs/resource`
+   - `:runtime`: typed resource IDs and runtime APIs (`stringResource`, `colorResource`, `painterResource`, `toDp`, `toSp`)
+   - `:gradle-plugin`: Gradle plugin `cn.szkug.munchkin.resources` for generating `Res` and syncing iOS resources
+4. `apps/cmp`, `apps/cmp-lib`, `apps/cmp-lib2`, `apps/android`
+   - Integration demos and host applications for the extracted libraries
+5. `plugins/modules`
+   - Local Gradle plugin `cn.szkug.munchkin.alib` for Android library defaults used by the sample workspace
+6. `benchmark`
+   - Macrobenchmark verification for `apps/android`
 
 ## Reusable Conventions
 
 ### Gradle + KMP
 
-1. Prefer `libs.*` (version catalog) and `projects.*` (typesafe project accessors) for dependencies.
+1. Prefer `libs.*` for external dependencies and extracted library coordinates; prefer `projects.*` for root sample modules.
 2. Keep KMP source-set split clear: `commonMain` for shared contracts, `androidMain`/`iosMain` for platform code.
-3. Use `expect/actual` for platform behavior (e.g. runtime resources, engine selection, locale handling).
-4. Keep Android manifest wired from `src/androidMain/AndroidManifest.xml` in KMP modules.
-5. In library modules, prefer `AndroidSdkVersions` constants over ad-hoc SDK numbers.
+3. Use `expect/actual` for platform behavior such as runtime resources, engine selection, and locale handling.
+4. Keep Android manifests wired from `src/androidMain/AndroidManifest.xml` in KMP modules.
+5. In shared modules, prefer centralized SDK/toolchain configuration over ad-hoc per-file settings.
 
 ### Kotlin + Compose
 
-1. Keep package naming consistent (`cn.szkug.akit.<domain>` / `cn.szkug.akit.apps.<domain>`).
+1. Keep package naming consistent (`munchkin.<domain>`, `munchkin.apps.<domain>`, `munchkin.sample.<domain>`).
 2. Public Compose APIs should use explicit named parameters and repository default constants when available.
 3. Prefer strong types (`ResourceId`, inline wrappers, sealed results) over primitive leakage.
-4. Prefer extension APIs for ergonomics (`Modifier.*`, `DimenResourceId.toDp`, etc.).
+4. Prefer extension APIs for ergonomics (`Modifier.*`, `toDp`, `toSp`, etc.).
 5. Platform-specific files should be explicit and localized (`*.android.kt`, `*.ios.kt`).
 
 ### Design Constraints
 
-1. Preserve engine-agnostic boundary in `akit-image`; engine-specific logic must stay in `akit-image-engine-*`.
-2. Keep cross-platform resource access through generated `Res` + `resources-runtime`.
-3. Cross-platform features should define Android/iOS parity clearly (or explicitly document gaps).
-4. Public module API changes should be reflected in `docs/README_RESOURCE*`, `docs/README_IMAGE*`, or `docs/README_GRAPH*`.
+1. Preserve the engine-agnostic boundary in `libs/image:image`; engine-specific logic must stay in `libs/image:engine-*`.
+2. Keep cross-platform resource access through generated `Res` plus `libs/resource:runtime`.
+3. Cross-platform features should define Android/iOS parity clearly, or explicitly document gaps.
+4. Public library API or behavior changes should update the corresponding submodule `README.md` / `README_CN.md`; root docs should only describe the sample workspace.
 
 ## Trigger Rules
 
 Always load and use `akit-repo-standards` when any request matches one or more of these intents:
 
-1. Modify or add code in `akit-libraries/*`, `apps/*`, `plugins/*`, or root Gradle settings.
-2. Design or refactor architecture/dependency boundaries in this repository.
+1. Modify or add code in `libs/*`, `apps/*`, `plugins/*`, `benchmark`, or root Gradle settings.
+2. Design or refactor architecture/dependency boundaries in this workspace or its extracted submodules.
 3. Add or adjust KMP `expect/actual`, Compose APIs, resources runtime/plugin behavior, image engines, or graph utilities.
 4. Perform repository-level code review against local conventions and design constraints.
 
@@ -85,8 +83,8 @@ A task is considered complete only when all applicable checks pass:
 2. Triggered skill workflows were followed based on their own `SKILL.md` rules.
 3. If `akit-repo-standards` was triggered:
    - architecture/style constraints were applied,
-   - at least one relevant module-level compile/test check ran (or a blocker is explicitly reported),
-   - public-facing behavior changes are documented (or explicitly confirmed as not needed).
+   - at least one relevant module-level compile/test check ran for each touched root module or submodule (or a blocker is explicitly reported),
+   - public-facing behavior changes are documented in the corresponding root or submodule README files (or explicitly confirmed as not needed).
 
 <!-- OPTSMITH-SKILL:START -->
 ## Agent Optsmith Integration
