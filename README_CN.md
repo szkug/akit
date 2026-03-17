@@ -1,33 +1,49 @@
 # Munchkin Cats
 
-Munchkin Cats 是 Munchkin Compose Multiplatform 组件库的示例应用和参考接入工程。
+Munchkin Compose Multiplatform 组件库的统一接入文档入口。
 
-## 从这里开始
+## 模块说明
 
-当你需要下面这些内容时，优先看这个仓库：
+- Resource
+  把 Android 风格资源生成强类型 `Res.*` 访问器，并在 Android / iOS 上统一读取。
+  文档： [docs/README_RESOURCE_CN.md](./docs/README_RESOURCE_CN.md)
+- Image
+  提供统一异步图片 API，并可选择 Coil / Glide 引擎。
+  文档： [docs/README_IMAGE_CN.md](./docs/README_IMAGE_CN.md)
+- Graph
+  提供 NinePatch、Lottie Painter、模糊能力、阴影绘制。
+  文档： [docs/README_GRAPH_CN.md](./docs/README_GRAPH_CN.md)
 
-- 在正式接入前先体验组件库能力
-- 直接参考 Android / Compose Multiplatform 的可运行示例代码
-- 验证资源、多端图片加载、NinePatch、Lottie、模糊、阴影等效果
+## 快速接入
 
-## 运行 Demo
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.munchkin:runtime:<version>")
+            implementation("cn.szkug.munchkin:image:<version>")
+            implementation("cn.szkug.munchkin:graph:<version>")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.munchkin:engine-coil:<version>")
+            // 或 implementation("cn.szkug.munchkin:engine-glide:<version>")
+        }
+        iosMain.dependencies {
+            implementation("cn.szkug.munchkin:engine-coil:<version>")
+        }
+    }
+}
 
-- `apps/android`：Android 示例应用，包含图片和资源相关 Demo
-- `apps/cmp`：Compose Multiplatform 示例应用，可用于 Android 和 iOS
+plugins {
+    id("cn.szkug.munchkin.resources") version "<version>"
+}
+```
 
-直接用 Android Studio 或 IntelliJ IDEA 打开工程，然后从 IDE 运行对应示例应用即可。
+## 应该先看哪份文档？
 
-## 按需求选择文档
-
-- [Munchkin Graph](./libs/graph/README_CN.md)：NinePatch、Lottie Painter、模糊能力、阴影绘制
-- [Munchkin Image](./libs/image/README_CN.md)：`MunchkinAsyncImage`、背景图加载、Coil、Glide
-- [Munchkin Resource](./libs/resource/README_CN.md)：生成式 `Res` 访问器和运行时资源 API
-
-## 你可以从示例中学到什么
-
-- 如何用一套 Compose API 统一加载网络图和本地资源
-- 如何在 Android / iOS 上选择 Coil，或在 Android 上选择 Glide
-- 如何从 Android 风格资源生成强类型 `Res` 访问器
-- 如何在共享 UI 中使用 NinePatch、Lottie、模糊和软阴影
-
-如果你是直接接入某个库，请优先阅读 `libs/graph`、`libs/image` 或 `libs/resource` 下各自的 README。
+- 需要生成 `Res.*`、`stringResource`、`painterResource`、`toDp`、`toSp`？
+  先看 [docs/README_RESOURCE_CN.md](./docs/README_RESOURCE_CN.md)
+- 需要 `MunchkinAsyncImage`、背景图加载、Glide 或 Coil？
+  先看 [docs/README_IMAGE_CN.md](./docs/README_IMAGE_CN.md)
+- 需要 NinePatch、`rememberLottiePainter`、`Toolkit` 或 `Modifier.munchkinShadow`？
+  先看 [docs/README_GRAPH_CN.md](./docs/README_GRAPH_CN.md)

@@ -2,34 +2,50 @@
 
 [中文文档](./README_CN.md)
 
-Munchkin Cats is the sample app and reference integration workspace for the Munchkin Compose Multiplatform libraries.
+Component integration guide for the Munchkin Compose Multiplatform libraries.
 
-## Start Here
+## Modules
 
-Use this repository when you want to:
+- Resource
+  Generate typed `Res.*` accessors from Android-style resources and read them on Android/iOS.
+  Guide: [docs/README_RESOURCE.md](./docs/README_RESOURCE.md)
+- Image
+  Shared async image API with Coil and Glide engines.
+  Guide: [docs/README_IMAGE.md](./docs/README_IMAGE.md)
+- Graph
+  NinePatch, Lottie painter, blur helpers, and shadow rendering.
+  Guide: [docs/README_GRAPH.md](./docs/README_GRAPH.md)
 
-- try the libraries before integrating them into your app
-- copy working sample code for Android or Compose Multiplatform
-- verify behavior such as resources, async image loading, NinePatch, Lottie, blur, and shadows
+## Quick Setup
 
-## Run The Demos
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.munchkin:runtime:<version>")
+            implementation("cn.szkug.munchkin:image:<version>")
+            implementation("cn.szkug.munchkin:graph:<version>")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.munchkin:engine-coil:<version>")
+            // or implementation("cn.szkug.munchkin:engine-glide:<version>")
+        }
+        iosMain.dependencies {
+            implementation("cn.szkug.munchkin:engine-coil:<version>")
+        }
+    }
+}
 
-- `apps/android`: Android sample app with image and resource demos
-- `apps/cmp`: Compose Multiplatform sample app for Android and iOS
+plugins {
+    id("cn.szkug.munchkin.resources") version "<version>"
+}
+```
 
-Open the project in Android Studio or IntelliJ IDEA, then run either sample app from the IDE.
+## Which Guide Should You Read?
 
-## Pick The Guide You Need
-
-- [Munchkin Graph](./libs/graph/README.md): NinePatch, Lottie painter, blur helpers, and shadow rendering
-- [Munchkin Image](./libs/image/README.md): `MunchkinAsyncImage`, background image loading, Coil, and Glide
-- [Munchkin Resource](./libs/resource/README.md): generated `Res` accessors and runtime resource APIs
-
-## What You Can Learn From The Samples
-
-- how to load remote and local images with one Compose API
-- how to choose Coil on Android/iOS or Glide on Android
-- how to generate strongly typed resource accessors from Android-style resources
-- how to render NinePatch, Lottie, blur, and soft shadows in shared UI
-
-If you are integrating a library directly, start with the README in `libs/graph`, `libs/image`, or `libs/resource`.
+- Need generated `Res.*`, `stringResource`, `painterResource`, `toDp`, or `toSp`?
+  Start with [docs/README_RESOURCE.md](./docs/README_RESOURCE.md)
+- Need `MunchkinAsyncImage`, background image loading, Glide, or Coil?
+  Start with [docs/README_IMAGE.md](./docs/README_IMAGE.md)
+- Need NinePatch, `rememberLottiePainter`, `Toolkit`, or `Modifier.munchkinShadow`?
+  Start with [docs/README_GRAPH.md](./docs/README_GRAPH.md)
