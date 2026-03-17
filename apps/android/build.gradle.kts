@@ -17,12 +17,12 @@ android {
             initWith(debug)
         }
     }
-    namespace = "akit.sample"
+    namespace = "munchkin.sample"
     compileSdk = 35
 
 
     defaultConfig {
-        applicationId = "akit.sample"
+        applicationId = "munchkin.sample"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -64,10 +64,15 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 dependencies {
@@ -94,8 +99,8 @@ dependencies {
     implementation(libs.androidx.runtime.tracing)
 
     // project modules
-    implementation(projects.akitLibraries.akitImage)
-    implementation(projects.akitLibraries.akitImageEngineGlide)
+    implementation(libs.munchkin.image)
+    implementation(libs.munchkin.engine.glide)
     implementation(projects.apps.cmp)
     implementation(projects.apps.cmpLib2)
 

@@ -1,4 +1,4 @@
-package akit.sample
+package munchkin.sample
 
 import android.content.Context
 import com.bumptech.glide.GlideBuilder

@@ -1,6 +1,6 @@
 import UIKit
 import SwiftUI
-import AkitCmp
+import MunchkinCmp
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
@@ -14,7 +14,7 @@ struct ComposeView: UIViewControllerRepresentable {
 }
 
 struct ContentView: View {
-    @AppStorage("akit.app.language") private var appLanguage: String = ""
+    @AppStorage("munchkin.app.language") private var appLanguage: String = ""
 
     var body: some View {
         ComposeView()

@@ -1,8 +1,8 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
-import akit.image.AsyncRequestEngine
-import akit.image.coil.CoilRequestEngine
+import munchkin.image.AsyncRequestEngine
+import munchkin.image.coil.CoilRequestEngine
 
 @Composable
 actual fun rememberDemoAsyncEngine(): AsyncRequestEngine<*> = CoilRequestEngine.Normal

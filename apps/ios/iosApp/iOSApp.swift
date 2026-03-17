@@ -1,5 +1,5 @@
 import SwiftUI
-import AkitCmp
+import MunchkinCmp
 
 @main
 struct iOSApp: App {

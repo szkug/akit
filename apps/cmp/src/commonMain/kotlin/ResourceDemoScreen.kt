@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,12 +26,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import akit.resources.runtime.colorResource
-import akit.resources.runtime.painterResource
-import akit.resources.runtime.pluralStringResource
-import akit.resources.runtime.stringResource
-import akit.resources.runtime.toDp
-import akit.resources.runtime.toSp
+import munchkin.resources.runtime.colorResource
+import munchkin.resources.runtime.painterResource
+import munchkin.resources.runtime.pluralStringResource
+import munchkin.resources.runtime.stringResource
+import munchkin.resources.runtime.toDp
+import munchkin.resources.runtime.toSp
 
 @Composable
 fun ResourceDemoPage(onBack: () -> Unit) {
@@ -193,5 +193,5 @@ private fun ColorSwatch(color: Color) {
 
 private data class LanguageOption(
     val code: String?,
-    val labelId: akit.resources.runtime.StringResourceId,
+    val labelId: munchkin.resources.runtime.StringResourceId,
 )

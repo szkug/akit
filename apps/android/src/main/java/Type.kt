@@ -1,4 +1,4 @@
-package akit.sample.theme
+package munchkin.sample.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

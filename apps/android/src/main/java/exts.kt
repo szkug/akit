@@ -1,4 +1,4 @@
-package akit.sample
+package munchkin.sample
 
 import android.graphics.Rect
 import android.graphics.drawable.NinePatchDrawable

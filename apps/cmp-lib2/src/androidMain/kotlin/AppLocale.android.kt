@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import android.app.Activity
 import android.content.Context
@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
-private const val languagePrefsName = "akit.app.language"
+private const val languagePrefsName = "munchkin.app.language"
 private const val languagePrefsKey = "language_code"
 
 object AndroidAppLanguageStore {

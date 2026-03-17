@@ -26,24 +26,13 @@ dependencyResolutionManagement {
 // open projects accessors feature
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "munchikin-sample"
+rootProject.name = "munchkin-sample"
 
 // build logic
 includeBuild("plugins")
-includeBuild("akit-libraries/resources-gradle-plugin")
-
-// libraries
-fun includeAkitLibraries(vararg module: String) {
-    include(module.map { ":akit-libraries$it" })
-}
-
-includeAkitLibraries(
-    ":akit-graph",
-    ":akit-image",
-    ":akit-image-engine-coil",
-    ":akit-image-engine-glide",
-    ":resources-runtime",
-)
+includeBuild("libs/graph")
+includeBuild("libs/image")
+includeBuild("libs/resource")
 
 // apps
 include(":apps:android")

@@ -1,4 +1,4 @@
-package akit.sample.benchmark
+package munchkin.sample.benchmark
 
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric

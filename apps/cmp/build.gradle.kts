@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.project.alib)
-    id("cn.szkug.akit.resources")
+    id("cn.szkug.munchkin.resources")
 }
 
 kotlin {
@@ -18,7 +18,7 @@ kotlin {
 
     targets.withType<KotlinNativeTarget>().configureEach {
         binaries.framework {
-            baseName = "AkitCmp"
+            baseName = "MunchkinCmp"
             isStatic = true
             transitiveExport = false
         }
@@ -30,17 +30,17 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            api(projects.akitLibraries.akitImage)
-            api(projects.akitLibraries.akitGraph)
+            api(libs.munchkin.image)
+            api(libs.munchkin.graph)
             implementation(projects.apps.cmpLib2)
-            api(projects.akitLibraries.resourcesRuntime)
-            implementation(projects.akitLibraries.akitImageEngineCoil)
+            api(libs.munchkin.runtime)
+            implementation(libs.munchkin.engine.coil)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.core.ktx)
-            implementation(projects.akitLibraries.akitImageEngineGlide)
+            implementation(libs.munchkin.engine.glide)
         }
         iosMain {
             dependencies {
@@ -52,7 +52,7 @@ kotlin {
 }
 
 android {
-    namespace = "akit.apps.cmp"
+    namespace = "munchkin.apps.cmp"
 
     compileSdk = AndroidSdkVersions.COMPILE
 
@@ -66,9 +66,9 @@ android {
 }
 
 cmpResources {
-    packageName.set("akit.apps.cmp.host")
-    androidNamespace.set("akit.apps.cmp")
-    iosResourcesPrefix.set("AkitCmpHostRes")
+    packageName.set("munchkin.apps.cmp.host")
+    androidNamespace.set("munchkin.apps.cmp")
+    iosResourcesPrefix.set("MunchkinCmpHostRes")
     iosPruneUnused.set(true)
     iosPruneLogEnabled = true
 }

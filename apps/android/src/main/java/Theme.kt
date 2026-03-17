@@ -1,4 +1,4 @@
-package akit.sample.theme
+package munchkin.sample.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

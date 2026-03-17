@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
 interface AppLanguageManager {

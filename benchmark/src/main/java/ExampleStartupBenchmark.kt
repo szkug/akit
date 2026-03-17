@@ -1,4 +1,4 @@
-package akit.sample.benchmark
+package munchkin.sample.benchmark
 
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
@@ -16,7 +16,7 @@ class ExampleStartupBenchmark {
 
     @Test
     fun startup() = benchmarkRule.measureRepeated(
-        packageName = "akit.sample",
+        packageName = "munchkin.sample",
         metrics = listOf(StartupTimingMetric()),
         iterations = 5,
         startupMode = StartupMode.COLD,

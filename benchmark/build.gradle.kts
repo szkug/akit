@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "akit.sample.benchmark"
+    namespace = "munchkin.sample.benchmark"
     compileSdk = 35
 
     defaultConfig {
@@ -28,6 +28,15 @@ android {
 
     targetProjectPath = ":apps:android"
     experimentalProperties["android.experimental.self-instrumenting"] = true
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {

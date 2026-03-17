@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.project.alib)
-    id("cn.szkug.akit.resources")
+    id("cn.szkug.munchkin.resources")
 }
 
 kotlin {
@@ -18,7 +18,7 @@ kotlin {
 
     targets.withType<KotlinNativeTarget>().configureEach {
         binaries.framework {
-            baseName = "AkitCmpLibRes"
+            baseName = "MunchkinCmpLibRes"
             isStatic = true
         }
     }
@@ -29,9 +29,9 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            api(projects.akitLibraries.akitImage)
-            api(projects.akitLibraries.akitGraph)
-            api(projects.akitLibraries.resourcesRuntime)
+            api(libs.munchkin.image)
+            api(libs.munchkin.graph)
+            api(libs.munchkin.runtime)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
@@ -45,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "akit.apps.cmp.lib"
+    namespace = "munchkin.apps.cmp.lib"
 
     compileSdk = AndroidSdkVersions.COMPILE
 
@@ -59,8 +59,8 @@ android {
 }
 
 cmpResources {
-    packageName.set("akit.apps.cmp")
-    androidNamespace.set("akit.apps.cmp.lib")
+    packageName.set("munchkin.apps.cmp")
+    androidNamespace.set("munchkin.apps.cmp.lib")
     androidExtraResDir.set(layout.projectDirectory.dir("src/androidMain/res"))
-    iosResourcesPrefix.set("AkitCmpLibRes")
+    iosResourcesPrefix.set("MunchkinCmpLibRes")
 }

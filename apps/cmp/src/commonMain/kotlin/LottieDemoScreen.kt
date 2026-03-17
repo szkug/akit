@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,8 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import akit.image.AkitAsyncImage
-import akit.graph.lottie.LottieResource
+import munchkin.image.MunchkinAsyncImage
+import munchkin.graph.lottie.LottieResource
 
 @Composable
 fun LottieDemoPage(onBack: () -> Unit) {
@@ -40,7 +40,7 @@ private fun LottieDemoScreen(modifier: Modifier = Modifier) {
         items(samples) { sample ->
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(text = sample.title)
-                AkitAsyncImage(
+                MunchkinAsyncImage(
                     model = sample.resource,
                     contentDescription = sample.title,
                     modifier = Modifier.size(160.dp),

@@ -22,5 +22,6 @@ pluginManagement {
 // gradle feature
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
+rootProject.name = "munchkin-build-logic"
 
 include("modules")

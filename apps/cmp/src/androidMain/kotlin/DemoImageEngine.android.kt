@@ -1,9 +1,9 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
-import akit.image.AsyncRequestEngine
-import akit.image.glide.GlideRequestEngine
-import akit.image.coil.CoilRequestEngine
+import munchkin.image.AsyncRequestEngine
+import munchkin.image.glide.GlideRequestEngine
+import munchkin.image.coil.CoilRequestEngine
 
 @Composable
 actual fun rememberDemoAsyncEngine(): AsyncRequestEngine<*> = GlideRequestEngine.Normal // GlideRequestEngine.Normal

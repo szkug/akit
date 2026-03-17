@@ -1,11 +1,11 @@
-package akit.sample.acts
+package munchkin.sample.acts
 
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import akit.apps.cmp.AkitCmpApp
-import akit.apps.cmp.AndroidAppLanguageStore
+import munchkin.apps.cmp.MunchkinCmpApp
+import munchkin.apps.cmp.AndroidAppLanguageStore
 
 class CMPActivity : AppCompatActivity() {
 
@@ -17,7 +17,7 @@ class CMPActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AkitCmpApp()
+            MunchkinCmpApp()
         }
     }
 }

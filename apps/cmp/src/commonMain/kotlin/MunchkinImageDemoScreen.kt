@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -8,15 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import akit.image.AsyncImageLogger
-import akit.image.DefaultPlatformAsyncImageLogger
-import akit.image.PainterModel
-import akit.image.akitAsyncBackground
-import akit.resources.runtime.painterResource
-import akit.resources.runtime.stringResource
+import munchkin.image.AsyncImageLogger
+import munchkin.image.DefaultPlatformAsyncImageLogger
+import munchkin.image.PainterModel
+import munchkin.image.munchkinAsyncBackground
+import munchkin.resources.runtime.painterResource
+import munchkin.resources.runtime.stringResource
 
 @Composable
-fun AkitImageDemoScreen(
+fun MunchkinImageDemoScreen(
     url: String,
     modifier: Modifier = Modifier,
 ) {
@@ -34,7 +34,7 @@ fun AkitImageDemoScreen(
         DemoTextCard(
             text = stringResource(Res.strings.sample_short),
             modifier = Modifier
-                .akitAsyncBackground(
+                .munchkinAsyncBackground(
                     painterResource(SharedDrawable.nine_patch_2),
                     contentScale = ContentScale.FillBounds,
                     engine = engine,
@@ -45,7 +45,7 @@ fun AkitImageDemoScreen(
         DemoTextCard(
             text = stringResource(Res.strings.sample_medium),
             modifier = Modifier
-                .akitAsyncBackground(
+                .munchkinAsyncBackground(
                     painterResource(SharedDrawable.nine_patch_2),
                     contentScale = ContentScale.FillBounds,
                     engine = engine,
@@ -56,7 +56,7 @@ fun AkitImageDemoScreen(
         DemoTextCard(
             text = stringResource(Res.strings.sample_long),
             modifier = Modifier
-                .akitAsyncBackground(
+                .munchkinAsyncBackground(
                     painterResource(SharedDrawable.nine_patch_2),
                     contentScale = ContentScale.FillBounds,
                     engine = engine,
@@ -68,7 +68,7 @@ fun AkitImageDemoScreen(
 
         DemoTextCard(
             text = stringResource(Res.strings.sample_short),
-            modifier = Modifier.akitAsyncBackground(
+            modifier = Modifier.munchkinAsyncBackground(
                 model = url,
                 placeholder = placeholder,
                 engine = engine,
@@ -77,7 +77,7 @@ fun AkitImageDemoScreen(
 
         DemoTextCard(
             text = stringResource(Res.strings.sample_medium),
-            modifier = Modifier.akitAsyncBackground(
+            modifier = Modifier.munchkinAsyncBackground(
                 model = url,
                 placeholder = placeholder,
                 engine = engine,
@@ -86,7 +86,7 @@ fun AkitImageDemoScreen(
 
         DemoTextCard(
             text = stringResource(Res.strings.sample_long),
-            modifier = Modifier.akitAsyncBackground(
+            modifier = Modifier.munchkinAsyncBackground(
                 model = url,
                 placeholder = placeholder,
                 engine = engine,

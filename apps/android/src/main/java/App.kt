@@ -1,8 +1,8 @@
-package akit.sample
+package munchkin.sample
 
 import android.app.Application
-import akit.image.AsyncImageLogger
-import akit.image.DefaultPlatformAsyncImageLogger
+import munchkin.image.AsyncImageLogger
+import munchkin.image.DefaultPlatformAsyncImageLogger
 
 
 class App : Application() {

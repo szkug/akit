@@ -17,7 +17,7 @@ kotlin {
 
     targets.withType<KotlinNativeTarget>().configureEach {
         binaries.framework {
-            baseName = "AkitCmpLibRes"
+            baseName = "MunchkinCmpLibRes"
             isStatic = true
         }
     }
@@ -28,9 +28,9 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            api(projects.akitLibraries.akitImage)
-            api(projects.akitLibraries.akitGraph)
-            api(projects.akitLibraries.resourcesRuntime)
+            api(libs.munchkin.image)
+            api(libs.munchkin.graph)
+            api(libs.munchkin.runtime)
             api(projects.apps.cmpLib)
         }
         androidMain.dependencies {
@@ -45,7 +45,7 @@ kotlin {
 }
 
 android {
-    namespace = "akit.apps.cmp.lib2"
+    namespace = "munchkin.apps.cmp.lib2"
 
     compileSdk = AndroidSdkVersions.COMPILE
 

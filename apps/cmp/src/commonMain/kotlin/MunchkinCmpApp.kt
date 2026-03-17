@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import akit.image.AkitAsyncImage
+import munchkin.image.MunchkinAsyncImage
 
 private enum class DemoPage {
     Home,
@@ -35,7 +35,7 @@ private enum class DemoPage {
 }
 
 @Composable
-fun AkitCmpApp() {
+fun MunchkinCmpApp() {
     Box(
         modifier = Modifier.padding(vertical = 44.dp)
     ) {
@@ -59,7 +59,7 @@ private fun HomeScreen(onNavigate: (DemoPage) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         val engine = rememberDemoAsyncEngine()
-        Text(text = "Akit CMP Demo")
+        Text(text = "Munchkin CMP Demo")
         Text(text = "Engine: ${engine::class.qualifiedName}")
         Text(text = "Select a page:")
         Button(onClick = { onNavigate(DemoPage.ImageDemo) }) {
@@ -87,7 +87,7 @@ private fun HomeScreen(onNavigate: (DemoPage) -> Unit) {
 private fun ImageNinePatchPage(onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         PageHeader(title = "NinePatch", onBack = onBack)
-        AkitImageDemoScreen(
+        MunchkinImageDemoScreen(
             url = DemoUrls.ninePatchUrl,
             modifier = Modifier.fillMaxSize(),
         )
@@ -110,7 +110,7 @@ private fun AnimatedImageListPage(onBack: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Text(text = "GIF #${index + 1}")
-                    AkitAsyncImage(
+                    MunchkinAsyncImage(
                         model = url,
                         contentDescription = "gif-$index",
                         modifier = Modifier

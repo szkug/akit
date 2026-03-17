@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,9 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import akit.graph.renderscript.BlurConfig
-import akit.image.AkitAsyncImage
-import akit.image.rememberAsyncImageContext
+import munchkin.graph.renderscript.BlurConfig
+import munchkin.image.MunchkinAsyncImage
+import munchkin.image.rememberAsyncImageContext
 import kotlin.math.roundToInt
 
 @Composable
@@ -77,7 +77,7 @@ private fun BlurDemoScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Original")
-        AkitAsyncImage(
+        MunchkinAsyncImage(
             model = DemoUrls.urls.first(),
             contentDescription = "original",
             modifier = Modifier
@@ -88,7 +88,7 @@ private fun BlurDemoScreen(modifier: Modifier = Modifier) {
         )
 
         Text(text = "Blurred")
-        AkitAsyncImage(
+        MunchkinAsyncImage(
             model = DemoUrls.urls.first(),
             contentDescription = "blurred",
             modifier = Modifier

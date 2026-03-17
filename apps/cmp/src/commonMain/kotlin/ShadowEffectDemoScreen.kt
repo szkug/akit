@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import akit.graph.akitShadow
+import munchkin.graph.munchkinShadow
 import kotlin.math.roundToInt
 
 @Composable
@@ -123,7 +123,7 @@ private fun ShadowSampleItem(sample: ShadowSample) {
         Box(
             modifier = Modifier
                 .size(140.dp)
-                .akitShadow(
+                .munchkinShadow(
                     shape = sample.shape,
                     color = sample.shadowColor,
                     spreadAngle = sample.spreadAngle,
@@ -134,7 +134,7 @@ private fun ShadowSampleItem(sample: ShadowSample) {
                 .background(sample.surface),
             contentAlignment = Alignment.Center,
         ) {
-            Text(text = "Akit")
+            Text(text = "Munchkin")
         }
     }
 }

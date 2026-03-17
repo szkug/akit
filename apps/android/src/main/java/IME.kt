@@ -1,4 +1,4 @@
-package akit.sample.stash
+package munchkin.sample.stash
 
 import android.os.Build
 import android.view.View

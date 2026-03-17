@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -12,7 +12,7 @@ import platform.UIKit.UISemanticContentAttributeUnspecified
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 
-private const val appLanguageKey = "akit.app.language"
+private const val appLanguageKey = "munchkin.app.language"
 private const val appleLanguagesKey = "AppleLanguages"
 
 private class IosAppLanguageManager(

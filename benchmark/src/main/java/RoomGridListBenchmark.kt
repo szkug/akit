@@ -1,4 +1,4 @@
-package akit.sample.benchmark
+package munchkin.sample.benchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode

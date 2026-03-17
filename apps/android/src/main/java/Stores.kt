@@ -1,4 +1,4 @@
-package akit.sample
+package munchkin.sample
 
 object Stores {
 

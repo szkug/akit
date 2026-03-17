@@ -1,4 +1,4 @@
-package akit.apps.cmp
+package munchkin.apps.cmp
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -14,6 +14,6 @@ fun MainViewController() = ComposeUIViewController {
         LayoutDirection.Ltr
     }
     CompositionLocalProvider(LocalLayoutDirection provides direction) {
-        AkitCmpApp()
+        MunchkinCmpApp()
     }
 }
