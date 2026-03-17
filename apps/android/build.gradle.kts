@@ -99,8 +99,8 @@ dependencies {
     implementation(libs.androidx.runtime.tracing)
 
     // project modules
-    implementation(libs.munchkin.image)
-    implementation(libs.munchkin.engine.glide)
+    implementation(projects.libs.image.image)
+    implementation(projects.libs.image.engineGlide)
     implementation(projects.apps.cmp)
     implementation(projects.apps.cmpLib2)
 

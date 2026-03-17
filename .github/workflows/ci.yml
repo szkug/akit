@@ -11,8 +11,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -21,4 +19,4 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-34" "platforms;android-35" "build-tools;34.0.0" "build-tools;35.0.0"
       - name: Verify sample workspace
-        run: ./gradlew :apps:cmp:compileDebugKotlinAndroid :apps:cmp:compileKotlinIosSimulatorArm64 :apps:android:compileDebugKotlin :benchmark:compileBenchmarkKotlin
+        run: ./gradlew :libs:graph:allTests :libs:graph:assembleDebug :libs:graph:compileKotlinIosSimulatorArm64 :libs:resource:runtime:compileDebugKotlinAndroid :libs:resource:runtime:compileKotlinIosSimulatorArm64 :libs:image:image:allTests :libs:image:image:compileKotlinIosSimulatorArm64 :libs:image:engine-coil:allTests :libs:image:engine-coil:compileKotlinIosSimulatorArm64 :libs:image:engine-glide:compileDebugKotlinAndroid :apps:cmp:compileDebugKotlinAndroid :apps:cmp:compileKotlinIosSimulatorArm64 :apps:android:compileDebugKotlin :benchmark:compileBenchmarkKotlin && ./gradlew -p plugins :resource-gradle-plugin:test

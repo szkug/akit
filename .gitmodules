@@ -1,9 +1,0 @@
-[submodule "libs/graph"]
-	path = libs/graph
-	url = git@github.com:szkug/munchkin-graph.git
-[submodule "libs/image"]
-	path = libs/image
-	url = git@github.com:szkug/munchkin-image.git
-[submodule "libs/resource"]
-	path = libs/resource
-	url = git@github.com:szkug/munchkin-resource.git

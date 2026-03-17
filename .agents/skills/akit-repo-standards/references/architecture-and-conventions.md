@@ -5,11 +5,9 @@
 ### Root Composition
 
 - Gradle multi-project with Kotlin DSL
-- Included builds:
-  - `plugins` (local Gradle plugin build logic)
-  - `libs/graph`
-  - `libs/image`
-  - `libs/resource`
+- Included build:
+  - `plugins` (local Gradle plugin build logic, also hosts the resources Gradle plugin)
+- In-repo library modules under `libs/*`
 - Feature preview enabled: `TYPESAFE_PROJECT_ACCESSORS`
 
 ### Primary Modules
@@ -57,8 +55,8 @@ sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
 ## 4. Gradle Conventions
 
-1. Prefer version catalog aliases (`libs.*`) for external dependencies and extracted library coordinates.
-2. Prefer type-safe project accessors (`projects.*`) for root sample modules.
+1. Prefer version catalog aliases (`libs.*`) for external dependencies.
+2. Prefer type-safe project accessors (`projects.*`) for in-repo modules and sample modules.
 3. Library and shared KMP modules generally apply:
    - `kotlin-multiplatform`
    - `org.jetbrains.compose`
@@ -106,7 +104,7 @@ sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 ### Sample Apps
 
 - Keep app-only wiring, demo data, and showcase flows inside `apps/*`.
-- Prefer consuming extracted libraries through the published coordinates already defined in the root version catalog.
+- Prefer consuming in-repo libraries through project dependencies during workspace development.
 
 ## 7. Change Decision Matrix
 
@@ -130,9 +128,10 @@ Use the smallest command that validates the touched scope.
 ./gradlew :apps:android:compileDebugKotlin
 ./gradlew :apps:cmp:compileDebugKotlinAndroid
 ./gradlew :benchmark:compileBenchmarkKotlin
-(cd libs/graph && ./gradlew allTests assembleDebug compileKotlinIosSimulatorArm64)
-(cd libs/resource && ./gradlew :gradle-plugin:test :runtime:compileDebugKotlinAndroid :runtime:compileKotlinIosSimulatorArm64)
-(cd libs/image && ./gradlew :image:allTests :engine-coil:allTests :engine-glide:compileDebugKotlinAndroid :image:compileKotlinIosSimulatorArm64 :engine-coil:compileKotlinIosSimulatorArm64)
+./gradlew :libs:graph:allTests :libs:graph:assembleDebug :libs:graph:compileKotlinIosSimulatorArm64
+./gradlew :libs:resource:runtime:compileDebugKotlinAndroid :libs:resource:runtime:compileKotlinIosSimulatorArm64
+./gradlew :libs:image:image:allTests :libs:image:engine-coil:allTests :libs:image:engine-glide:compileDebugKotlinAndroid :libs:image:image:compileKotlinIosSimulatorArm64 :libs:image:engine-coil:compileKotlinIosSimulatorArm64
+./gradlew -p plugins :resource-gradle-plugin:test
 ```
 
 If a command cannot run in the current environment, report the blocker explicitly.

@@ -10,10 +10,10 @@ Project-local skills live under `./.agents/skills/`.
 
 ## Repository Architecture Snapshot
 
-Munchkin Cats is a Gradle multi-project workspace (Kotlin DSL) that develops against extracted library repos through Git submodules and composite builds.
+Munchkin Cats is a Gradle multi-project workspace (Kotlin DSL) with in-repo library modules under `libs/` plus an included build for local build logic.
 
 - build logic: `plugins`
-- library submodules: `libs/graph`, `libs/image`, `libs/resource`
+- library modules: `libs/graph`, `libs/image/*`, `libs/resource/*`
 - apps and demos: `apps/*`
 - perf verification: `benchmark`
 
@@ -29,7 +29,7 @@ Main responsibilities:
    - `:runtime`: typed resource IDs and runtime APIs (`stringResource`, `colorResource`, `painterResource`, `toDp`, `toSp`)
    - `:gradle-plugin`: Gradle plugin `cn.szkug.munchkin.resources` for generating `Res` and syncing iOS resources
 4. `apps/cmp`, `apps/cmp-lib`, `apps/cmp-lib2`, `apps/android`
-   - Integration demos and host applications for the extracted libraries
+   - Integration demos and host applications for the in-repo libraries
 5. `plugins/modules`
    - Local Gradle plugin `cn.szkug.munchkin.alib` for Android library defaults used by the sample workspace
 6. `benchmark`
@@ -39,7 +39,7 @@ Main responsibilities:
 
 ### Gradle + KMP
 
-1. Prefer `libs.*` for external dependencies and extracted library coordinates; prefer `projects.*` for root sample modules.
+1. Prefer `libs.*` for external dependencies; prefer `projects.*` for in-repo modules.
 2. Keep KMP source-set split clear: `commonMain` for shared contracts, `androidMain`/`iosMain` for platform code.
 3. Use `expect/actual` for platform behavior such as runtime resources, engine selection, and locale handling.
 4. Keep Android manifests wired from `src/androidMain/AndroidManifest.xml` in KMP modules.
@@ -58,14 +58,14 @@ Main responsibilities:
 1. Preserve the engine-agnostic boundary in `libs/image:image`; engine-specific logic must stay in `libs/image:engine-*`.
 2. Keep cross-platform resource access through generated `Res` plus `libs/resource:runtime`.
 3. Cross-platform features should define Android/iOS parity clearly, or explicitly document gaps.
-4. Public library API or behavior changes should update the corresponding submodule `README.md` / `README_CN.md`; root docs should only describe the sample workspace.
+4. Public library API or behavior changes should update the corresponding module `README.md` / `README_CN.md`; root docs should describe workspace-level behavior.
 
 ## Trigger Rules
 
 Always load and use `akit-repo-standards` when any request matches one or more of these intents:
 
 1. Modify or add code in `libs/*`, `apps/*`, `plugins/*`, `benchmark`, or root Gradle settings.
-2. Design or refactor architecture/dependency boundaries in this workspace or its extracted submodules.
+2. Design or refactor architecture/dependency boundaries in this workspace.
 3. Add or adjust KMP `expect/actual`, Compose APIs, resources runtime/plugin behavior, image engines, or graph utilities.
 4. Perform repository-level code review against local conventions and design constraints.
 
@@ -83,8 +83,8 @@ A task is considered complete only when all applicable checks pass:
 2. Triggered skill workflows were followed based on their own `SKILL.md` rules.
 3. If `akit-repo-standards` was triggered:
    - architecture/style constraints were applied,
-   - at least one relevant module-level compile/test check ran for each touched root module or submodule (or a blocker is explicitly reported),
-   - public-facing behavior changes are documented in the corresponding root or submodule README files (or explicitly confirmed as not needed).
+   - at least one relevant module-level compile/test check ran for each touched module (or a blocker is explicitly reported),
+   - public-facing behavior changes are documented in the corresponding root or module README files (or explicitly confirmed as not needed).
 
 <!-- OPTSMITH-SKILL:START -->
 ## Agent Optsmith Integration

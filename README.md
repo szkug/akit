@@ -2,15 +2,7 @@
 
 [中文文档](./README_CN.md)
 
-Sample workspace for the Munchkin Compose Multiplatform libraries.
-
-This repository keeps the demo apps, benchmark target, and local build logic. Library source code is split into Git submodules under `libs/`.
-
-## Initialize submodules
-
-```bash
-git submodule update --init --recursive
-```
+Sample workspace and source monorepo for the Munchkin Compose Multiplatform libraries.
 
 ## Repository layout
 
@@ -18,24 +10,24 @@ git submodule update --init --recursive
 - `apps/cmp`: Compose Multiplatform demo host
 - `apps/cmp-lib`, `apps/cmp-lib2`: shared demo/resource modules
 - `benchmark`: macrobenchmark project for `apps/android`
-- `plugins`: local Gradle build logic used by the sample workspace
-- `libs/graph`: [munchkin-graph](./libs/graph)
-- `libs/image`: [munchkin-image](./libs/image)
-- `libs/resource`: [munchkin-resource](./libs/resource)
+- `plugins`: local Gradle build logic used by the workspace
+- `libs/graph`: graphics toolkit module
+- `libs/image`: image modules (`image`, `engine-coil`, `engine-glide`)
+- `libs/resource`: resource modules (`runtime`, `gradle-plugin`)
 
 ## Documentation
 
-Library-specific documentation now lives with each extracted repository:
+Library-specific documentation lives with each module directory:
 
 - `libs/graph/README.md`
 - `libs/image/README.md`
 - `libs/resource/README.md`
 
-Use this root repository for sample integration, local composite-build development, and end-to-end verification across the submodules.
+Use this root repository for source development, sample integration, publishing, and end-to-end verification.
 
 ## Publishing
 
-Publish the extracted libraries from this workspace root with the aggregate script:
+Publish the libraries from this workspace root with the aggregate script:
 
 ```bash
 ./scripts/publish-all.sh --version 0.1.0
@@ -50,12 +42,12 @@ Useful variants:
 
 The script publishes in dependency order:
 
-1. `libs/graph`
-2. `libs/resource:runtime`
-3. `libs/image:image`
-4. `libs/image:engine-coil`
-5. `libs/image:engine-glide`
-6. `libs/resource:gradle-plugin`
+1. `libs:graph`
+2. `libs:resource:runtime`
+3. `libs:image:image`
+4. `libs:image:engine-coil`
+5. `libs:image:engine-glide`
+6. `libs/resource/gradle-plugin`
 
 Remote publishing requires these environment variables:
 

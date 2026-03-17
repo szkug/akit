@@ -30,17 +30,17 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            api(libs.munchkin.image)
-            api(libs.munchkin.graph)
+            api(projects.libs.image.image)
+            api(projects.libs.graph)
             implementation(projects.apps.cmpLib2)
-            api(libs.munchkin.runtime)
-            implementation(libs.munchkin.engine.coil)
+            api(projects.libs.resource.runtime)
+            implementation(projects.libs.image.engineCoil)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.core.ktx)
-            implementation(libs.munchkin.engine.glide)
+            implementation(projects.libs.image.engineGlide)
         }
         iosMain {
             dependencies {

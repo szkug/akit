@@ -29,9 +29,9 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.material3)
-            api(libs.munchkin.image)
-            api(libs.munchkin.graph)
-            api(libs.munchkin.runtime)
+            api(projects.libs.image.image)
+            api(projects.libs.graph)
+            api(projects.libs.resource.runtime)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

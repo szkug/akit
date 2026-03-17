@@ -12,7 +12,7 @@ Usage: ./scripts/publish-all.sh [options]
 
 Options:
   --local                 Publish all artifacts to Maven Local instead of remote registries.
-  --version <version>     Update VERSION_NAME in all library submodules before publishing.
+  --version <version>     Update the root project and build-logic version before publishing.
   --skip-plugin-portal    Skip publishing libs/resource/gradle-plugin to the Gradle Plugin Portal.
   -h, --help              Show this help.
 
@@ -59,16 +59,18 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-set_version() {
-  local repo_dir="$1"
-  local version="$2"
-  sed -i.bak -E "s/^VERSION_NAME=.*/VERSION_NAME=${version}/" "$repo_dir/gradle.properties"
-  rm -f "$repo_dir/gradle.properties.bak"
+set_property() {
+  local file="$1"
+  local key="$2"
+  local value="$3"
+  sed -i.bak -E "s/^${key}=.*/${key}=${value}/" "$file"
+  rm -f "$file.bak"
 }
 
-current_version() {
-  local repo_dir="$1"
-  sed -n 's/^VERSION_NAME=//p' "$repo_dir/gradle.properties"
+current_property() {
+  local file="$1"
+  local key="$2"
+  sed -n "s/^${key}=//p" "$file"
 }
 
 require_env() {
@@ -80,37 +82,42 @@ require_env() {
 }
 
 run_gradle() {
-  local repo_path="$1"
-  shift
   echo
-  echo "==> $repo_path :: ./gradlew $*"
+  echo "==> ./gradlew $*"
   (
-    cd "$ROOT_DIR/$repo_path"
+    cd "$ROOT_DIR"
     ./gradlew "$@"
   )
 }
 
-PUBLISHED_FLAG=(-Pmunchkin.usePublishedDependencies=true)
+run_plugins_gradle() {
+  echo
+  echo "==> ./gradlew -p plugins $*"
+  (
+    cd "$ROOT_DIR"
+    ./gradlew -p plugins "$@"
+  )
+}
 
 if [[ -n "$TARGET_VERSION" ]]; then
-  for repo in libs/graph libs/image libs/resource; do
-    set_version "$ROOT_DIR/$repo" "$TARGET_VERSION"
-  done
+  set_property "$ROOT_DIR/gradle.properties" "version" "$TARGET_VERSION"
+  set_property "$ROOT_DIR/gradle.properties" "VERSION_NAME" "$TARGET_VERSION"
+  set_property "$ROOT_DIR/plugins/gradle.properties" "version" "$TARGET_VERSION"
 fi
 
-GRAPH_VERSION=$(current_version "$ROOT_DIR/libs/graph")
-IMAGE_VERSION=$(current_version "$ROOT_DIR/libs/image")
-RESOURCE_VERSION=$(current_version "$ROOT_DIR/libs/resource")
+ROOT_VERSION=$(current_property "$ROOT_DIR/gradle.properties" "version")
+ROOT_VERSION_NAME=$(current_property "$ROOT_DIR/gradle.properties" "VERSION_NAME")
+PLUGINS_VERSION=$(current_property "$ROOT_DIR/plugins/gradle.properties" "version")
 
-if [[ "$GRAPH_VERSION" != "$IMAGE_VERSION" || "$GRAPH_VERSION" != "$RESOURCE_VERSION" ]]; then
-  echo "VERSION_NAME mismatch detected:" >&2
-  echo "  libs/graph    = $GRAPH_VERSION" >&2
-  echo "  libs/image    = $IMAGE_VERSION" >&2
-  echo "  libs/resource = $RESOURCE_VERSION" >&2
+if [[ "$ROOT_VERSION" != "$ROOT_VERSION_NAME" || "$ROOT_VERSION" != "$PLUGINS_VERSION" ]]; then
+  echo "Version mismatch detected:" >&2
+  echo "  gradle.properties version      = $ROOT_VERSION" >&2
+  echo "  gradle.properties VERSION_NAME = $ROOT_VERSION_NAME" >&2
+  echo "  plugins/gradle.properties      = $PLUGINS_VERSION" >&2
   exit 1
 fi
 
-VERSION="$GRAPH_VERSION"
+VERSION="$ROOT_VERSION"
 IS_SNAPSHOT=0
 if [[ "$VERSION" == *-SNAPSHOT ]]; then
   IS_SNAPSHOT=1
@@ -120,9 +127,13 @@ echo "Publishing version: $VERSION"
 echo "Mode: $MODE"
 
 if [[ "$MODE" == "local" ]]; then
-  run_gradle libs/graph publishToMavenLocal
-  run_gradle libs/resource "${PUBLISHED_FLAG[@]}" :runtime:publishToMavenLocal :gradle-plugin:publishToMavenLocal
-  run_gradle libs/image "${PUBLISHED_FLAG[@]}" :image:publishToMavenLocal :engine-coil:publishToMavenLocal :engine-glide:publishToMavenLocal
+  run_gradle \
+    :libs:graph:publishToMavenLocal \
+    :libs:resource:runtime:publishToMavenLocal \
+    :libs:image:image:publishToMavenLocal \
+    :libs:image:engine-coil:publishToMavenLocal \
+    :libs:image:engine-glide:publishToMavenLocal
+  run_plugins_gradle :resource-gradle-plugin:publishToMavenLocal
   exit 0
 fi
 
@@ -136,11 +147,12 @@ if [[ "$IS_SNAPSHOT" -eq 1 ]]; then
   CENTRAL_TASK="publishToMavenCentral"
 fi
 
-run_gradle libs/graph publishToMavenLocal
-run_gradle libs/graph "$CENTRAL_TASK"
-run_gradle libs/resource "${PUBLISHED_FLAG[@]}" :runtime:publishToMavenLocal
-run_gradle libs/resource "${PUBLISHED_FLAG[@]}" :runtime:"$CENTRAL_TASK"
-run_gradle libs/image "${PUBLISHED_FLAG[@]}" :image:"$CENTRAL_TASK" :engine-coil:"$CENTRAL_TASK" :engine-glide:"$CENTRAL_TASK"
+run_gradle :libs:graph:"$CENTRAL_TASK"
+run_gradle :libs:resource:runtime:"$CENTRAL_TASK"
+run_gradle \
+  :libs:image:image:"$CENTRAL_TASK" \
+  :libs:image:engine-coil:"$CENTRAL_TASK" \
+  :libs:image:engine-glide:"$CENTRAL_TASK"
 
 if [[ "$SKIP_PLUGIN_PORTAL" -eq 1 ]]; then
   exit 0
@@ -153,4 +165,4 @@ fi
 
 require_env GRADLE_PUBLISH_KEY
 require_env GRADLE_PUBLISH_SECRET
-run_gradle libs/resource :gradle-plugin:publishPlugins
+run_plugins_gradle :resource-gradle-plugin:publishPlugins

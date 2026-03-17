@@ -30,9 +30,13 @@ rootProject.name = "munchkin-cats"
 
 // build logic
 includeBuild("plugins")
-includeBuild("libs/graph")
-includeBuild("libs/image")
-includeBuild("libs/resource")
+
+// libraries
+include(":libs:graph")
+include(":libs:image:image")
+include(":libs:image:engine-coil")
+include(":libs:image:engine-glide")
+include(":libs:resource:runtime")
 
 // apps
 include(":apps:android")

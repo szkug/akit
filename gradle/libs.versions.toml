@@ -37,7 +37,6 @@ appcompat = "1.7.1"
 material = "1.12.0"
 
 maven-public = "0.29.0"
-munchkin = "0.1.0-SNAPSHOT"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -96,14 +95,6 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu", version.ref = "atomicfu" }
-munchkin-graph = { module = "cn.szkug.munchkin:graph", version.ref = "munchkin" }
-munchkin-image = { module = "cn.szkug.munchkin:image", version.ref = "munchkin" }
-munchkin-engine-coil = { module = "cn.szkug.munchkin:engine-coil", version.ref = "munchkin" }
-munchkin-engine-glide = { module = "cn.szkug.munchkin:engine-glide", version.ref = "munchkin" }
-munchkin-runtime = { module = "cn.szkug.munchkin:runtime", version.ref = "munchkin" }
-
-
-
 gradle-plugin-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 gradle-plugin-android = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompat" }
@@ -121,6 +112,7 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 
 project-alib = { id = "cn.szkug.munchkin.alib" , version = "unspecified"}
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-public" }
 
 [bundles]
 glide = [

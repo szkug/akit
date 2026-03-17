@@ -25,3 +25,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "munchkin-build-logic"
 
 include("modules")
+include("resource-gradle-plugin")
+
+project(":resource-gradle-plugin").projectDir = file("../libs/resource/gradle-plugin")
