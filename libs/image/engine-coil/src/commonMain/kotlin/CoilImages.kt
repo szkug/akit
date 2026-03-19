@@ -2,9 +2,9 @@ package munchkin.image.coil
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
+import coil3.Image
 import munchkin.graph.ninepatch.NinePatchChunk
 import munchkin.graph.ninepatch.NinePatchPainter
-import coil3.Image
 
 internal class NinePatchCoilImage(
     private val image: Image,
@@ -53,15 +53,4 @@ internal class LottieCoilImage(
     }
 
     fun toPainter(): Painter = painter
-}
-
-internal class BinaryPayloadCoilImage(
-    val bytes: ByteArray,
-) : Image {
-    override val width: Int = 1
-    override val height: Int = 1
-    override val size: Long = bytes.size.toLong()
-    override val shareable: Boolean = false
-
-    override fun draw(canvas: coil3.Canvas) = Unit
 }

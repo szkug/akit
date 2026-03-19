@@ -12,7 +12,12 @@
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation("cn.szkug.munchkin:loader:<version>")
+            implementation("cn.szkug.munchkin:loader-engine-coil:<version>")
             implementation("cn.szkug.munchkin:svga:<version>")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.munchkin:loader-engine-glide:<version>")
         }
     }
 }
@@ -40,15 +45,15 @@ MunchkinSvga(
 )
 ```
 
-如果业务已经接了 `munchkin-image`，可以把同一个 engine 传进来，复用现有下载和缓存链路：
+如果你希望复用缓存和下载链路，需要传入独立的资源下载 engine：
 
 ```kotlin
-val imageEngine = CoilRequestEngine.Normal
+val loaderEngine = CoilBinaryRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
     contentDescription = null,
-    loadingEngine = imageEngine,
+    loaderEngine = loaderEngine,
 )
 ```
 
@@ -85,10 +90,10 @@ MunchkinSvga(
 - `setHidden`
 - `setClickArea`
 
-当前 `loadingEngine` 支持复用的实现：
+当前支持的下载 engine：
 
-- Android / iOS 的 `CoilRequestEngine`
-- Android 的 `GlideRequestEngine`
+- Android / iOS 的 `CoilBinaryRequestEngine`
+- Android 的 `GlideBinaryRequestEngine`
 
 ## 播放控制
 

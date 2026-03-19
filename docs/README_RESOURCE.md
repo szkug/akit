@@ -7,6 +7,8 @@ Main runtime package:
 
 - `munchkin.resources.runtime`
 - `munchkin.resources.loader` for reusable binary downloads shared by `svga` and custom resource-based loaders
+- `munchkin.resources.loader.coil`
+- `munchkin.resources.loader.glide`
 
 ## Install
 
@@ -32,6 +34,21 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation("cn.szkug.munchkin:loader:<version>")
+        }
+    }
+}
+```
+
+To use cached download engines:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.munchkin:loader-engine-coil:<version>")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.munchkin:loader-engine-glide:<version>")
         }
     }
 }
@@ -123,6 +140,9 @@ BinarySource.FilePath("/path/to/demo.svga")
 BinarySource.UriPath("content://...")
 BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
+
+`loader` only defines the source model and fallback loading. Cached downloads should go through a
+dedicated loader engine such as `CoilBinaryRequestEngine` or `GlideBinaryRequestEngine`.
 
 ## Plugin Configuration
 

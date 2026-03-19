@@ -38,7 +38,7 @@ fun SvgaDemoPage(onBack: () -> Unit) {
 
 @Composable
 private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
-    val imageEngine = rememberDemoAsyncEngine()
+    val loaderEngine = rememberDemoBinaryEngine()
     var clickMessage by remember { mutableStateOf("Tap the rocket body or right wing.") }
     val rocketDynamic = remember {
         SvgaDynamicEntity().apply {
@@ -119,7 +119,7 @@ private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
                         .height(220.dp),
                     state = playerState,
                     dynamicEntity = sample.dynamic ?: rememberSvgaDynamicEntity(),
-                    loadingEngine = imageEngine,
+                    loaderEngine = loaderEngine,
                     contentScale = ContentScale.Fit,
                     placeholder = {
                         Text(text = "Loading SVGA...", modifier = Modifier.padding(12.dp))

@@ -7,6 +7,8 @@ id，并提供 Android / iOS 运行时 API。
 
 - `munchkin.resources.runtime`
 - `munchkin.resources.loader`，用于 `svga` 等模块复用的二进制资源下载
+- `munchkin.resources.loader.coil`
+- `munchkin.resources.loader.glide`
 
 ## 接入方式
 
@@ -31,6 +33,21 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation("cn.szkug.munchkin:loader:<version>")
+        }
+    }
+}
+```
+
+如果你希望走带缓存的下载链路，可以继续增加：
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.munchkin:loader-engine-coil:<version>")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.munchkin:loader-engine-glide:<version>")
         }
     }
 }
@@ -122,6 +139,9 @@ BinarySource.FilePath("/path/to/demo.svga")
 BinarySource.UriPath("content://...")
 BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
+
+`loader` 本身只定义 source 模型和兜底加载；如果你需要缓存下载，应配合
+`CoilBinaryRequestEngine` 或 `GlideBinaryRequestEngine` 这类专用 loader engine 一起使用。
 
 ## 插件配置
 

@@ -2,13 +2,8 @@ package munchkin.resources.loader
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.Painter
-import munchkin.image.AsyncLoadData
-import munchkin.image.AsyncRequestEngine
-import munchkin.image.EngineContext
 import munchkin.resources.runtime.RawResourceId
+import kotlin.reflect.KClass
 
 sealed interface BinarySource {
     data class Url(
@@ -40,15 +35,33 @@ data class BinaryPayload(
     val source: BinarySource,
 )
 
-class BinaryAsyncLoadData(
+data class BinaryAsyncLoadData(
     val payload: BinaryPayload,
-) : AsyncLoadData {
-    override fun painter(): Painter = EmptyBinaryPainter
+)
+
+interface BinaryEngineContext
+
+typealias BinaryEngineContextProvider = @Composable () -> BinaryEngineContext
+
+object LocalBinaryEngineContextRegister {
+
+    private val registration = mutableMapOf<KClass<out BinaryRequestEngine>, BinaryEngineContextProvider>()
+
+    fun register(type: KClass<out BinaryRequestEngine>, provider: BinaryEngineContextProvider) {
+        registration[type] = provider
+    }
+
+    @Composable
+    fun resolve(engine: BinaryRequestEngine): BinaryEngineContext {
+        val provider = registration[engine::class]
+            ?: error("No BinaryEngineContext provider found, it must register first.")
+        return provider.invoke()
+    }
 }
 
 interface BinaryRequestEngine {
     suspend fun requestBinary(
-        engineContext: EngineContext,
+        engineContext: BinaryEngineContext,
         source: BinarySource,
     ): BinaryAsyncLoadData
 }
@@ -74,10 +87,4 @@ fun BinarySource.cacheKey(): String {
         is BinarySource.UriPath -> value
         is BinarySource.Url -> value
     }
-}
-
-internal object EmptyBinaryPainter : Painter() {
-    override val intrinsicSize = Size.Unspecified
-
-    override fun DrawScope.onDraw() = Unit
 }

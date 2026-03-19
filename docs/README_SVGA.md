@@ -12,7 +12,12 @@ Main package:
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation("cn.szkug.munchkin:loader:<version>")
+            implementation("cn.szkug.munchkin:loader-engine-coil:<version>")
             implementation("cn.szkug.munchkin:svga:<version>")
+        }
+        androidMain.dependencies {
+            implementation("cn.szkug.munchkin:loader-engine-glide:<version>")
         }
     }
 }
@@ -40,15 +45,15 @@ MunchkinSvga(
 )
 ```
 
-If your app already uses `munchkin-image`, pass the same engine so SVGA downloads reuse the existing fetch and cache pipeline:
+If you want cached network/download behavior, pass a dedicated loader engine:
 
 ```kotlin
-val imageEngine = CoilRequestEngine.Normal
+val loaderEngine = CoilBinaryRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
     contentDescription = null,
-    loadingEngine = imageEngine,
+    loaderEngine = loaderEngine,
 )
 ```
 
@@ -85,10 +90,10 @@ Available dynamic APIs:
 - `setHidden`
 - `setClickArea`
 
-`loadingEngine` currently reuses binary loading from:
+Supported loader engines:
 
-- `CoilRequestEngine` on Android and iOS
-- `GlideRequestEngine` on Android
+- `CoilBinaryRequestEngine` on Android and iOS
+- `GlideBinaryRequestEngine` on Android
 
 ## Playback Control
 

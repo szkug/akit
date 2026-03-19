@@ -129,8 +129,12 @@ MunchkinAsyncImage(
 )
 ```
 
-## Binary Loading For Animation Modules
+## Note About Animation Downloads
 
-`CoilRequestEngine` and `GlideRequestEngine` can also provide binary source loading for animation modules such as `munchkin-svga`.
+Image engines only handle image requests.
 
-Use `MunchkinSvga(loadingEngine = yourImageEngine)` to reuse the same fetch and cache pipeline for remote `.svga` assets.
+For `.svga` and other binary payload downloads, use the dedicated resource loader engines from
+`munchkin-resource`:
+
+- `cn.szkug.munchkin:loader-engine-coil`
+- `cn.szkug.munchkin:loader-engine-glide`

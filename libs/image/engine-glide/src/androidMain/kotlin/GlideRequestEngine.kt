@@ -7,45 +7,34 @@ import android.net.Uri
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import munchkin.image.glide.extensions.lottie.LottieDecodeOptions
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.signature.ObjectKey
+import java.io.File
+import kotlinx.coroutines.flow.Flow
+import munchkin.graph.lottie.LottieResource
 import munchkin.graph.toPainter
-import munchkin.image.AsyncLoadData
-import munchkin.image.AsyncLoadResult
 import munchkin.image.AsyncImageContext
 import munchkin.image.AsyncImageSizeLimit
+import munchkin.image.AsyncLoadData
+import munchkin.image.AsyncLoadResult
 import munchkin.image.AsyncRequestEngine
 import munchkin.image.DrawableModel
+import munchkin.image.EngineContext
+import munchkin.image.EngineContextProvider
+import munchkin.image.LocalEngineContextRegister
 import munchkin.image.RequestModel
 import munchkin.image.ResIdModel
 import munchkin.image.ResolvableImageSize
 import munchkin.image.ResourceModel
-import munchkin.graph.lottie.LottieResource
-import munchkin.image.EngineContext
-import munchkin.image.EngineContextProvider
-import munchkin.image.LocalEngineContextRegister
-import munchkin.resources.loader.BinaryAsyncLoadData
-import munchkin.resources.loader.BinaryPayload
-import munchkin.resources.loader.BinaryRequestEngine
-import munchkin.resources.loader.BinarySource
-import munchkin.resources.loader.cacheKey
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestBuilder
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.load.model.LazyHeaders
+import munchkin.image.glide.extensions.lottie.LottieDecodeOptions
 import munchkin.image.glide.extensions.ninepatch.NinepatchEnableOption
 import munchkin.image.glide.transformation.BitmapTransformation
 import munchkin.image.glide.transformation.DrawableTransformation
 import munchkin.image.glide.transformation.GaussianBlurTransformation
 import munchkin.image.glide.transformation.setupTransforms
-import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.signature.ObjectKey
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
-import munchkin.resources.runtime.resolveResourcePath
-import java.io.File
-import androidx.core.net.toUri
 
 @JvmInline
 internal value class AndroidContext(val context: Context) : EngineContext
@@ -66,16 +55,14 @@ class DrawableAsyncLoadData(
 }
 
 typealias GlideRequestBuilder = (EngineContext, AsyncImageContext) -> RequestBuilder<Drawable>
-typealias DownloadGlideRequestBuilder = (EngineContext) -> RequestBuilder<File>
 
 private const val SDK_SIZE_ORIGINAL = Target.SIZE_ORIGINAL
 
 class GlideRequestEngine(
     val requestBuilder: GlideRequestBuilder = NormalGlideRequestBuilder,
-    val downloadRequestBuilder: DownloadGlideRequestBuilder = DownloadOnlyGlideRequestBuilder,
     val bitmapTransformations: List<BitmapTransformation> = emptyList(),
     val drawableTransformations: List<DrawableTransformation> = emptyList(),
-) : AsyncRequestEngine<DrawableAsyncLoadData>, BinaryRequestEngine {
+) : AsyncRequestEngine<DrawableAsyncLoadData> {
 
     override val engineSizeOriginal: Int = SDK_SIZE_ORIGINAL
 
@@ -132,9 +119,7 @@ class GlideRequestEngine(
     private fun <T> RequestBuilder<T>.setupSize(size: ResolvableImageSize): RequestBuilder<T> {
         return when (val ready = size.readySize()) {
             null -> this
-            else -> {
-                override(ready.width, ready.height)
-            }
+            else -> override(ready.width, ready.height)
         }
     }
 
@@ -145,7 +130,6 @@ class GlideRequestEngine(
             else -> this
         }
     }
-
 
     private fun RequestBuilder<Drawable>.flowOfRequest(
         imageContext: AsyncImageContext,
@@ -166,20 +150,6 @@ class GlideRequestEngine(
         }.flowDrawableOfSize(imageContext, size, sizeLimit)
     }
 
-    override suspend fun requestBinary(
-        engineContext: EngineContext,
-        source: BinarySource,
-    ): BinaryAsyncLoadData = withContext(Dispatchers.IO) {
-        if (source is BinarySource.Bytes) {
-            return@withContext BinaryAsyncLoadData(BinaryPayload(source.value, source.cacheKey, source))
-        }
-        val file = downloadRequestBuilder(engineContext)
-            .load(source.resolveGlideModel())
-            .submit()
-            .get()
-        BinaryAsyncLoadData(BinaryPayload(file.readBytes(), source.cacheKey(), source))
-    }
-
     companion object {
         val Normal = GlideRequestEngine()
 
@@ -188,42 +158,13 @@ class GlideRequestEngine(
                 Glide.with(context1.context).asDrawable()
             }
 
-        val DownloadOnlyGlideRequestBuilder: DownloadGlideRequestBuilder
-            get() = { context1 ->
-                Glide.with(context1.context).downloadOnly()
-            }
-
         init {
             LocalEngineContextRegister.register(
                 GlideRequestEngine::class,
-                GlideEngineContextProvider
+                GlideEngineContextProvider,
             )
         }
     }
 }
 
 private data class LottieInstanceKey(private val resId: Int)
-
-private fun BinarySource.resolveGlideModel(): Any {
-    return when (this) {
-        is BinarySource.Bytes -> value
-        is BinarySource.FilePath -> File(path)
-        is BinarySource.Raw -> {
-            val path = resolveResourcePath(id) ?: error("Unable to resolve raw resource: $id")
-            File(path)
-        }
-        is BinarySource.UriPath -> value.toUri()
-        is BinarySource.Url -> {
-            if (headers.isEmpty()) {
-                value
-            } else {
-                GlideUrl(
-                    value,
-                    LazyHeaders.Builder().apply {
-                        headers.forEach { (key, headerValue) -> addHeader(key, headerValue) }
-                    }.build(),
-                )
-            }
-        }
-    }
-}

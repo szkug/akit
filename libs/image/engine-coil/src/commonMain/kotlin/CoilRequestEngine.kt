@@ -2,37 +2,7 @@ package munchkin.image.coil
 
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import munchkin.image.AsyncLoadData
-import munchkin.image.AsyncLoadResult
-import munchkin.image.AsyncImageContext
-import munchkin.image.AsyncRequestEngine
-import munchkin.image.RequestModel
-import munchkin.image.ResolvableImageSize
-import munchkin.image.ResourceModel
-import munchkin.image.clampTo
-import munchkin.graph.lottie.LottieResource
-import munchkin.image.EngineContext
-import munchkin.image.EngineContextProvider
-import munchkin.image.LocalEngineContextRegister
-import munchkin.image.coil.support.GaussianBlurTransformation
-import munchkin.image.coil.support.GifDecoder
-import munchkin.resources.loader.BinaryRequestEngine
-import munchkin.resources.loader.BinaryAsyncLoadData
-import munchkin.resources.loader.BinarySource
-import munchkin.resources.runtime.ResourceId
-import munchkin.resources.runtime.resolveResourcePath
-import munchkin.image.coil.support.BinaryPayloadDecoder
-import munchkin.image.coil.support.LottieDecodeEnabled
-import munchkin.image.coil.support.LottieDecoder
-import munchkin.image.coil.support.LottieIterationsKey
-import munchkin.image.coil.support.NinePatchDecodeEnabled
-import munchkin.image.coil.support.NinePatchDecoder
-import munchkin.image.coil.support.platformDecoderFactories
 import coil3.Image
-import coil3.ImageLoader
-import coil3.PlatformContext
-import coil3.SingletonImageLoader
-import coil3.compose.LocalPlatformContext
 import coil3.compose.asPainter
 import coil3.decode.Decoder
 import coil3.request.ErrorResult
@@ -40,18 +10,41 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.request.transformations
 import coil3.target.Target
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import munchkin.graph.lottie.LottieResource
+import munchkin.image.AsyncImageContext
+import munchkin.image.AsyncLoadData
+import munchkin.image.AsyncLoadResult
+import munchkin.image.AsyncRequestEngine
+import munchkin.image.EngineContext
+import munchkin.image.EngineContextProvider
+import munchkin.image.LocalEngineContextRegister
+import munchkin.image.RequestModel
+import munchkin.image.ResolvableImageSize
+import munchkin.image.ResourceModel
+import munchkin.image.clampTo
+import munchkin.image.coil.support.GaussianBlurTransformation
+import munchkin.image.coil.support.GifDecoder
+import munchkin.image.coil.support.LottieDecodeEnabled
+import munchkin.image.coil.support.LottieDecoder
+import munchkin.image.coil.support.LottieIterationsKey
+import munchkin.image.coil.support.NinePatchDecodeEnabled
+import munchkin.image.coil.support.NinePatchDecoder
+import munchkin.image.coil.support.platformDecoderFactories
+import munchkin.resources.loader.coil.CoilImageLoaderFactory
+import munchkin.resources.loader.coil.CoilImageLoaderSingletonFactory
+import munchkin.resources.runtime.ResourceId
+import munchkin.resources.runtime.resolveResourcePath
 import kotlin.jvm.JvmInline
 
 @JvmInline
-private value class CoilEngineContext(val context: PlatformContext) : EngineContext
+private value class CoilEngineContext(val context: coil3.PlatformContext) : EngineContext
 
 private val CoilEngineContextProvider: EngineContextProvider =
-    { CoilEngineContext(LocalPlatformContext.current) }
+    { CoilEngineContext(coil3.compose.LocalPlatformContext.current) }
 val EngineContext.context get() = (this as CoilEngineContext).context
 
 abstract class CoilAsyncLoadData<T>(
@@ -64,41 +57,16 @@ class PainterAsyncLoadData(
     override fun painter(): Painter = value
 }
 
-interface CoilImageLoaderFactory {
-
-    fun get(context: PlatformContext): ImageLoader
-}
-
-open class CoilImageLoaderSingletonFactory : CoilImageLoaderFactory {
-
-    private val reference = atomic<ImageLoader?>(null)
-
-    final override fun get(context: PlatformContext): ImageLoader {
-        return reference.value ?: create(
-            context,
-            listOf(BinaryPayloadDecoder.Factory(), NinePatchDecoder.Factory(), GifDecoder.Factory(), LottieDecoder.Factory()) +
-                platformDecoderFactories()
-        ).also {
-            reference.value = it
-        }
-    }
-
-    open fun create(
-        context: PlatformContext,
-        internalFactories: List<Decoder.Factory>
-    ): ImageLoader {
-        return SingletonImageLoader.get(context = context)
-            .newBuilder().components {
-                for (factory in internalFactories) add(factory)
-            }.build()
+private val NormalCoilImageLoaderFactory = object : CoilImageLoaderSingletonFactory() {
+    override fun internalFactories(): List<Decoder.Factory> {
+        return listOf(NinePatchDecoder.Factory(), GifDecoder.Factory(), LottieDecoder.Factory()) +
+            platformDecoderFactories()
     }
 }
-
-private val NormalCoilImageLoaderFactory = CoilImageLoaderSingletonFactory()
 
 class CoilRequestEngine(
-    private val factory: CoilImageLoaderFactory = NormalCoilImageLoaderFactory,
-) : AsyncRequestEngine<PainterAsyncLoadData>, BinaryRequestEngine {
+    val factory: CoilImageLoaderFactory = NormalCoilImageLoaderFactory,
+) : AsyncRequestEngine<PainterAsyncLoadData> {
     override val engineSizeOriginal: Int = -1
 
     override suspend fun flowRequest(
@@ -158,13 +126,6 @@ class CoilRequestEngine(
         awaitClose { disposable.dispose() }
     }
 
-    override suspend fun requestBinary(
-        engineContext: EngineContext,
-        source: BinarySource,
-    ): BinaryAsyncLoadData {
-        return CoilBinarySourceRequester(engineContext.context, factory).request(source)
-    }
-
     companion object {
         val Normal = CoilRequestEngine()
 
@@ -181,7 +142,6 @@ private fun resolveLottieResource(resource: Any): Any {
         else -> resource
     }
 }
-
 
 private class CoilFlowTarget(
     private val imageContext: AsyncImageContext,

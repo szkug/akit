@@ -42,9 +42,11 @@ kotlin {
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.core.ktx)
             implementation(projects.libs.image.engineGlide)
+            implementation(projects.libs.resource.loaderEngineGlide)
         }
         iosMain {
             dependencies {
+                implementation(projects.libs.resource.loaderEngineCoil)
             }
         }
     }

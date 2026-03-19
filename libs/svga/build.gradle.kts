@@ -20,7 +20,6 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.ui)
-            api(project(":libs:image:image"))
             api(project(":libs:graph"))
             api(project(":libs:resource:loader"))
             api(project(":libs:resource:runtime"))
