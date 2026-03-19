@@ -15,6 +15,9 @@ Component integration guide for the Munchkin Compose Multiplatform libraries.
 - Graph
   NinePatch, Lottie painter, blur helpers, and shadow rendering.
   Guide: [docs/README_GRAPH.md](./docs/README_GRAPH.md)
+- SVGA
+  Cross-platform SVGA playback with self-hosted decode, dynamic text/image replacement, audio, and click areas.
+  Guide: [docs/README_SVGA.md](./docs/README_SVGA.md)
 
 ## Quick Setup
 
@@ -25,6 +28,7 @@ kotlin {
             implementation("cn.szkug.munchkin:runtime:<version>")
             implementation("cn.szkug.munchkin:image:<version>")
             implementation("cn.szkug.munchkin:graph:<version>")
+            implementation("cn.szkug.munchkin:svga:<version>")
         }
         androidMain.dependencies {
             implementation("cn.szkug.munchkin:engine-coil:<version>")
@@ -49,3 +53,5 @@ plugins {
   Start with [docs/README_IMAGE.md](./docs/README_IMAGE.md)
 - Need NinePatch, `rememberLottiePainter`, `Toolkit`, or `Modifier.munchkinShadow`?
   Start with [docs/README_GRAPH.md](./docs/README_GRAPH.md)
+- Need SVGA playback, dynamic text/image replacement, audio timeline, or click hit testing?
+  Start with [docs/README_SVGA.md](./docs/README_SVGA.md)

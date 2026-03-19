@@ -13,6 +13,9 @@ Munchkin Compose Multiplatform 组件库的统一接入文档入口。
 - Graph
   提供 NinePatch、Lottie Painter、模糊能力、阴影绘制。
   文档： [docs/README_GRAPH_CN.md](./docs/README_GRAPH_CN.md)
+- SVGA
+  提供双端 SVGA 播放、动态文案/图片替换、音频时间轴和点击区域支持。
+  文档： [docs/README_SVGA_CN.md](./docs/README_SVGA_CN.md)
 
 ## 快速接入
 
@@ -23,6 +26,7 @@ kotlin {
             implementation("cn.szkug.munchkin:runtime:<version>")
             implementation("cn.szkug.munchkin:image:<version>")
             implementation("cn.szkug.munchkin:graph:<version>")
+            implementation("cn.szkug.munchkin:svga:<version>")
         }
         androidMain.dependencies {
             implementation("cn.szkug.munchkin:engine-coil:<version>")
@@ -47,3 +51,5 @@ plugins {
   先看 [docs/README_IMAGE_CN.md](./docs/README_IMAGE_CN.md)
 - 需要 NinePatch、`rememberLottiePainter`、`Toolkit` 或 `Modifier.munchkinShadow`？
   先看 [docs/README_GRAPH_CN.md](./docs/README_GRAPH_CN.md)
+- 需要 SVGA 播放、动态文本/图片替换、音频时间轴或点击热区？
+  先看 [docs/README_SVGA_CN.md](./docs/README_SVGA_CN.md)

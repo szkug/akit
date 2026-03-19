@@ -37,6 +37,7 @@ include(":libs:image:image")
 include(":libs:image:engine-coil")
 include(":libs:image:engine-glide")
 include(":libs:resource:runtime")
+include(":libs:svga")
 
 // apps
 include(":apps:android")

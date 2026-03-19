@@ -32,6 +32,7 @@ kotlin {
             implementation(compose.material3)
             api(projects.libs.image.image)
             api(projects.libs.graph)
+            api(projects.libs.svga)
             implementation(projects.apps.cmpLib2)
             api(projects.libs.resource.runtime)
             implementation(projects.libs.image.engineCoil)

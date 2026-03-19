@@ -8,6 +8,7 @@ val publishableModules = mapOf(
     ":libs:image:engine-coil" to "Munchkin Image Coil Engine",
     ":libs:image:engine-glide" to "Munchkin Image Glide Engine",
     ":libs:resource:runtime" to "Munchkin Resource Runtime",
+    ":libs:svga" to "Munchkin SVGA",
 )
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -19,6 +20,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.jetbrains.compose) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.kotlin.cocoapods) apply false
     alias(libs.plugins.maven.publish) apply false
 }

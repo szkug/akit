@@ -32,6 +32,7 @@ private enum class DemoPage {
     ShadowEffects,
     BlurDemo,
     LottieDemo,
+    SvgaDemo,
 }
 
 @Composable
@@ -48,6 +49,7 @@ fun MunchkinCmpApp() {
             DemoPage.ShadowEffects -> ShadowEffectDemoPage(onBack = { page = DemoPage.Home })
             DemoPage.BlurDemo -> BlurDemoPage(onBack = { page = DemoPage.Home })
             DemoPage.LottieDemo -> LottieDemoPage(onBack = { page = DemoPage.Home })
+            DemoPage.SvgaDemo -> SvgaDemoPage(onBack = { page = DemoPage.Home })
         }
     }
 }
@@ -79,6 +81,9 @@ private fun HomeScreen(onNavigate: (DemoPage) -> Unit) {
         }
         Button(onClick = { onNavigate(DemoPage.LottieDemo) }) {
             Text(text = "Lottie Demo")
+        }
+        Button(onClick = { onNavigate(DemoPage.SvgaDemo) }) {
+            Text(text = "SVGA Demo")
         }
     }
 }
