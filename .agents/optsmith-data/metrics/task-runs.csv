@@ -1,1 +1,13 @@
 date,task_id,task_type,model,used_skill,skill_name,total_tokens,duration_sec,success,rework_count
+2026-03-17,TASK-20260317-165841,coding,gpt-5,true,agent-optsmith,1107126,207,true,0
+2026-03-17,TASK-20260317-174158,coding,gpt-5,true,agent-optsmith,2098739,239,true,0
+2026-03-17,TASK-20260317-174438,coding,gpt-5,true,agent-optsmith,1153156,142,true,0
+2026-03-17,TASK-20260317-174811,coding,gpt-5,true,agent-optsmith,504047,36,true,0
+2026-03-17,TASK-20260317-174910,coding,gpt-5,true,agent-optsmith,653920,46,true,0
+2026-03-17,TASK-20260317-175032,coding,gpt-5,true,agent-optsmith,548921,33,true,0
+2026-03-17,TASK-20260317-175923,coding,gpt-5,true,agent-optsmith,1634292,169,true,0
+2026-03-19,TASK-20260319-113946,coding,gpt-5,true,agent-optsmith,1357982,249,true,0
+2026-03-19,TASK-20260319-143938,coding,gpt-5,true,agent-optsmith,2737224,631,true,0
+2026-03-19,TASK-20260319-161358,coding,gpt-5,true,agent-optsmith,539135,148,true,0
+2026-03-19,TASK-20260319-163030,coding,gpt-5,true,agent-optsmith,7678391,941,true,0
+2026-03-19,TASK-20260319-164150,coding,gpt-5,true,agent-optsmith,506360,312,true,0
