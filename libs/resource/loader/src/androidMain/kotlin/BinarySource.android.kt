@@ -1,4 +1,4 @@
-package munchkin.image
+package munchkin.resources.loader
 
 import android.content.ContentResolver
 import android.content.Context
@@ -13,31 +13,31 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 @Composable
-actual fun rememberBinarySourceLoader(): BinarySourceLoader {
+internal actual fun rememberPlatformBinarySourceLoader(): PlatformBinarySourceLoader {
     val context = LocalContext.current.applicationContext
     return remember(context) { AndroidBinarySourceLoader(context) }
 }
 
 private class AndroidBinarySourceLoader(
     private val context: Context,
-) : BinarySourceLoader {
+) : PlatformBinarySourceLoader {
 
     override suspend fun load(source: BinarySource): BinaryPayload = withContext(Dispatchers.IO) {
         when (source) {
             is BinarySource.Bytes -> BinaryPayload(source.value, source.cacheKey, source)
             is BinarySource.FilePath -> {
                 val bytes = File(source.path).readBytes()
-                BinaryPayload(bytes, source.path, source)
+                BinaryPayload(bytes, source.cacheKey(), source)
             }
 
             is BinarySource.Raw -> {
                 val bytes = context.resources.openRawResource(source.id).use { it.readBytes() }
-                BinaryPayload(bytes, "android-raw:${source.id}", source)
+                BinaryPayload(bytes, source.cacheKey(), source)
             }
 
             is BinarySource.UriPath -> {
                 val bytes = openUri(source.value)
-                BinaryPayload(bytes, source.value, source)
+                BinaryPayload(bytes, source.cacheKey(), source)
             }
 
             is BinarySource.Url -> {
@@ -48,7 +48,7 @@ private class AndroidBinarySourceLoader(
                     source.headers.forEach { (key, value) -> setRequestProperty(key, value) }
                 }
                 connection.inputStream.use { input ->
-                    BinaryPayload(input.readBytes(), source.value, source)
+                    BinaryPayload(input.readBytes(), source.cacheKey(), source)
                 }.also {
                     connection.disconnect()
                 }
@@ -61,11 +61,11 @@ private class AndroidBinarySourceLoader(
         val scheme = uri.scheme.orEmpty().lowercase()
         return when (scheme) {
             "content" -> contentResolver().openInputStream(uri)?.use { it.readBytes() }
-            ?: error("Unable to open content uri: $uriString")
+                ?: error("Unable to open content uri: $uriString")
 
             "file" -> File(requireNotNull(uri.path) { "Missing file path for $uriString" }).readBytes()
             "android.resource" -> contentResolver().openInputStream(uri)?.use { it.readBytes() }
-            ?: error("Unable to open resource uri: $uriString")
+                ?: error("Unable to open resource uri: $uriString")
 
             else -> File(uriString).readBytes()
         }

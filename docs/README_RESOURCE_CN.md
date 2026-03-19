@@ -6,6 +6,7 @@ id，并提供 Android / iOS 运行时 API。
 主要运行时包名：
 
 - `munchkin.resources.runtime`
+- `munchkin.resources.loader`，用于 `svga` 等模块复用的二进制资源下载
 
 ## 接入方式
 
@@ -18,6 +19,18 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation("cn.szkug.munchkin:runtime:<version>")
+        }
+    }
+}
+```
+
+如果你还需要统一加载 `.svga`、raw 文件或其它自定义二进制资源，可以再增加：
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.munchkin:loader:<version>")
         }
     }
 }
@@ -95,6 +108,19 @@ val DimenResourceId.toDp: Dp
 val DimenResourceId.toSp: TextUnit
 
 fun resolveResourcePath(id: ResourceId, localeOverride: String? = null): String?
+```
+
+## Binary Loader API
+
+当资源插件 / runtime 还不够用，而你需要一个可跨 Android / iOS 复用的二进制资源来源模型时，
+可以使用 `loader`。`svga` 就是基于这层能力读取资源。
+
+```kotlin
+BinarySource.Url("https://example.com/demo.svga")
+BinarySource.Raw(Res.raw.demo_svga)
+BinarySource.FilePath("/path/to/demo.svga")
+BinarySource.UriPath("content://...")
+BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
 
 ## 插件配置

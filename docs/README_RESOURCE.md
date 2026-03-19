@@ -6,6 +6,7 @@ ids and provides runtime APIs for Android and iOS.
 Main runtime package:
 
 - `munchkin.resources.runtime`
+- `munchkin.resources.loader` for reusable binary downloads shared by `svga` and custom resource-based loaders
 
 ## Install
 
@@ -18,6 +19,19 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation("cn.szkug.munchkin:runtime:<version>")
+        }
+    }
+}
+```
+
+If you need to load arbitrary binary assets such as `.svga`, raw files, or custom downloaded payloads
+through the same source model on Android and iOS, add:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("cn.szkug.munchkin:loader:<version>")
         }
     }
 }
@@ -95,6 +109,19 @@ val DimenResourceId.toDp: Dp
 val DimenResourceId.toSp: TextUnit
 
 fun resolveResourcePath(id: ResourceId, localeOverride: String? = null): String?
+```
+
+## Binary Loader API
+
+Use `loader` when the resource plugin/runtime alone is not enough and you need a typed binary source
+that can be consumed by modules such as `svga` or your own format decoder.
+
+```kotlin
+BinarySource.Url("https://example.com/demo.svga")
+BinarySource.Raw(Res.raw.demo_svga)
+BinarySource.FilePath("/path/to/demo.svga")
+BinarySource.UriPath("content://...")
+BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
 
 ## Plugin Configuration

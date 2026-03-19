@@ -40,6 +40,18 @@ MunchkinSvga(
 )
 ```
 
+If your app already uses `munchkin-image`, pass the same engine so SVGA downloads reuse the existing fetch and cache pipeline:
+
+```kotlin
+val imageEngine = CoilRequestEngine.Normal
+
+MunchkinSvga(
+    source = BinarySource.Url("https://example.com/demo.svga"),
+    contentDescription = null,
+    loadingEngine = imageEngine,
+)
+```
+
 ## Dynamic Replacement
 
 Use `SvgaDynamicEntity` to override content inside the animation:
@@ -72,6 +84,11 @@ Available dynamic APIs:
 - `setDynamicDrawer`
 - `setHidden`
 - `setClickArea`
+
+`loadingEngine` currently reuses binary loading from:
+
+- `CoilRequestEngine` on Android and iOS
+- `GlideRequestEngine` on Android
 
 ## Playback Control
 

@@ -7,6 +7,7 @@ val publishableModules = mapOf(
     ":libs:image:image" to "Munchkin Image",
     ":libs:image:engine-coil" to "Munchkin Image Coil Engine",
     ":libs:image:engine-glide" to "Munchkin Image Glide Engine",
+    ":libs:resource:loader" to "Munchkin Resource Loader",
     ":libs:resource:runtime" to "Munchkin Resource Runtime",
     ":libs:svga" to "Munchkin SVGA",
 )

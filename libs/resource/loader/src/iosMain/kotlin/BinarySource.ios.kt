@@ -1,4 +1,4 @@
-package munchkin.image
+package munchkin.resources.loader
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,27 +15,27 @@ import platform.Foundation.dataWithContentsOfURL
 import platform.posix.memcpy
 
 @Composable
-actual fun rememberBinarySourceLoader(): BinarySourceLoader = remember { AppleBinarySourceLoader() }
+internal actual fun rememberPlatformBinarySourceLoader(): PlatformBinarySourceLoader = remember { AppleBinarySourceLoader() }
 
-private class AppleBinarySourceLoader : BinarySourceLoader {
+private class AppleBinarySourceLoader : PlatformBinarySourceLoader {
 
     override suspend fun load(source: BinarySource): BinaryPayload = withContext(Dispatchers.Default) {
         when (source) {
             is BinarySource.Bytes -> BinaryPayload(source.value, source.cacheKey, source)
-            is BinarySource.FilePath -> BinaryPayload(readFile(source.path), source.path, source)
+            is BinarySource.FilePath -> BinaryPayload(readFile(source.path), source.cacheKey(), source)
             is BinarySource.Raw -> {
                 val path = resolveResourcePath(source.id)
                     ?: error("Unable to resolve raw resource: ${source.id}")
-                BinaryPayload(readFile(path), path, source)
+                BinaryPayload(readFile(path), source.cacheKey(), source)
             }
 
             is BinarySource.UriPath -> {
                 val value = source.value
-                BinaryPayload(readUri(value), value, source)
+                BinaryPayload(readUri(value), source.cacheKey(), source)
             }
 
             is BinarySource.Url -> {
-                BinaryPayload(readUrl(source.value), source.value, source)
+                BinaryPayload(readUrl(source.value), source.cacheKey(), source)
             }
         }
     }

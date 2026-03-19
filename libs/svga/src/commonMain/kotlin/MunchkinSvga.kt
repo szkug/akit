@@ -17,9 +17,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import munchkin.image.BinarySource
-import munchkin.image.BinarySourceLoader
-import munchkin.image.rememberBinarySourceLoader
+import munchkin.image.AsyncRequestEngine
+import munchkin.image.LocalEngineContextRegister
+import munchkin.resources.loader.BinaryRequestEngine
+import munchkin.resources.loader.BinarySource
+import munchkin.resources.loader.rememberFallbackBinaryPayloadLoader
 import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 
@@ -30,15 +32,15 @@ fun MunchkinSvga(
     modifier: Modifier = Modifier,
     state: SvgaPlayerState = rememberSvgaPlayerState(),
     dynamicEntity: SvgaDynamicEntity = rememberSvgaDynamicEntity(),
+    loadingEngine: AsyncRequestEngine<*>? = null,
     placeholder: (@Composable BoxScope.() -> Unit)? = null,
     failure: (@Composable BoxScope.(Throwable) -> Unit)? = null,
     contentScale: ContentScale = ContentScale.Fit,
     alignment: Alignment = Alignment.Center,
-    loader: BinarySourceLoader = rememberBinarySourceLoader(),
     onLoaded: (SvgaMovie) -> Unit = {},
     onError: (Throwable) -> Unit = {},
 ) {
-    val loadState by rememberSvgaComposition(source, loader)
+    val loadState by rememberSvgaComposition(source, loadingEngine)
     val textMeasurer = rememberTextMeasurer()
     val movie = (loadState as? SvgaLoadState.Success)?.value
     val audioController = rememberSvgaAudioController(movie?.movie)
@@ -114,11 +116,18 @@ fun MunchkinSvga(
 @Composable
 private fun rememberSvgaComposition(
     source: BinarySource,
-    loader: BinarySourceLoader,
+    loadingEngine: AsyncRequestEngine<*>?,
 ): State<SvgaLoadState> {
-    return produceState<SvgaLoadState>(initialValue = SvgaLoadState.Loading, source, loader) {
+    val fallbackLoader = rememberFallbackBinaryPayloadLoader()
+    val engineContext = loadingEngine?.let { LocalEngineContextRegister.resolve(it) }
+    return produceState<SvgaLoadState>(initialValue = SvgaLoadState.Loading, source, loadingEngine, engineContext, fallbackLoader) {
         value = runCatching {
-            val payload = loader.load(source)
+            val payload = when {
+                loadingEngine is BinaryRequestEngine && engineContext != null ->
+                    loadingEngine.requestBinary(engineContext, source).payload
+
+                else -> fallbackLoader(source)
+            }
             prepareSvgaMovie(SvgaDecoder.decode(payload.bytes))
         }.fold(
             onSuccess = { SvgaLoadState.Success(it) },

@@ -16,8 +16,12 @@ import munchkin.image.EngineContextProvider
 import munchkin.image.LocalEngineContextRegister
 import munchkin.image.coil.support.GaussianBlurTransformation
 import munchkin.image.coil.support.GifDecoder
+import munchkin.resources.loader.BinaryRequestEngine
+import munchkin.resources.loader.BinaryAsyncLoadData
+import munchkin.resources.loader.BinarySource
 import munchkin.resources.runtime.ResourceId
 import munchkin.resources.runtime.resolveResourcePath
+import munchkin.image.coil.support.BinaryPayloadDecoder
 import munchkin.image.coil.support.LottieDecodeEnabled
 import munchkin.image.coil.support.LottieDecoder
 import munchkin.image.coil.support.LottieIterationsKey
@@ -50,10 +54,14 @@ private val CoilEngineContextProvider: EngineContextProvider =
     { CoilEngineContext(LocalPlatformContext.current) }
 val EngineContext.context get() = (this as CoilEngineContext).context
 
-class PainterAsyncLoadData(val painter: Painter) : AsyncLoadData {
-    override fun painter(): Painter {
-        return painter
-    }
+abstract class CoilAsyncLoadData<T>(
+    open val value: T,
+) : AsyncLoadData
+
+class PainterAsyncLoadData(
+    override val value: Painter,
+) : CoilAsyncLoadData<Painter>(value) {
+    override fun painter(): Painter = value
 }
 
 interface CoilImageLoaderFactory {
@@ -68,7 +76,7 @@ open class CoilImageLoaderSingletonFactory : CoilImageLoaderFactory {
     final override fun get(context: PlatformContext): ImageLoader {
         return reference.value ?: create(
             context,
-            listOf(NinePatchDecoder.Factory(), GifDecoder.Factory(), LottieDecoder.Factory()) +
+            listOf(BinaryPayloadDecoder.Factory(), NinePatchDecoder.Factory(), GifDecoder.Factory(), LottieDecoder.Factory()) +
                 platformDecoderFactories()
         ).also {
             reference.value = it
@@ -90,7 +98,7 @@ private val NormalCoilImageLoaderFactory = CoilImageLoaderSingletonFactory()
 
 class CoilRequestEngine(
     private val factory: CoilImageLoaderFactory = NormalCoilImageLoaderFactory,
-) : AsyncRequestEngine<PainterAsyncLoadData> {
+) : AsyncRequestEngine<PainterAsyncLoadData>, BinaryRequestEngine {
     override val engineSizeOriginal: Int = -1
 
     override suspend fun flowRequest(
@@ -148,6 +156,13 @@ class CoilRequestEngine(
         val disposable = factory.get(engineContext.context).enqueue(request)
 
         awaitClose { disposable.dispose() }
+    }
+
+    override suspend fun requestBinary(
+        engineContext: EngineContext,
+        source: BinarySource,
+    ): BinaryAsyncLoadData {
+        return CoilBinarySourceRequester(engineContext.context, factory).request(source)
     }
 
     companion object {

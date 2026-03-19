@@ -16,6 +16,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":libs:image:image"))
+            api(project(":libs:resource:loader"))
             implementation(compose.runtime)
             implementation(compose.ui)
             implementation(libs.coil.compose)

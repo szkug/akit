@@ -130,8 +130,9 @@ if [[ "$MODE" == "local" ]]; then
   run_gradle \
     :libs:graph:publishToMavenLocal \
     :libs:resource:runtime:publishToMavenLocal \
-    :libs:svga:publishToMavenLocal \
     :libs:image:image:publishToMavenLocal \
+    :libs:resource:loader:publishToMavenLocal \
+    :libs:svga:publishToMavenLocal \
     :libs:image:engine-coil:publishToMavenLocal \
     :libs:image:engine-glide:publishToMavenLocal
   run_plugins_gradle :resource-gradle-plugin:publishToMavenLocal
@@ -150,9 +151,10 @@ fi
 
 run_gradle :libs:graph:"$CENTRAL_TASK"
 run_gradle :libs:resource:runtime:"$CENTRAL_TASK"
+run_gradle :libs:image:image:"$CENTRAL_TASK"
+run_gradle :libs:resource:loader:"$CENTRAL_TASK"
 run_gradle :libs:svga:"$CENTRAL_TASK"
 run_gradle \
-  :libs:image:image:"$CENTRAL_TASK" \
   :libs:image:engine-coil:"$CENTRAL_TASK" \
   :libs:image:engine-glide:"$CENTRAL_TASK"
 

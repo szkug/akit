@@ -5,26 +5,25 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-description = "Glide engine for Munchkin Image on Android."
+description = "Shared binary resource loading contracts and platform fallback loaders."
 
 kotlin {
     androidTarget()
 
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
     sourceSets {
         commonMain.dependencies {
             api(project(":libs:image:image"))
-            api(project(":libs:resource:loader"))
+            api(project(":libs:resource:runtime"))
             implementation(compose.runtime)
-            implementation(compose.foundation)
             implementation(compose.ui)
         }
         androidMain.dependencies {
-            implementation(compose.ui)
-            implementation(libs.androidx.appcompat)
             implementation(libs.androidx.core.ktx)
-            implementation(libs.bundles.glide)
-            compileOnly(libs.glide.annotations)
-            implementation(libs.lottie)
+            implementation(libs.androidx.appcompat)
         }
     }
 
@@ -32,7 +31,7 @@ kotlin {
 }
 
 android {
-    namespace = "munchkin.image.glide"
+    namespace = "munchkin.resources.loader"
     compileSdk = 34
 
     defaultConfig {

@@ -40,6 +40,18 @@ MunchkinSvga(
 )
 ```
 
+如果业务已经接了 `munchkin-image`，可以把同一个 engine 传进来，复用现有下载和缓存链路：
+
+```kotlin
+val imageEngine = CoilRequestEngine.Normal
+
+MunchkinSvga(
+    source = BinarySource.Url("https://example.com/demo.svga"),
+    contentDescription = null,
+    loadingEngine = imageEngine,
+)
+```
+
 ## 动态替换能力
 
 通过 `SvgaDynamicEntity` 可以替换动画中的内容：
@@ -72,6 +84,11 @@ MunchkinSvga(
 - `setDynamicDrawer`
 - `setHidden`
 - `setClickArea`
+
+当前 `loadingEngine` 支持复用的实现：
+
+- Android / iOS 的 `CoilRequestEngine`
+- Android 的 `GlideRequestEngine`
 
 ## 播放控制
 

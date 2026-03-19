@@ -128,3 +128,9 @@ MunchkinAsyncImage(
     engine = CoilRequestEngine.Normal,
 )
 ```
+
+## 动画模块的二进制加载
+
+`CoilRequestEngine` 和 `GlideRequestEngine` 也可以给 `munchkin-svga` 这类动画模块提供二进制资源加载能力。
+
+通过 `MunchkinSvga(loadingEngine = yourImageEngine)` 可以复用同一套网络下载和缓存链路来加载远端 `.svga` 资源。

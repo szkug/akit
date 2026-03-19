@@ -54,3 +54,14 @@ internal class LottieCoilImage(
 
     fun toPainter(): Painter = painter
 }
+
+internal class BinaryPayloadCoilImage(
+    val bytes: ByteArray,
+) : Image {
+    override val width: Int = 1
+    override val height: Int = 1
+    override val size: Long = bytes.size.toLong()
+    override val shareable: Boolean = false
+
+    override fun draw(canvas: coil3.Canvas) = Unit
+}

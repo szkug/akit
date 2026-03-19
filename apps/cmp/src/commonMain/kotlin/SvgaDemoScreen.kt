@@ -22,7 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import munchkin.image.BinarySource
+import munchkin.resources.loader.BinarySource
 import munchkin.svga.MunchkinSvga
 import munchkin.svga.SvgaDynamicEntity
 import munchkin.svga.rememberSvgaDynamicEntity
@@ -38,6 +38,7 @@ fun SvgaDemoPage(onBack: () -> Unit) {
 
 @Composable
 private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
+    val imageEngine = rememberDemoAsyncEngine()
     var clickMessage by remember { mutableStateOf("Tap the rocket body or right wing.") }
     val rocketDynamic = remember {
         SvgaDynamicEntity().apply {
@@ -92,8 +93,14 @@ private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
             description = "Audio-enabled SVGA sample used to validate binary decode and timeline metadata.",
             source = BinarySource.Raw(Res.raw.demo_svga_audio),
             iterations = 1,
-        ),
-    )
+        )
+    ) + List(20) {
+        SvgaSample(
+            title = "Wear",
+            description = "",
+            source = BinarySource.Raw(Res.raw.demo_svga_wear),
+            iterations = -1,
+        ) }
 
     LazyColumn(
         modifier = modifier.padding(horizontal = 16.dp),
@@ -112,6 +119,7 @@ private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
                         .height(220.dp),
                     state = playerState,
                     dynamicEntity = sample.dynamic ?: rememberSvgaDynamicEntity(),
+                    loadingEngine = imageEngine,
                     contentScale = ContentScale.Fit,
                     placeholder = {
                         Text(text = "Loading SVGA...", modifier = Modifier.padding(12.dp))
