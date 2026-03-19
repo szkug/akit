@@ -6,8 +6,6 @@ Use project-local skills and scripts to deliver high-quality outcomes with measu
 For code changes in this repository, prioritize module boundaries, Kotlin Multiplatform portability,
 typed APIs, predictable validation, and clean sample-to-library separation.
 
-Project-local skills live under `./.agents/skills/`.
-
 ## Repository Architecture Snapshot
 
 Munchkin Cats is a Gradle multi-project workspace (Kotlin DSL) with in-repo library modules under `libs/` plus an included build for local build logic.
@@ -93,3 +91,12 @@ A task is considered complete only when all applicable checks pass:
 - data_dir: `.agents/optsmith-data`
 - At task completion, run `optsmith run ...`.
 <!-- OPTSMITH-SKILL:END -->
+
+## Code Design
+- All code should include comments on class, function, and field definitions, and those comments should be written in English.
+- Comments should cover: the responsibility/purpose, the implementation approach (not required for very simple logic), and the related business context (except for fully generic components).
+- For relatively complex logic or logic with many branches, document each branch in detail, explain the purpose of the concrete implementation, and list all logical branches at the top-level function that owns the branching logic.
+- For code that specifically fixes scenario-driven issues (such as bug, crash, or ANR fixes), clearly explain what problem is being fixed, why it happens, and how the code addresses it.
+- Demo no need comments.
+
+For an example of the expected engineering code style, refer to [AGENTS_CODE_DEMO.kt](AGENTS_CODE_DEMO.kt)

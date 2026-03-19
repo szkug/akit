@@ -1,14 +1,14 @@
 package munchkin.sample
 
 import android.app.Application
-import munchkin.image.AsyncImageLogger
-import munchkin.image.DefaultPlatformAsyncImageLogger
+import munchkin.resources.loader.DefaultPlatformMunchkinLogger
+import munchkin.resources.loader.MunchkinLogger
 
 
 class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        DefaultPlatformAsyncImageLogger.setLevel(AsyncImageLogger.Level.DEBUG)
+        DefaultPlatformMunchkinLogger.setLevel(MunchkinLogger.Level.DEBUG)
     }
 }

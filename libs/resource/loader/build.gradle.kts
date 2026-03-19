@@ -16,8 +16,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(project(":libs:graph"))
             api(project(":libs:resource:runtime"))
             implementation(compose.runtime)
+            implementation(compose.ui)
         }
         androidMain.dependencies {
             implementation(compose.ui)

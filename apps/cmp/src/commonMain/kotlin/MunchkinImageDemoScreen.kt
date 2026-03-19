@@ -8,9 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import munchkin.image.AsyncImageLogger
-import munchkin.image.DefaultPlatformAsyncImageLogger
 import munchkin.image.PainterModel
+import munchkin.resources.loader.DefaultPlatformMunchkinLogger
+import munchkin.resources.loader.MunchkinLogger
 import munchkin.image.munchkinAsyncBackground
 import munchkin.resources.runtime.painterResource
 import munchkin.resources.runtime.stringResource
@@ -20,7 +20,7 @@ fun MunchkinImageDemoScreen(
     url: String,
     modifier: Modifier = Modifier,
 ) {
-    DefaultPlatformAsyncImageLogger.setLevel(AsyncImageLogger.Level.DEBUG)
+    DefaultPlatformMunchkinLogger.setLevel(MunchkinLogger.Level.DEBUG)
     val engine = rememberDemoAsyncEngine()
     val placeholder = PainterModel(painterResource(SharedDrawable.nine_patch_2))
 

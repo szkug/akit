@@ -761,10 +761,10 @@ private fun boxConvolve(
                 val flags = kvImageEdgeExtend
                 val tempBufferSize = requiredTempBufferSize(src.ptr, dest.ptr, kernel, vectorSize)
                 if (tempBufferSize < 0) {
-                    println(
-                        "MunchkinToolkit blur vImage tempBuffer error=$tempBufferSize " +
+                    logToolkitWarning(
+                        "blur vImage tempBuffer error=$tempBufferSize " +
                             "sizeX=$sizeX sizeY=$sizeY vectorSize=$vectorSize " +
-                            "kernelSize=$kernelSize rowBytes=$rowBytes"
+                            "kernelSize=$kernelSize rowBytes=$rowBytes",
                     )
                     error = tempBufferSize.toLong()
                     return@usePinned
@@ -829,12 +829,16 @@ private fun boxConvolve(
         }
     }
     if (error != 0L) {
-        println(
-            "MunchkinToolkit blur vImage error=$error sizeX=$sizeX sizeY=$sizeY vectorSize=$vectorSize " +
-                "kernelSize=$kernelSize rowBytes=$rowBytes"
+        logToolkitWarning(
+            "blur vImage error=$error sizeX=$sizeX sizeY=$sizeY vectorSize=$vectorSize " +
+                "kernelSize=$kernelSize rowBytes=$rowBytes",
         )
     }
     return error == 0L
+}
+
+private fun logToolkitWarning(message: String) {
+    println("Munchkin [Toolkit] $message")
 }
 
 private fun validateHistogramDotCoefficients(coefficients: FloatArray?, vectorSize: Int) {

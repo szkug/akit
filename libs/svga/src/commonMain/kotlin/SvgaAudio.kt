@@ -9,5 +9,19 @@ internal interface SvgaAudioController {
     fun onFrame(frameIndex: Int)
 }
 
+/**
+ * Provides platform objects required to build audio playback controllers outside composition.
+ */
+internal interface SvgaAudioEnvironment {
+    fun createController(movie: SvgaMovie?): SvgaAudioController
+}
+
+internal object EmptySvgaAudioController : SvgaAudioController {
+    override fun resume() = Unit
+    override fun pause() = Unit
+    override fun stop() = Unit
+    override fun onFrame(frameIndex: Int) = Unit
+}
+
 @Composable
-internal expect fun rememberSvgaAudioController(movie: SvgaMovie?): SvgaAudioController
+internal expect fun rememberSvgaAudioEnvironment(): SvgaAudioEnvironment

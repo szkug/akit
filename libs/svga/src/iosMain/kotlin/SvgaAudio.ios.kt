@@ -11,14 +11,21 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import platform.AVFAudio.AVAudioPlayer
+import platform.Foundation.NSData
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
 import platform.Foundation.create
 import platform.Foundation.writeToFile
 
 @Composable
-internal actual fun rememberSvgaAudioController(movie: SvgaMovie?): SvgaAudioController {
-    return remember(movie) { AppleSvgaAudioController(movie) }
+internal actual fun rememberSvgaAudioEnvironment(): SvgaAudioEnvironment {
+    return remember { AppleSvgaAudioEnvironment() }
+}
+
+private class AppleSvgaAudioEnvironment : SvgaAudioEnvironment {
+    override fun createController(movie: SvgaMovie?): SvgaAudioController {
+        return AppleSvgaAudioController(movie)
+    }
 }
 
 private class AppleSvgaAudioController(
@@ -84,7 +91,7 @@ private class AppleSvgaAudioController(
 @OptIn(ExperimentalForeignApi::class)
 private fun ByteArray.writeToFile(path: String) {
     val data = usePinned { pinned ->
-        platform.Foundation.NSData.create(bytes = pinned.addressOf(0), length = size.toULong())
+        NSData.create(bytes = pinned.addressOf(0), length = size.toULong())
     }
     data.writeToFile(path, atomically = true)
 }

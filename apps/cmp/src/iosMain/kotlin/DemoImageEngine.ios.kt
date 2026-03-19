@@ -1,8 +1,8 @@
 package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
-import munchkin.image.AsyncRequestEngine
-import munchkin.image.coil.CoilRequestEngine
+import munchkin.resources.loader.ImageAsyncRequestEngine
+import munchkin.resources.loader.coil.CoilImageRequestEngine
 
 @Composable
-actual fun rememberDemoAsyncEngine(): AsyncRequestEngine<*> = CoilRequestEngine.Normal
+actual fun rememberDemoAsyncEngine(): ImageAsyncRequestEngine<*> = CoilImageRequestEngine.Normal

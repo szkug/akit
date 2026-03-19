@@ -7,7 +7,7 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import munchkin.resources.runtime.resolveResourcePath
+import munchkin.resources.runtime.resolveBundleResourcePath
 import platform.Foundation.NSData
 import platform.Foundation.NSURL
 import platform.Foundation.dataWithContentsOfFile
@@ -24,7 +24,7 @@ private class AppleBinarySourceLoader : PlatformBinarySourceLoader {
             is BinarySource.Bytes -> BinaryPayload(source.value, source.cacheKey, source)
             is BinarySource.FilePath -> BinaryPayload(readFile(source.path), source.cacheKey(), source)
             is BinarySource.Raw -> {
-                val path = resolveResourcePath(source.id)
+                val path = resolveBundleResourcePath(source.id)
                     ?: error("Unable to resolve raw resource: ${source.id}")
                 BinaryPayload(readFile(path), source.cacheKey(), source)
             }

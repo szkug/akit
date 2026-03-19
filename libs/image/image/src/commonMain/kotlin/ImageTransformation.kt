@@ -1,7 +1,3 @@
 package munchkin.image
 
-
-interface ImageTransformation<T> {
-    fun key(): String
-    fun transform(context: EngineContext, resource: T, width: Int, height: Int): T
-}
+typealias ImageTransformation<T> = munchkin.resources.loader.ImageTransformation<T>

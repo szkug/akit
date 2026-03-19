@@ -48,7 +48,7 @@ MunchkinSvga(
 If you want cached network/download behavior, pass a dedicated loader engine:
 
 ```kotlin
-val loaderEngine = CoilBinaryRequestEngine.Normal
+val loaderEngine = CoilSvgaRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
@@ -92,8 +92,8 @@ Available dynamic APIs:
 
 Supported loader engines:
 
-- `CoilBinaryRequestEngine` on Android and iOS
-- `GlideBinaryRequestEngine` on Android
+- `CoilSvgaRequestEngine` on Android and iOS
+- `GlideSvgaRequestEngine` on Android
 
 ## Playback Control
 

@@ -11,27 +11,9 @@ import munchkin.graph.AnimatablePainter
 import munchkin.graph.EmptyPainter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-
-
-interface AsyncRequestEngine<Data : AsyncLoadData> {
-
-    companion object {}
-
-    val engineSizeOriginal: Int
-
-    suspend fun flowRequest(
-        engineContext: EngineContext,
-        imageContext: AsyncImageContext,
-        size: ResolvableImageSize,
-        contentScale: ContentScale,
-        requestModel: RequestModel,
-        failureModel: ResourceModel?,
-    ): Flow<AsyncLoadResult<Data>>
-}
 
 internal fun AsyncRequestEngine<*>.asAsyncLoadDataEngine(): AsyncRequestEngine<AsyncLoadData> {
     @Suppress("UNCHECKED_CAST")
@@ -99,11 +81,11 @@ internal abstract class AsyncRequestNode(
         placeholderPainter: Painter,
     ): Painter {
         return when (result) {
-            is AsyncLoadResult.Error -> result.data?.painter() ?: failurePainter
+            is munchkin.resources.loader.ImageAsyncLoadResult.Error -> result.data?.painter() ?: failurePainter
             ?: placeholderPainter
 
-            is AsyncLoadResult.Success -> result.data.painter()
-            is AsyncLoadResult.Cleared -> placeholderPainter
+            is munchkin.resources.loader.ImageAsyncLoadResult.Success -> result.data.painter()
+            is munchkin.resources.loader.ImageAsyncLoadResult.Cleared -> placeholderPainter
         }
     }
 
@@ -113,7 +95,9 @@ internal abstract class AsyncRequestNode(
     protected fun startRequest(requestModel: RequestModel) =
         sideEffect {
 
-            imageContext.logger.debug("startRequest") { "cur:$requestModel req:$requestModel ${rememberJob?.isActive}" }
+            imageContext.logger.debug("AsyncImageNode") {
+                "start request current=$requestModel active=${rememberJob?.isActive}"
+            }
 
             if (this.requestModel != requestModel) return@sideEffect
 
@@ -137,7 +121,9 @@ internal abstract class AsyncRequestNode(
                         requestModel,
                         failureModel
                     ).collectLatest { result ->
-                        imageContext.logger.debug("collectLatest") { "$requestModel $result" }
+                        imageContext.logger.debug("AsyncImageNode") {
+                            "collect result model=$requestModel result=$result"
+                        }
 
                         val nextPainter = resolvePainter(result, failurePainter, placeholderPainter)
 
@@ -209,26 +195,28 @@ internal abstract class AsyncRequestNode(
             hasModify = true
         }
         if (!hasModify) return
-        imageContext.logger.debug("update") { "${this.requestModel} -> $requestModel" }
+        imageContext.logger.debug("AsyncImageNode") {
+            "update request ${this.requestModel} -> $requestModel"
+        }
         reset()
         setup()
     }
 
     override fun onAttach() {
         super.onAttach()
-        imageContext.logger.debug("attach") { "$requestModel" }
+        imageContext.logger.debug("AsyncImageNode") { "attach model=$requestModel" }
         setup()
     }
 
     override fun onDetach() {
         super.onDetach()
-        imageContext.logger.debug("detach") { "$requestModel" }
+        imageContext.logger.debug("AsyncImageNode") { "detach model=$requestModel" }
         reset()
     }
 
     override fun onReset() {
         super.onReset()
-        imageContext.logger.debug("reset") { "$requestModel" }
+        imageContext.logger.debug("AsyncImageNode") { "reset model=$requestModel" }
         reset()
     }
 }

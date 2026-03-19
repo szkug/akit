@@ -9,11 +9,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Rect
 
+internal typealias SvgaPlaybackObserver = () -> Unit
+
 @Stable
 class SvgaPlayerState internal constructor(
     iterations: Int,
     autoPlay: Boolean,
 ) {
+    private val playbackObservers = linkedSetOf<SvgaPlaybackObserver>()
+
     var iterations by mutableIntStateOf(iterations)
         private set
 
@@ -28,35 +32,49 @@ class SvgaPlayerState internal constructor(
 
     internal var hitRegions: Map<String, Rect> = emptyMap()
     internal var playbackVersion by mutableIntStateOf(0)
+        private set
 
     val progress: Float
         get() = currentFrame.toFloat()
 
     fun play() {
         isPlaying = true
-        playbackVersion += 1
+        notifyPlaybackChanged()
     }
 
     fun pause() {
         isPlaying = false
-        playbackVersion += 1
+        notifyPlaybackChanged()
     }
 
     fun stop() {
         isPlaying = false
         currentFrame = 0
         completedIterations = 0
-        playbackVersion += 1
+        notifyPlaybackChanged()
     }
 
     fun seekToFrame(frame: Int) {
         currentFrame = frame.coerceAtLeast(0)
-        playbackVersion += 1
+        notifyPlaybackChanged()
     }
 
     fun updateIterations(value: Int) {
         iterations = value
+        notifyPlaybackChanged()
+    }
+
+    internal fun addPlaybackObserver(observer: SvgaPlaybackObserver) {
+        playbackObservers += observer
+    }
+
+    internal fun removePlaybackObserver(observer: SvgaPlaybackObserver) {
+        playbackObservers -= observer
+    }
+
+    private fun notifyPlaybackChanged() {
         playbackVersion += 1
+        playbackObservers.forEach { it.invoke() }
     }
 }
 

@@ -116,7 +116,7 @@ actual fun painterResource(id: PaintableResourceId): Painter {
  *
  * Performance: uses cached preferred locales and scale candidates.
  */
-actual fun resolveResourcePath(id: ResourceId, localeOverride: String?): String? {
+fun resolveBundleResourcePath(id: ResourceId, localeOverride: String? = null): String? {
     val info = ResourceIdsIos.decodeResourceId(id)
     if (info.value.isBlank()) return null
     val path = ResourceIdsIos.parseResourcePath(info.value)

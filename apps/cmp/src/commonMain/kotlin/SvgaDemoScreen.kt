@@ -22,12 +22,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import munchkin.resources.loader.DefaultPlatformMunchkinLogger
+import munchkin.resources.loader.MunchkinLogger
 import munchkin.resources.loader.BinarySource
 import munchkin.svga.MunchkinSvga
 import munchkin.svga.SvgaDynamicEntity
-import munchkin.svga.rememberSvgaDynamicEntity
 import munchkin.svga.rememberSvgaPlayerState
 
+/**
+ * Hosts the SVGA demo page inside the sample app and delegates the actual showcase content to
+ * [SvgaDemoScreen].
+ */
 @Composable
 fun SvgaDemoPage(onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -36,10 +41,29 @@ fun SvgaDemoPage(onBack: () -> Unit) {
     }
 }
 
+/**
+ * Demonstrates the current SVGA runtime capabilities in one place.
+ *
+ * Covered scenarios:
+ * - matte and click-hit testing
+ * - dynamic text and custom draw callback replacement
+ * - vector-only `movie.spec` playback
+ * - audio timeline metadata playback
+ * - repeated rendering of the wear sample used by the business demo module
+ */
 @Composable
 private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
+    DefaultPlatformMunchkinLogger.setLevel(MunchkinLogger.Level.DEBUG)
     val loaderEngine = rememberDemoBinaryEngine()
     var clickMessage by remember { mutableStateOf("Tap the rocket body or right wing.") }
+
+    /**
+     * Builds the dynamic replacement set for the rocket sample so the demo can verify:
+     * - hidden sprite handling
+     * - dynamic text replacement
+     * - custom drawing over a sprite slot
+     * - click area dispatch
+     */
     val rocketDynamic = remember {
         SvgaDynamicEntity().apply {
             setHidden(true, "rightlight")
@@ -64,6 +88,10 @@ private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
         }
     }
 
+    /**
+     * Adds a lightweight overlay drawer to the vector sample to verify that custom draw callbacks
+     * also work when the source asset is shape-driven instead of bitmap-driven.
+     */
     val vectorDynamic = remember {
         SvgaDynamicEntity().apply {
             setDynamicDrawer(forKey = "31.vector") { _ ->
@@ -73,6 +101,11 @@ private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
         }
     }
 
+    /**
+     * Keeps the demo scenarios data-driven so the sample list can render:
+     * - feature validation samples first
+     * - repeated wear assets afterwards for stress observation in the scrolling list
+     */
     val samples = listOf(
         SvgaSample(
             title = "Rocket / matte / dynamic text / click",
@@ -118,7 +151,7 @@ private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .height(220.dp),
                     state = playerState,
-                    dynamicEntity = sample.dynamic ?: rememberSvgaDynamicEntity(),
+                    dynamicEntity = sample.dynamic ?: SvgaDynamicEntity.EMPTY,
                     loaderEngine = loaderEngine,
                     contentScale = ContentScale.Fit,
                     placeholder = {
@@ -134,10 +167,18 @@ private fun SvgaDemoScreen(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Describes one SVGA showcase card rendered by [SvgaDemoScreen].
+ */
 private data class SvgaSample(
+    /** Human-readable title shown above the sample player. */
     val title: String,
+    /** Additional sample description or runtime status text. */
     val description: String,
+    /** Binary source passed to the SVGA runtime. */
     val source: BinarySource,
+    /** Optional dynamic replacement set used by the sample. */
     val dynamic: SvgaDynamicEntity? = null,
+    /** Playback iteration count; `-1` means loop forever. */
     val iterations: Int = -1,
 )

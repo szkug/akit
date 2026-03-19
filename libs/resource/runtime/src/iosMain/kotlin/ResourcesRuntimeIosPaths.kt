@@ -72,15 +72,11 @@ internal object ResourcePathsIos {
     fun logMissingResource(kind: String, paths: List<String>) {
         if (paths.isEmpty()) return
         val message = buildString {
-            append("MunchkinResources missing ")
+            append("missing ")
             append(kind)
-            append(" path(s):\n")
-            for (path in paths) {
-                append(" - ")
-                append(path)
-                append('\n')
-            }
+            append(" path(s): ")
+            append(paths.joinToString())
         }
-        println(message.trimEnd())
+        println("Munchkin [ResourcesRuntime] $message")
     }
 }

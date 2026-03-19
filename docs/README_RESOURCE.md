@@ -124,9 +124,11 @@ val DimenResourceId.toDp: Dp
 
 @get:Composable
 val DimenResourceId.toSp: TextUnit
-
-fun resolveResourcePath(id: ResourceId, localeOverride: String? = null): String?
 ```
+
+`runtime` no longer exposes a cross-platform `resolveResourcePath(...)` API. Platform-specific
+resource location is handled inside `loader` / loader engines so shared KMP contracts keep one
+consistent semantic model.
 
 ## Binary Loader API
 
@@ -142,7 +144,7 @@ BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
 
 `loader` only defines the source model and fallback loading. Cached downloads should go through a
-dedicated loader engine such as `CoilBinaryRequestEngine` or `GlideBinaryRequestEngine`.
+dedicated loader engine such as `CoilSvgaRequestEngine` or `GlideSvgaRequestEngine`.
 
 ## Plugin Configuration
 

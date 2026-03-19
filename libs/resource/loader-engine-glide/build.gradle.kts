@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-description = "Glide-based binary loader engine for Munchkin Resource Loader."
+description = "Glide-based image and SVGA loader engines for Munchkin Resource Loader."
 
 kotlin {
     androidTarget()
@@ -13,7 +13,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":libs:resource:loader"))
+            api(project(":libs:graph"))
+            api(project(":libs:resource:runtime"))
             implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.ui)
         }
         androidMain.dependencies {
             implementation(compose.ui)
@@ -21,6 +25,7 @@ kotlin {
             implementation(libs.androidx.core.ktx)
             implementation(libs.bundles.glide)
             compileOnly(libs.glide.annotations)
+            implementation(libs.lottie)
         }
     }
 

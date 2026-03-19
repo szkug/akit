@@ -8,9 +8,17 @@ import androidx.compose.ui.platform.LocalContext
 import java.io.File
 
 @Composable
-internal actual fun rememberSvgaAudioController(movie: SvgaMovie?): SvgaAudioController {
+internal actual fun rememberSvgaAudioEnvironment(): SvgaAudioEnvironment {
     val context = LocalContext.current.applicationContext
-    return remember(context, movie) { AndroidSvgaAudioController(context, movie) }
+    return remember(context) { AndroidSvgaAudioEnvironment(context) }
+}
+
+private class AndroidSvgaAudioEnvironment(
+    private val context: Context,
+) : SvgaAudioEnvironment {
+    override fun createController(movie: SvgaMovie?): SvgaAudioController {
+        return AndroidSvgaAudioController(context, movie)
+    }
 }
 
 private class AndroidSvgaAudioController(

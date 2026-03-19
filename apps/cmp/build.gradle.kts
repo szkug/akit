@@ -35,13 +35,12 @@ kotlin {
             api(projects.libs.svga)
             implementation(projects.apps.cmpLib2)
             api(projects.libs.resource.runtime)
-            implementation(projects.libs.image.engineCoil)
+            implementation(projects.libs.resource.loaderEngineCoil)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
             implementation(libs.androidx.core.ktx)
-            implementation(projects.libs.image.engineGlide)
             implementation(projects.libs.resource.loaderEngineGlide)
         }
         iosMain {

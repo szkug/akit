@@ -1,8 +1,8 @@
 package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
-import munchkin.resources.loader.BinaryRequestEngine
-import munchkin.resources.loader.coil.CoilBinaryRequestEngine
+import munchkin.resources.loader.SvgaAsyncRequestEngine
+import munchkin.resources.loader.coil.CoilSvgaRequestEngine
 
 @Composable
-actual fun rememberDemoBinaryEngine(): BinaryRequestEngine = CoilBinaryRequestEngine.Normal
+actual fun rememberDemoBinaryEngine(): SvgaAsyncRequestEngine = CoilSvgaRequestEngine.Normal

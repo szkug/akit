@@ -51,8 +51,6 @@ actual fun painterResource(id: PaintableResourceId): Painter {
     }
 }
 
-actual fun resolveResourcePath(id: ResourceId, localeOverride: String?): String? = null
-
 @get:Composable
 actual val DimenResourceId.toDp: Dp
     get() {

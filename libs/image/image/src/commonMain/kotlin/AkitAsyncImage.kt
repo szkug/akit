@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import munchkin.graph.lottie.LottieResource
 import munchkin.graph.lottie.rememberLottiePainter
+import munchkin.resources.loader.ImageAsyncRequestEngine
 import munchkin.resources.runtime.PaintableResourceId
 import munchkin.resources.runtime.painterResource
 
@@ -31,7 +32,7 @@ fun MunchkinAsyncImage(
     alpha: Float = AsyncImageDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = AsyncImageDefaults.DefaultColorFilter,
     context: AsyncImageContext = rememberAsyncImageContext(),
-    engine: AsyncRequestEngine<*>
+    engine: ImageAsyncRequestEngine<*>,
 ) {
     Layout(
         modifier = modifier
@@ -66,7 +67,7 @@ fun Modifier.munchkinAsyncBackground(
     alpha: Float = AsyncImageDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = AsyncImageDefaults.DefaultColorFilter,
     context: AsyncImageContext = rememberAsyncImageContext(supportNinepatch = true),
-    engine: AsyncRequestEngine<*>
+    engine: ImageAsyncRequestEngine<*>,
 ): Modifier = composed {
 
     asyncBackgroundNode(

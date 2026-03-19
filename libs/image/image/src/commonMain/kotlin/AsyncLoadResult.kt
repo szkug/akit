@@ -1,20 +1,5 @@
 package munchkin.image
 
-import androidx.compose.ui.graphics.painter.Painter
-import kotlin.jvm.JvmInline
-
-
-interface AsyncLoadData {
-    fun painter(): Painter
-}
-
-sealed interface AsyncLoadResult<T: AsyncLoadData> {
-    @JvmInline
-    value class Error<T: AsyncLoadData>(val data: T?) : AsyncLoadResult<T>
-
-    @JvmInline
-    value class Success<T: AsyncLoadData>(val data: T) : AsyncLoadResult<T>
-
-    @JvmInline
-    value class Cleared<T: AsyncLoadData>(val data: T?) : AsyncLoadResult<T>
-}
+typealias AsyncLoadData = munchkin.resources.loader.ImageAsyncLoadData
+typealias AsyncLoadResult<T> = munchkin.resources.loader.ImageAsyncLoadResult<T>
+typealias AsyncRequestEngine<Data> = munchkin.resources.loader.ImageAsyncRequestEngine<Data>

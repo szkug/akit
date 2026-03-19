@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-description = "Coil-based binary loader engine for Munchkin Resource Loader."
+description = "Coil-based image and SVGA loader engines for Munchkin Resource Loader."
 
 kotlin {
     androidTarget()
@@ -16,13 +16,20 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":libs:resource:loader"))
+            api(project(":libs:graph"))
+            api(project(":libs:resource:runtime"))
             implementation(compose.runtime)
+            implementation(compose.ui)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
             implementation(libs.atomicfu)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.lottie)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

@@ -100,7 +100,7 @@ dependencies {
 
     // project modules
     implementation(projects.libs.image.image)
-    implementation(projects.libs.image.engineGlide)
+    implementation(projects.libs.resource.loaderEngineGlide)
     implementation(projects.apps.cmp)
     implementation(projects.apps.cmpLib2)
 

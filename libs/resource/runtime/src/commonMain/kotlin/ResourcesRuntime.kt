@@ -35,5 +35,3 @@ expect val DimenResourceId.toDp: Dp
 
 @get:Composable
 expect val DimenResourceId.toSp: TextUnit
-
-expect fun resolveResourcePath(id: ResourceId, localeOverride: String? = null): String?

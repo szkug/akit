@@ -48,7 +48,7 @@ MunchkinSvga(
 如果你希望复用缓存和下载链路，需要传入独立的资源下载 engine：
 
 ```kotlin
-val loaderEngine = CoilBinaryRequestEngine.Normal
+val loaderEngine = CoilSvgaRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
@@ -92,8 +92,8 @@ MunchkinSvga(
 
 当前支持的下载 engine：
 
-- Android / iOS 的 `CoilBinaryRequestEngine`
-- Android 的 `GlideBinaryRequestEngine`
+- Android / iOS 的 `CoilSvgaRequestEngine`
+- Android 的 `GlideSvgaRequestEngine`
 
 ## 播放控制
 

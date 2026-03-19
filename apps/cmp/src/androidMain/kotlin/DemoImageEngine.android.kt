@@ -1,8 +1,8 @@
 package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
-import munchkin.image.AsyncRequestEngine
-import munchkin.image.glide.GlideRequestEngine
+import munchkin.resources.loader.ImageAsyncRequestEngine
+import munchkin.resources.loader.glide.GlideImageRequestEngine
 
 @Composable
-actual fun rememberDemoAsyncEngine(): AsyncRequestEngine<*> = GlideRequestEngine.Normal // GlideRequestEngine.Normal
+actual fun rememberDemoAsyncEngine(): ImageAsyncRequestEngine<*> = GlideImageRequestEngine.Normal

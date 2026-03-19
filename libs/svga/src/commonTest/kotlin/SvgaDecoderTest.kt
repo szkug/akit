@@ -135,6 +135,23 @@ class SvgaDecoderTest {
         assertFalse(state.isPlaying)
         assertTrue(state.playbackVersion > 0)
     }
+
+    @Test
+    fun playerState_observersOnlyTrackControlMutations() {
+        val state = SvgaPlayerState(iterations = 1, autoPlay = false)
+        var notifications = 0
+        val observer: SvgaPlaybackObserver = { notifications += 1 }
+
+        state.addPlaybackObserver(observer)
+        state.play()
+        state.seekToFrame(2)
+        state.updateIterations(5)
+        state.pause()
+        state.removePlaybackObserver(observer)
+        state.stop()
+
+        assertEquals(4, notifications)
+    }
 }
 
 private const val SPEC_FIXTURE = """

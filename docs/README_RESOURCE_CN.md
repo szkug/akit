@@ -123,9 +123,10 @@ val DimenResourceId.toDp: Dp
 
 @get:Composable
 val DimenResourceId.toSp: TextUnit
-
-fun resolveResourcePath(id: ResourceId, localeOverride: String? = null): String?
 ```
+
+`runtime` 不再暴露 `resolveResourcePath(...)` 这类跨平台语义不一致的公共 API。
+资源定位改由 `loader` / loader engine 在各平台内部处理，公共 KMP 契约只保留一致的语义模型。
 
 ## Binary Loader API
 
@@ -141,7 +142,7 @@ BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
 
 `loader` 本身只定义 source 模型和兜底加载；如果你需要缓存下载，应配合
-`CoilBinaryRequestEngine` 或 `GlideBinaryRequestEngine` 这类专用 loader engine 一起使用。
+`CoilSvgaRequestEngine` 或 `GlideSvgaRequestEngine` 这类专用 loader engine 一起使用。
 
 ## 插件配置
 

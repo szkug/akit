@@ -1,56 +1,24 @@
 package munchkin.image
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import munchkin.graph.renderscript.BlurConfig
+import munchkin.resources.loader.AsyncImageContext as LoaderAsyncImageContext
+import munchkin.resources.loader.AsyncImageLoadListener as LoaderAsyncImageLoadListener
+import munchkin.resources.loader.AsyncImageSizeLimit as LoaderAsyncImageSizeLimit
+import munchkin.resources.loader.DefaultPlatformMunchkinLogger
+import munchkin.resources.loader.EngineContextProvider as LoaderEngineContextProvider
+import munchkin.resources.loader.LocalEngineContextRegister as LoaderLocalEngineContextRegister
+import munchkin.resources.loader.MunchkinLogger
 import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.KClass
 
-
-interface AsyncImageLogger {
-
-    enum class Level {
-        DEBUG, INFO, WARN, ERROR
-    }
-
-    fun setLevel(level: Level)
-    fun debug(tag: String, message: () -> String)
-    fun info(tag: String, message: () -> String)
-    fun warn(tag: String, message: String)
-    fun error(tag: String, exception: Exception?)
-    fun error(tag: String, message: String)
-}
-
-interface AsyncImageLoadListener {
-    fun onStart(model: Any?) {}
-    fun onSuccess(model: Any?) {}
-    fun onFailure(model: Any?, exception: Throwable) {}
-    fun onCancel(model: Any?) {}
-}
-
-data class AsyncImageSizeLimit(
-    val maxWidth: Int = 0,
-    val maxHeight: Int = 0,
-)
-
-class AsyncImageContext(
-    val coroutineContext: CoroutineContext,
-
-    val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
-    val listener: AsyncImageLoadListener? = null,
-    val ignoreImagePadding: Boolean = false,
-
-    val animationIterations: Int = -1,
-    val blurConfig: BlurConfig? = null,
-    val sizeLimit: AsyncImageSizeLimit? = null,
-
-    // extension support
-    val supportNinepatch: Boolean = false,
-    val supportLottie: Boolean = false,
-) {
-    companion object
-}
+typealias AsyncImageLogger = MunchkinLogger
+typealias DefaultPlatformAsyncImageLogger = DefaultPlatformMunchkinLogger
+typealias AsyncImageLoadListener = LoaderAsyncImageLoadListener
+typealias AsyncImageSizeLimit = LoaderAsyncImageSizeLimit
+typealias AsyncImageContext = LoaderAsyncImageContext
+typealias EngineContextProvider = LoaderEngineContextProvider
+typealias LocalEngineContextRegister = LoaderLocalEngineContextRegister
 
 @Composable
 fun rememberAsyncImageContext(
@@ -60,39 +28,15 @@ fun rememberAsyncImageContext(
     animationContext: CoroutineContext = rememberCoroutineScope().coroutineContext,
     blurConfig: BlurConfig? = null,
     sizeLimit: AsyncImageSizeLimit? = null,
-    // extension support
     supportNinepatch: Boolean = false,
     vararg keys: Any?,
-): AsyncImageContext {
-
-    return remember(ignoreImagePadding, supportNinepatch, animationContext, blurConfig, sizeLimit, *keys) {
-        AsyncImageContext(
-            ignoreImagePadding = ignoreImagePadding,
-            logger = logger,
-            listener = listener,
-            coroutineContext = animationContext,
-            blurConfig = blurConfig,
-            sizeLimit = sizeLimit,
-            supportNinepatch = supportNinepatch
-        )
-    }
-}
-
-
-
-typealias EngineContextProvider = @Composable () -> EngineContext
-object LocalEngineContextRegister {
-
-    private val registration = mutableMapOf<KClass<out AsyncRequestEngine<*>>, EngineContextProvider>()
-
-    fun register(type: KClass<out AsyncRequestEngine<*>>, provider: EngineContextProvider) {
-        registration[type] = provider
-    }
-
-    @Composable
-    fun resolve(engine: AsyncRequestEngine<*>): EngineContext {
-        val provider = registration[engine::class]
-            ?: error("No EngineContext provider found, it must register first.")
-        return provider.invoke()
-    }
-}
+): AsyncImageContext = munchkin.resources.loader.rememberAsyncImageContext(
+    ignoreImagePadding = ignoreImagePadding,
+    logger = logger,
+    listener = listener,
+    animationContext = animationContext,
+    blurConfig = blurConfig,
+    sizeLimit = sizeLimit,
+    supportNinepatch = supportNinepatch,
+    *keys,
+)

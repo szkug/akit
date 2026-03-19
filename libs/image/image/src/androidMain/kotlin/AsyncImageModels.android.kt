@@ -9,22 +9,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toDrawable
 import munchkin.graph.toPainter
+import munchkin.resources.loader.DrawableModel
 
-
-fun PainterModel.Companion.fromId(id: Int?, context: Context): PainterModel? {
+private fun painterModelFromId(id: Int?, context: Context): PainterModel? {
     if (id == null) return null
     val drawable = AppCompatResources.getDrawable(context, id) ?: return null
     return PainterModel(drawable.toPainter())
 }
-
-@Composable
-fun PainterModel.Companion.fromId(id: Int?): PainterModel? {
-    if (id == null) return null
-    val context = LocalContext.current
-    val drawable = AppCompatResources.getDrawable(context, id) ?: return null
-    return PainterModel(drawable.toPainter())
-}
-
 
 @Composable
 actual fun Any?.platformResourceModel(): ResourceModel? {
@@ -44,7 +35,7 @@ actual fun Any?.platformPainterModel(): PainterModel? {
     val context = LocalContext.current
     return remember(this) {
         val painter = when (this) {
-            is Int -> return@remember PainterModel.fromId(this, context)
+            is Int -> return@remember painterModelFromId(this, context)
             is Drawable -> toPainter()
             is Bitmap -> toDrawable(context.resources).toPainter()
             else -> null

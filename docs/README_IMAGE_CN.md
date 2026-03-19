@@ -5,8 +5,8 @@
 主要包名：
 
 - `munchkin.image`
-- `munchkin.image.coil`
-- `munchkin.image.glide`
+- `munchkin.resources.loader.coil`
+- `munchkin.resources.loader.glide`
 
 ## 模块说明
 
@@ -48,7 +48,7 @@ MunchkinAsyncImage(
     model = "https://example.com/avatar.png",
     contentDescription = null,
     modifier = Modifier.size(96.dp),
-    engine = CoilRequestEngine.Normal,
+    engine = CoilImageRequestEngine.Normal,
 )
 ```
 
@@ -59,7 +59,7 @@ MunchkinAsyncImage(
     model = "https://example.com/avatar.png",
     contentDescription = null,
     modifier = Modifier.size(96.dp),
-    engine = GlideRequestEngine.Normal,
+    engine = GlideImageRequestEngine.Normal,
 )
 ```
 
@@ -75,7 +75,7 @@ Text(
                 supportNinepatch = true,
                 ignoreImagePadding = true,
             ),
-            engine = CoilRequestEngine.Normal,
+            engine = CoilImageRequestEngine.Normal,
         )
         .padding(8.dp)
 )
@@ -125,7 +125,7 @@ MunchkinAsyncImage(
     model = "https://example.com/video.mp4",
     contentDescription = null,
     modifier = Modifier.size(120.dp),
-    engine = CoilRequestEngine.Normal,
+    engine = CoilImageRequestEngine.Normal,
 )
 ```
 

@@ -1,7 +1,7 @@
 package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
-import munchkin.image.AsyncRequestEngine
+import munchkin.resources.loader.ImageAsyncRequestEngine
 
 @Composable
-expect fun rememberDemoAsyncEngine(): AsyncRequestEngine<*>
+expect fun rememberDemoAsyncEngine(): ImageAsyncRequestEngine<*>
