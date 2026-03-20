@@ -1,4 +1,4 @@
-package munchkin.resources.loader.glide.transformation
+package munchkin.resources.runtime.glide.transformation
 
 import android.content.Context
 import android.graphics.drawable.Drawable

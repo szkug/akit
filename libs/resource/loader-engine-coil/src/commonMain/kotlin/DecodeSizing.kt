@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import coil3.decode.DecodeUtils
 import coil3.request.Options

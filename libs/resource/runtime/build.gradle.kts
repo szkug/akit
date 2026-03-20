@@ -16,15 +16,14 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(project(":libs:graph"))
             implementation(compose.runtime)
             implementation(compose.ui)
         }
         androidMain.dependencies {
+            implementation(libs.androidx.core.ktx)
             implementation(libs.androidx.appcompat)
             api(libs.androidx.appcompat.resources)
-        }
-        iosMain.dependencies {
-            api(project(":libs:graph"))
         }
     }
 

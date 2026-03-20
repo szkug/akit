@@ -1,4 +1,4 @@
-package munchkin.resources.loader
+package munchkin.resources.runtime
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
@@ -13,7 +13,7 @@ private fun Float.roundFiniteToInt(sizeOriginal: Int) = if (isFinite()) roundToI
 
 data class ImageSize(val width: Int, val height: Int)
 
-fun ImageSize.clampTo(limit: AsyncImageSizeLimit?): ImageSize {
+fun ImageSize.clampTo(limit: RuntimeImageSizeLimit?): ImageSize {
     if (limit == null) return this
     val maxWidth = limit.maxWidth
     val maxHeight = limit.maxHeight

@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil
+package munchkin.resources.runtime.coil
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter

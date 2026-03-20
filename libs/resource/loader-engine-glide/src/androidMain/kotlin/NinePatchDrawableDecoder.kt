@@ -1,4 +1,4 @@
-package munchkin.resources.loader.glide.extensions.ninepatch
+package munchkin.resources.runtime.glide.extensions.ninepatch
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -9,7 +9,7 @@ import munchkin.graph.ninepatch.NinePatchType
 import munchkin.graph.ninepatch.createNinePatchDrawable
 import munchkin.graph.ninepatch.determineNinePatchType
 import munchkin.graph.ninepatch.asNinePatchSource
-import munchkin.resources.loader.DefaultPlatformMunchkinLogger
+import munchkin.resources.runtime.DefaultPlatformMunchkinLogger
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder

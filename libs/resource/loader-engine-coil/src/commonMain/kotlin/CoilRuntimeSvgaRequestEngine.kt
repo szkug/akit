@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil
+package munchkin.resources.runtime.coil
 
 import androidx.compose.runtime.Composable
 import coil3.Image
@@ -20,11 +20,11 @@ import coil3.request.SuccessResult
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import munchkin.resources.loader.BinaryAsyncLoadData
-import munchkin.resources.loader.BinaryPayload
-import munchkin.resources.loader.BinarySource
-import munchkin.resources.loader.SvgaAsyncRequestEngine
-import munchkin.resources.loader.cacheKey
+import munchkin.resources.runtime.BinaryAsyncLoadData
+import munchkin.resources.runtime.BinaryPayload
+import munchkin.resources.runtime.BinarySource
+import munchkin.resources.runtime.RuntimeSvgaRequestEngine
+import munchkin.resources.runtime.cacheKey
 import okio.use
 import kotlin.jvm.JvmInline
 
@@ -61,22 +61,22 @@ private val NormalCoilBinaryImageLoaderFactory = object : CoilImageLoaderSinglet
     override fun internalFactories(): List<Decoder.Factory> = listOf(BinaryPayloadDecoder.Factory())
 }
 
-class CoilSvgaRequestEngine(
+class CoilRuntimeSvgaRequestEngine(
     val factory: CoilImageLoaderFactory = NormalCoilBinaryImageLoaderFactory,
-) : SvgaAsyncRequestEngine<CoilEngineContext>, CoilContextRegisterEngine {
+) : RuntimeSvgaRequestEngine<CoilRuntimeEngineContext>, CoilRuntimeContextRegisterEngine {
 
     override suspend fun requestSvga(
-        engineContext: CoilEngineContext,
+        engineContext: CoilRuntimeEngineContext,
         source: BinarySource,
     ): BinaryAsyncLoadData {
         return CoilBinarySourceRequester(engineContext.context, factory).request(source)
     }
 
     companion object {
-        val Normal = CoilSvgaRequestEngine()
+        val Normal = CoilRuntimeSvgaRequestEngine()
 
         init {
-            CoilContextRegisterEngine.register()
+            CoilRuntimeContextRegisterEngine.register()
         }
     }
 }

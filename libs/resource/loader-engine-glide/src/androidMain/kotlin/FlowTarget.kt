@@ -1,13 +1,13 @@
-package munchkin.resources.loader.glide
+package munchkin.resources.runtime.glide
 
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
-import munchkin.resources.loader.ImageAsyncLoadResult
-import munchkin.resources.loader.AsyncImageContext
-import munchkin.resources.loader.AsyncImageSizeLimit
-import munchkin.resources.loader.ResolvableImageSize
-import munchkin.resources.loader.clampTo
+import munchkin.resources.runtime.ImageAsyncLoadResult
+import munchkin.resources.runtime.RuntimeImageRequestContext
+import munchkin.resources.runtime.RuntimeImageSizeLimit
+import munchkin.resources.runtime.ResolvableImageSize
+import munchkin.resources.runtime.clampTo
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -39,9 +39,9 @@ internal fun flowOfId(
 }
 
 internal fun RequestBuilder<Drawable>.flowDrawableOfSize(
-    context: AsyncImageContext,
+    context: RuntimeImageRequestContext,
     size: ResolvableImageSize,
-    sizeLimit: AsyncImageSizeLimit?,
+    sizeLimit: RuntimeImageSizeLimit?,
 ): Flow<ImageAsyncLoadResult<DrawableAsyncLoadData>> {
     return callbackFlow {
         val target = DrawableFlowTarget(context, this, size, sizeLimit)
@@ -52,10 +52,10 @@ internal fun RequestBuilder<Drawable>.flowDrawableOfSize(
 }
 
 private class DrawableFlowTarget(
-    private val context: AsyncImageContext,
+    private val context: RuntimeImageRequestContext,
     private val scope: ProducerScope<ImageAsyncLoadResult<DrawableAsyncLoadData>>,
     private val size: ResolvableImageSize,
-    private val sizeLimit: AsyncImageSizeLimit?,
+    private val sizeLimit: RuntimeImageSizeLimit?,
 ) : Target<Drawable>, RequestListener<Drawable> {
 
     override fun onLoadFailed(

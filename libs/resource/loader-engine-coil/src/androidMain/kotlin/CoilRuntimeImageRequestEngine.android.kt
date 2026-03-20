@@ -1,13 +1,12 @@
-package munchkin.resources.loader.coil
+package munchkin.resources.runtime.coil
 
 import munchkin.graph.lottie.LottieResource
 import munchkin.resources.runtime.ResourceId
-import munchkin.resources.runtime.resolveBundleResourcePath
 
 internal actual fun Any?.resolveCoilImageData(): Any? {
     return when (this) {
         is LottieResource -> resource.resolveCoilImageData()
-        is ResourceId -> resolveBundleResourcePath(this) ?: this
+        is ResourceId -> this
         else -> this
     }
 }

@@ -1,7 +1,10 @@
-package munchkin.resources.loader
+package munchkin.resources.runtime
+
+import android.util.Log
 
 actual object DefaultPlatformMunchkinLogger : MunchkinLogger {
 
+    private const val TAG = "Munchkin"
     private var level = MunchkinLogger.Level.ERROR
 
     actual override fun setLevel(level: MunchkinLogger.Level) {
@@ -10,31 +13,27 @@ actual object DefaultPlatformMunchkinLogger : MunchkinLogger {
 
     actual override fun debug(feature: String, message: () -> String) {
         if (MunchkinLogger.Level.DEBUG < level) return
-        log(feature, message())
+        Log.d(TAG, "[$feature] ${message()}")
     }
 
     actual override fun info(feature: String, message: () -> String) {
         if (MunchkinLogger.Level.INFO < level) return
-        log(feature, message())
+        Log.i(TAG, "[$feature] ${message()}")
     }
 
     actual override fun warn(feature: String, message: String) {
         if (MunchkinLogger.Level.WARN < level) return
-        log(feature, message)
+        Log.w(TAG, "[$feature] $message")
     }
 
     actual override fun error(feature: String, exception: Exception?) {
         if (MunchkinLogger.Level.ERROR < level || exception == null) return
-        log(feature, "${exception::class.simpleName}: ${exception.message.orEmpty()}")
-        log(feature, exception.stackTraceToString())
+        Log.e(TAG, "[$feature] ${exception::class.simpleName}: ${exception.message.orEmpty()}")
+        Log.e(TAG, "[$feature] ${exception.stackTraceToString()}")
     }
 
     actual override fun error(feature: String, message: String) {
         if (MunchkinLogger.Level.ERROR < level) return
-        log(feature, message)
-    }
-
-    private fun log(feature: String, message: String) {
-        println("Munchkin [$feature] $message")
+        Log.e(TAG, "[$feature] $message")
     }
 }

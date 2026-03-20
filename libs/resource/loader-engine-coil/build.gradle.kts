@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-description = "Coil-based image and SVGA loader engines for Munchkin Resource Loader."
+description = "Coil-based image and SVGA runtime engines for Munchkin Resource Runtime."
 
 kotlin {
     androidTarget()
@@ -15,7 +15,6 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":libs:resource:loader"))
             api(project(":libs:graph"))
             api(project(":libs:resource:runtime"))
             implementation(compose.runtime)
@@ -40,7 +39,7 @@ kotlin {
 }
 
 android {
-    namespace = "munchkin.resources.loader.coil"
+    namespace = "munchkin.resources.runtime.coil"
     compileSdk = 34
 
     defaultConfig {

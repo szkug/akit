@@ -1,9 +1,9 @@
-package munchkin.resources.loader.glide.transformation
+package munchkin.resources.runtime.glide.transformation
 
 import android.graphics.Bitmap
 import munchkin.graph.renderscript.BlurConfig
 import munchkin.graph.renderscript.Toolkit
-import munchkin.resources.loader.EngineContext
+import munchkin.resources.runtime.RuntimeEngineContext
 
 internal class GaussianBlurTransformation(
     private val config: BlurConfig,
@@ -14,7 +14,7 @@ internal class GaussianBlurTransformation(
     }
 
     override fun transform(
-        context: EngineContext,
+        context: RuntimeEngineContext,
         resource: Bitmap,
         width: Int,
         height: Int

@@ -2,7 +2,7 @@ package munchkin.image
 
 import androidx.compose.runtime.Composable
 
-typealias EngineContext = munchkin.resources.loader.EngineContext
+typealias RuntimeEngineContext = munchkin.resources.runtime.RuntimeEngineContext
 
 @Composable
 internal expect fun Any?.platformResourceModel(): ResourceModel?

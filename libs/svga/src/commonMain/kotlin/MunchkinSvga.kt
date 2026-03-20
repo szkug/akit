@@ -11,10 +11,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.rememberTextMeasurer
-import munchkin.resources.loader.BinarySource
-import munchkin.resources.loader.EngineContext
-import munchkin.resources.loader.LocalEngineContextRegister
-import munchkin.resources.loader.SvgaAsyncRequestEngine
+import munchkin.resources.runtime.BinarySource
+import munchkin.resources.runtime.RuntimeEngineContext
+import munchkin.resources.runtime.LocalRuntimeEngineContextRegister
+import munchkin.resources.runtime.RuntimeSvgaRequestEngine
 
 /**
  * Renders one SVGA animation through a dedicated modifier node.
@@ -31,13 +31,13 @@ import munchkin.resources.loader.SvgaAsyncRequestEngine
  * is never resolved through an implicit fallback path.
  */
 @Composable
-fun <C : EngineContext> MunchkinSvga(
+fun <C : RuntimeEngineContext> MunchkinSvga(
     source: BinarySource,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     state: SvgaPlayerState = rememberSvgaPlayerState(),
     dynamicEntity: SvgaDynamicEntity = SvgaDynamicEntity.EMPTY,
-    loaderEngine: SvgaAsyncRequestEngine<C>,
+    loaderEngine: RuntimeSvgaRequestEngine<C>,
     placeholder: (@Composable BoxScope.() -> Unit)? = null,
     failure: (@Composable BoxScope.(Throwable) -> Unit)? = null,
     contentScale: ContentScale = ContentScale.Fit,
@@ -45,7 +45,7 @@ fun <C : EngineContext> MunchkinSvga(
     onLoaded: (SvgaMovie) -> Unit = {},
     onError: (Throwable) -> Unit = {},
 ) {
-    val engineContext = LocalEngineContextRegister.resolve(loaderEngine)
+    val engineContext = LocalRuntimeEngineContextRegister.resolve(loaderEngine)
     val audioEnvironment = rememberSvgaAudioEnvironment()
     val textMeasurer = rememberTextMeasurer()
     val slotState = remember(source, loaderEngine) { SvgaSlotState() }

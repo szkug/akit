@@ -21,7 +21,6 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.ui)
             api(project(":libs:graph"))
-            api(project(":libs:resource:loader"))
             api(project(":libs:resource:runtime"))
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.serialization.protobuf)

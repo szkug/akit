@@ -31,7 +31,7 @@ import munchkin.graph.ImagePadding
 import kotlin.math.roundToInt
 
 
-internal fun <C : EngineContext, Data : AsyncLoadData> Modifier.asyncBackgroundNode(
+internal fun <C : RuntimeEngineContext, Data : AsyncLoadData> Modifier.asyncBackgroundNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     alignment: Alignment,
@@ -53,7 +53,7 @@ internal fun <C : EngineContext, Data : AsyncLoadData> Modifier.asyncBackgroundN
     engine = engine,
 )
 
-private data class AsyncBackgroundElement<C : EngineContext, Data : AsyncLoadData>(
+private data class AsyncBackgroundElement<C : RuntimeEngineContext, Data : AsyncLoadData>(
     val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val alignment: Alignment,
@@ -99,7 +99,7 @@ private data class AsyncBackgroundElement<C : EngineContext, Data : AsyncLoadDat
 
 private const val TRACE_SECTION_NAME = "AsyncBackgroundNode"
 
-private class AsyncBackgroundNode<C : EngineContext, Data : AsyncLoadData>(
+private class AsyncBackgroundNode<C : RuntimeEngineContext, Data : AsyncLoadData>(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     contentScale: ContentScale,

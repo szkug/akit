@@ -5,10 +5,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 val publishableModules = mapOf(
     ":libs:graph" to "Munchkin Graph",
     ":libs:image:image" to "Munchkin Image",
-    ":libs:resource:loader" to "Munchkin Resource Loader",
-    ":libs:resource:loader-engine-coil" to "Munchkin Resource Loader Coil Engine",
-    ":libs:resource:loader-engine-glide" to "Munchkin Resource Loader Glide Engine",
     ":libs:resource:runtime" to "Munchkin Resource Runtime",
+    ":libs:resource:loader-engine-coil" to "Munchkin Resource Runtime Coil Engine",
+    ":libs:resource:loader-engine-glide" to "Munchkin Resource Runtime Glide Engine",
     ":libs:svga" to "Munchkin SVGA",
 )
 

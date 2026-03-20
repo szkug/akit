@@ -1,6 +1,6 @@
 @file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import coil3.ImageLoader
 import coil3.decode.DecodeResult

@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toDrawable
 import munchkin.graph.toPainter
-import munchkin.resources.loader.DrawableModel
+import munchkin.resources.runtime.DrawableModel
 
 private fun painterModelFromId(id: Int?, context: Context): PainterModel? {
     if (id == null) return null

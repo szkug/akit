@@ -1,4 +1,4 @@
-package munchkin.resources.loader
+package munchkin.resources.runtime
 import munchkin.resources.runtime.RawResourceId
 
 sealed interface BinarySource {

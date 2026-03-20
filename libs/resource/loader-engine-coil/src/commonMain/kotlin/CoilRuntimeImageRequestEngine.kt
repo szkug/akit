@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil
+package munchkin.resources.runtime.coil
 
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -14,22 +14,22 @@ import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import munchkin.resources.loader.AsyncImageContext
-import munchkin.resources.loader.ImageAsyncLoadData
-import munchkin.resources.loader.ImageAsyncLoadResult
-import munchkin.resources.loader.ImageAsyncRequestEngine
-import munchkin.resources.loader.RequestModel
-import munchkin.resources.loader.ResolvableImageSize
-import munchkin.resources.loader.ResourceModel
-import munchkin.resources.loader.clampTo
-import munchkin.resources.loader.coil.support.GaussianBlurTransformation
-import munchkin.resources.loader.coil.support.GifDecoder
-import munchkin.resources.loader.coil.support.LottieDecodeEnabled
-import munchkin.resources.loader.coil.support.LottieDecoder
-import munchkin.resources.loader.coil.support.LottieIterationsKey
-import munchkin.resources.loader.coil.support.NinePatchDecodeEnabled
-import munchkin.resources.loader.coil.support.NinePatchDecoder
-import munchkin.resources.loader.coil.support.platformDecoderFactories
+import munchkin.resources.runtime.RuntimeImageRequestContext
+import munchkin.resources.runtime.ImageAsyncLoadData
+import munchkin.resources.runtime.ImageAsyncLoadResult
+import munchkin.resources.runtime.RuntimeImageRequestEngine
+import munchkin.resources.runtime.RequestModel
+import munchkin.resources.runtime.ResolvableImageSize
+import munchkin.resources.runtime.ResourceModel
+import munchkin.resources.runtime.clampTo
+import munchkin.resources.runtime.coil.support.GaussianBlurTransformation
+import munchkin.resources.runtime.coil.support.GifDecoder
+import munchkin.resources.runtime.coil.support.LottieDecodeEnabled
+import munchkin.resources.runtime.coil.support.LottieDecoder
+import munchkin.resources.runtime.coil.support.LottieIterationsKey
+import munchkin.resources.runtime.coil.support.NinePatchDecodeEnabled
+import munchkin.resources.runtime.coil.support.NinePatchDecoder
+import munchkin.resources.runtime.coil.support.platformDecoderFactories
 
 
 abstract class CoilAsyncLoadData<T>(
@@ -49,15 +49,15 @@ private val NormalCoilImageLoaderFactory = object : CoilImageLoaderSingletonFact
     }
 }
 
-class CoilImageRequestEngine(
+class CoilRuntimeImageRequestEngine(
     val factory: CoilImageLoaderFactory = NormalCoilImageLoaderFactory,
-) : ImageAsyncRequestEngine<CoilEngineContext, PainterAsyncLoadData>, CoilContextRegisterEngine {
+) : RuntimeImageRequestEngine<CoilRuntimeEngineContext, PainterAsyncLoadData>, CoilRuntimeContextRegisterEngine {
 
     override val engineSizeOriginal: Int = -1
 
     override suspend fun flowRequest(
-        engineContext: CoilEngineContext,
-        imageContext: AsyncImageContext,
+        engineContext: CoilRuntimeEngineContext,
+        imageContext: RuntimeImageRequestContext,
         size: ResolvableImageSize,
         contentScale: ContentScale,
         requestModel: RequestModel,
@@ -101,10 +101,10 @@ class CoilImageRequestEngine(
     }
 
     companion object {
-        val Normal = CoilImageRequestEngine()
+        val Normal = CoilRuntimeImageRequestEngine()
 
         init {
-            CoilContextRegisterEngine.register()
+            CoilRuntimeContextRegisterEngine.register()
         }
     }
 }
@@ -112,8 +112,8 @@ class CoilImageRequestEngine(
 internal expect fun Any?.resolveCoilImageData(): Any?
 
 private class CoilFlowTarget(
-    private val imageContext: AsyncImageContext,
-    private val engineContext: CoilEngineContext,
+    private val imageContext: RuntimeImageRequestContext,
+    private val engineContext: CoilRuntimeEngineContext,
     private val scope: ProducerScope<ImageAsyncLoadResult<PainterAsyncLoadData>>,
 ) : Target, ImageRequest.Listener {
 
@@ -157,7 +157,7 @@ private class CoilFlowTarget(
 
 private fun Painter.toPainterAsyncLoadData() = PainterAsyncLoadData(this)
 
-private fun Image.toMunchkinPainter(context: CoilEngineContext): Painter {
+private fun Image.toMunchkinPainter(context: CoilRuntimeEngineContext): Painter {
     return when (this) {
         is LottieCoilImage -> toPainter()
         is NinePatchCoilImage -> toPainter()

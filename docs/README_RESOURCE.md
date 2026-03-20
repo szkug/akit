@@ -6,9 +6,9 @@ ids and provides runtime APIs for Android and iOS.
 Main runtime package:
 
 - `munchkin.resources.runtime`
-- `munchkin.resources.loader` for reusable binary downloads shared by `svga` and custom resource-based loaders
-- `munchkin.resources.loader.coil`
-- `munchkin.resources.loader.glide`
+- `munchkin.resources.runtime` for reusable binary downloads shared by `svga` and custom resource-based loaders
+- `munchkin.resources.runtime.coil`
+- `munchkin.resources.runtime.glide`
 
 ## Install
 
@@ -144,7 +144,7 @@ BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
 
 `loader` only defines the source model and fallback loading. Cached downloads should go through a
-dedicated loader engine such as `CoilSvgaRequestEngine` or `GlideSvgaRequestEngine`.
+dedicated loader engine such as `CoilRuntimeSvgaRequestEngine` or `GlideRuntimeSvgaRequestEngine`.
 
 ## Plugin Configuration
 

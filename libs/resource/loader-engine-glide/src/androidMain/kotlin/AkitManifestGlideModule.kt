@@ -1,8 +1,8 @@
-package munchkin.resources.loader.glide.extensions
+package munchkin.resources.runtime.glide.extensions
 
 import android.content.Context
-import munchkin.resources.loader.glide.extensions.lottie.LottieLibraryGlideModule
-import munchkin.resources.loader.glide.extensions.ninepatch.NinePatchLibraryGlideModule
+import munchkin.resources.runtime.glide.extensions.lottie.LottieLibraryGlideModule
+import munchkin.resources.runtime.glide.extensions.ninepatch.NinePatchLibraryGlideModule
 import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.Registry

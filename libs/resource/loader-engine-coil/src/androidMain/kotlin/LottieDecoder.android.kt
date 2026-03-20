@@ -1,9 +1,9 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import munchkin.graph.toPainter
-import munchkin.resources.loader.coil.LottieCoilImage
+import munchkin.resources.runtime.coil.LottieCoilImage
 import coil3.asImage
 import coil3.getExtra
 import coil3.request.Options

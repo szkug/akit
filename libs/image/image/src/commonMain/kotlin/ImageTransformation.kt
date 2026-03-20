@@ -1,3 +1,3 @@
 package munchkin.image
 
-typealias ImageTransformation<T> = munchkin.resources.loader.ImageTransformation<T>
+typealias ImageTransformation<T> = munchkin.resources.runtime.ImageTransformation<T>

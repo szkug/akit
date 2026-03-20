@@ -6,9 +6,9 @@ id，并提供 Android / iOS 运行时 API。
 主要运行时包名：
 
 - `munchkin.resources.runtime`
-- `munchkin.resources.loader`，用于 `svga` 等模块复用的二进制资源下载
-- `munchkin.resources.loader.coil`
-- `munchkin.resources.loader.glide`
+- `munchkin.resources.runtime`，用于 `svga` 等模块复用的二进制资源下载
+- `munchkin.resources.runtime.coil`
+- `munchkin.resources.runtime.glide`
 
 ## 接入方式
 
@@ -142,7 +142,7 @@ BinarySource.Bytes(bytes, cacheKey = "demo")
 ```
 
 `loader` 本身只定义 source 模型和兜底加载；如果你需要缓存下载，应配合
-`CoilSvgaRequestEngine` 或 `GlideSvgaRequestEngine` 这类专用 loader engine 一起使用。
+`CoilRuntimeSvgaRequestEngine` 或 `GlideRuntimeSvgaRequestEngine` 这类专用 loader engine 一起使用。
 
 ## 插件配置
 

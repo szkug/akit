@@ -1,4 +1,4 @@
-package munchkin.resources.loader.glide
+package munchkin.resources.runtime.glide
 
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
@@ -8,20 +8,20 @@ import com.bumptech.glide.load.model.LazyHeaders
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import munchkin.resources.loader.BinaryAsyncLoadData
-import munchkin.resources.loader.BinaryPayload
-import munchkin.resources.loader.BinarySource
-import munchkin.resources.loader.SvgaAsyncRequestEngine
-import munchkin.resources.loader.cacheKey
+import munchkin.resources.runtime.BinaryAsyncLoadData
+import munchkin.resources.runtime.BinaryPayload
+import munchkin.resources.runtime.BinarySource
+import munchkin.resources.runtime.RuntimeSvgaRequestEngine
+import munchkin.resources.runtime.cacheKey
 
-typealias DownloadGlideRequestBuilder = (GlideLoaderEngineContext) -> RequestBuilder<File>
+typealias DownloadGlideRequestBuilder = (GlideRuntimeEngineContext) -> RequestBuilder<File>
 
-class GlideSvgaRequestEngine(
+class GlideRuntimeSvgaRequestEngine(
     val downloadRequestBuilder: DownloadGlideRequestBuilder = DownloadOnlyGlideRequestBuilder,
-) : SvgaAsyncRequestEngine<GlideLoaderEngineContext>, GlideContextRegisterEngine {
+) : RuntimeSvgaRequestEngine<GlideRuntimeEngineContext>, GlideRuntimeContextRegisterEngine {
 
     override suspend fun requestSvga(
-        engineContext: GlideLoaderEngineContext,
+        engineContext: GlideRuntimeEngineContext,
         source: BinarySource,
     ): BinaryAsyncLoadData = withContext(Dispatchers.IO) {
         if (source is BinarySource.Bytes) {
@@ -39,7 +39,7 @@ class GlideSvgaRequestEngine(
     }
 
     companion object {
-        val Normal = GlideSvgaRequestEngine()
+        val Normal = GlideRuntimeSvgaRequestEngine()
 
         val DownloadOnlyGlideRequestBuilder: DownloadGlideRequestBuilder
             get() = { context ->
@@ -47,7 +47,7 @@ class GlideSvgaRequestEngine(
             }
 
         init {
-            GlideContextRegisterEngine.register()
+            GlideRuntimeContextRegisterEngine.register()
         }
     }
 }

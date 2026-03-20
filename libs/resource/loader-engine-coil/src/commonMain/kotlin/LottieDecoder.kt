@@ -1,6 +1,6 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
-import munchkin.resources.loader.coil.LottieCoilImage
+import munchkin.resources.runtime.coil.LottieCoilImage
 import coil3.ImageLoader
 import coil3.decode.DecodeResult
 import coil3.decode.Decoder

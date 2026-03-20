@@ -37,7 +37,7 @@ kotlin {
 
 ```kotlin
 val state = rememberSvgaPlayerState(iterations = -1)
-val loaderEngine = CoilSvgaRequestEngine.Normal
+val loaderEngine = CoilRuntimeSvgaRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
@@ -68,7 +68,7 @@ MunchkinSvga(
     source = BinarySource.Raw(Res.raw.demo_svga),
     contentDescription = null,
     dynamicEntity = dynamic,
-    loaderEngine = CoilSvgaRequestEngine.Normal,
+    loaderEngine = CoilRuntimeSvgaRequestEngine.Normal,
 )
 ```
 
@@ -83,8 +83,8 @@ Available dynamic APIs:
 
 Supported loader engines:
 
-- `CoilSvgaRequestEngine` on Android and iOS
-- `GlideSvgaRequestEngine` on Android
+- `CoilRuntimeSvgaRequestEngine` on Android and iOS
+- `GlideRuntimeSvgaRequestEngine` on Android
 
 ## Playback Control
 

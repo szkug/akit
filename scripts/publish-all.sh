@@ -131,12 +131,9 @@ if [[ "$MODE" == "local" ]]; then
     :libs:graph:publishToMavenLocal \
     :libs:resource:runtime:publishToMavenLocal \
     :libs:image:image:publishToMavenLocal \
-    :libs:resource:loader:publishToMavenLocal \
     :libs:resource:loader-engine-coil:publishToMavenLocal \
     :libs:resource:loader-engine-glide:publishToMavenLocal \
-    :libs:svga:publishToMavenLocal \
-    :libs:image:engine-coil:publishToMavenLocal \
-    :libs:image:engine-glide:publishToMavenLocal
+    :libs:svga:publishToMavenLocal
   run_plugins_gradle :resource-gradle-plugin:publishToMavenLocal
   exit 0
 fi
@@ -154,13 +151,9 @@ fi
 run_gradle :libs:graph:"$CENTRAL_TASK"
 run_gradle :libs:resource:runtime:"$CENTRAL_TASK"
 run_gradle :libs:image:image:"$CENTRAL_TASK"
-run_gradle :libs:resource:loader:"$CENTRAL_TASK"
 run_gradle :libs:resource:loader-engine-coil:"$CENTRAL_TASK"
 run_gradle :libs:resource:loader-engine-glide:"$CENTRAL_TASK"
 run_gradle :libs:svga:"$CENTRAL_TASK"
-run_gradle \
-  :libs:image:engine-coil:"$CENTRAL_TASK" \
-  :libs:image:engine-glide:"$CENTRAL_TASK"
 
 if [[ "$SKIP_PLUGIN_PORTAL" -eq 1 ]]; then
   exit 0

@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import munchkin.graph.renderscript.BlurConfig
 import munchkin.graph.renderscript.Toolkit

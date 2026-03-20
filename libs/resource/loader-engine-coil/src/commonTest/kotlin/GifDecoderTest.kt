@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

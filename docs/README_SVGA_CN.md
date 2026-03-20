@@ -37,7 +37,7 @@ kotlin {
 
 ```kotlin
 val state = rememberSvgaPlayerState(iterations = -1)
-val loaderEngine = CoilSvgaRequestEngine.Normal
+val loaderEngine = CoilRuntimeSvgaRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
@@ -68,7 +68,7 @@ MunchkinSvga(
     source = BinarySource.Raw(Res.raw.demo_svga),
     contentDescription = null,
     dynamicEntity = dynamic,
-    loaderEngine = CoilSvgaRequestEngine.Normal,
+    loaderEngine = CoilRuntimeSvgaRequestEngine.Normal,
 )
 ```
 
@@ -83,8 +83,8 @@ MunchkinSvga(
 
 当前支持的下载 engine：
 
-- Android / iOS 的 `CoilSvgaRequestEngine`
-- Android 的 `GlideSvgaRequestEngine`
+- Android / iOS 的 `CoilRuntimeSvgaRequestEngine`
+- Android 的 `GlideRuntimeSvgaRequestEngine`
 
 ## 播放控制
 

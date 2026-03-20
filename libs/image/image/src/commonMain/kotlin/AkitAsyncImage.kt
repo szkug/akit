@@ -13,7 +13,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import munchkin.graph.lottie.LottieResource
 import munchkin.graph.lottie.rememberLottiePainter
-import munchkin.resources.loader.ImageAsyncRequestEngine
+import munchkin.resources.runtime.RuntimeImageRequestEngine
 import munchkin.resources.runtime.PaintableResourceId
 import munchkin.resources.runtime.painterResource
 
@@ -21,7 +21,7 @@ import munchkin.resources.runtime.painterResource
  * Async image load node base on platform-specific image loader.
  */
 @Composable
-fun <C : EngineContext, Data : AsyncLoadData> MunchkinAsyncImage(
+fun <C : RuntimeEngineContext, Data : AsyncLoadData> MunchkinAsyncImage(
     model: Any?,
     placeholder: Any? = null,
     failureRes: Any? = null,
@@ -46,7 +46,7 @@ fun <C : EngineContext, Data : AsyncLoadData> MunchkinAsyncImage(
                 alpha = alpha,
                 colorFilter = colorFilter,
                 imageContext = context,
-                engineContext = LocalEngineContextRegister.resolve(engine),
+                engineContext = LocalRuntimeEngineContextRegister.resolve(engine),
                 engine = engine
             ),
         measurePolicy = { _, constraints ->
@@ -59,7 +59,7 @@ fun <C : EngineContext, Data : AsyncLoadData> MunchkinAsyncImage(
  * Use platform-specific image loader to draw background image.
  */
 @Composable
-fun <C : EngineContext, Data : AsyncLoadData> Modifier.munchkinAsyncBackground(
+fun <C : RuntimeEngineContext, Data : AsyncLoadData> Modifier.munchkinAsyncBackground(
     model: Any?,
     placeholder: Any? = model,
     alignment: Alignment = AsyncImageDefaults.DefaultAlignment,
@@ -78,7 +78,7 @@ fun <C : EngineContext, Data : AsyncLoadData> Modifier.munchkinAsyncBackground(
         alpha = alpha,
         colorFilter = colorFilter,
         imageContext = context,
-        engineContext = LocalEngineContextRegister.resolve(engine),
+        engineContext = LocalRuntimeEngineContextRegister.resolve(engine),
         engine = engine
     )
 }

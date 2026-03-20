@@ -9,8 +9,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import munchkin.image.PainterModel
-import munchkin.resources.loader.DefaultPlatformMunchkinLogger
-import munchkin.resources.loader.MunchkinLogger
+import munchkin.resources.runtime.DefaultPlatformMunchkinLogger
+import munchkin.resources.runtime.MunchkinLogger
 import munchkin.image.munchkinAsyncBackground
 import munchkin.resources.runtime.painterResource
 import munchkin.resources.runtime.stringResource

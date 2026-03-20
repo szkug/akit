@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 
-internal abstract class AsyncRequestNode<C : EngineContext, Data : AsyncLoadData>(
+internal abstract class AsyncRequestNode<C : RuntimeEngineContext, Data : AsyncLoadData>(
     private val engine: AsyncRequestEngine<C, Data>,
     protected var requestModel: RequestModel,
     private var placeholderModel: PainterModel?,
@@ -76,11 +76,11 @@ internal abstract class AsyncRequestNode<C : EngineContext, Data : AsyncLoadData
         placeholderPainter: Painter,
     ): Painter {
         return when (result) {
-            is munchkin.resources.loader.ImageAsyncLoadResult.Error -> result.data?.painter() ?: failurePainter
+            is munchkin.resources.runtime.ImageAsyncLoadResult.Error -> result.data?.painter() ?: failurePainter
             ?: placeholderPainter
 
-            is munchkin.resources.loader.ImageAsyncLoadResult.Success -> result.data.painter()
-            is munchkin.resources.loader.ImageAsyncLoadResult.Cleared -> placeholderPainter
+            is munchkin.resources.runtime.ImageAsyncLoadResult.Success -> result.data.painter()
+            is munchkin.resources.runtime.ImageAsyncLoadResult.Cleared -> placeholderPainter
         }
     }
 

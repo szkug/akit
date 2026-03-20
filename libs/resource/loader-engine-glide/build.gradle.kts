@@ -5,14 +5,13 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-description = "Glide-based image and SVGA loader engines for Munchkin Resource Loader."
+description = "Glide-based image and SVGA runtime engines for Munchkin Resource Runtime."
 
 kotlin {
     androidTarget()
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":libs:resource:loader"))
             api(project(":libs:graph"))
             api(project(":libs:resource:runtime"))
             implementation(compose.runtime)
@@ -33,7 +32,7 @@ kotlin {
 }
 
 android {
-    namespace = "munchkin.resources.loader.glide"
+    namespace = "munchkin.resources.runtime.glide"
     compileSdk = 34
 
     defaultConfig {

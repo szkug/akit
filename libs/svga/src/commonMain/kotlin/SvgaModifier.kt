@@ -37,9 +37,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import munchkin.resources.loader.BinarySource
-import munchkin.resources.loader.EngineContext
-import munchkin.resources.loader.SvgaAsyncRequestEngine
+import munchkin.resources.runtime.BinarySource
+import munchkin.resources.runtime.RuntimeEngineContext
+import munchkin.resources.runtime.RuntimeSvgaRequestEngine
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -62,11 +62,11 @@ internal sealed interface SvgaOverlay {
     data class Error(val throwable: Throwable) : SvgaOverlay
 }
 
-internal fun <C : EngineContext> Modifier.svgaNode(
+internal fun <C : RuntimeEngineContext> Modifier.svgaNode(
     source: BinarySource,
     state: SvgaPlayerState,
     dynamicEntity: SvgaDynamicEntity,
-    loaderEngine: SvgaAsyncRequestEngine<C>,
+    loaderEngine: RuntimeSvgaRequestEngine<C>,
     engineContext: C,
     audioEnvironment: SvgaAudioEnvironment,
     slotState: SvgaSlotState,
@@ -97,11 +97,11 @@ internal fun <C : EngineContext> Modifier.svgaNode(
     onError = onError,
 )
 
-private data class SvgaElement<C : EngineContext>(
+private data class SvgaElement<C : RuntimeEngineContext>(
     val source: BinarySource,
     val state: SvgaPlayerState,
     val dynamicEntity: SvgaDynamicEntity,
-    val loaderEngine: SvgaAsyncRequestEngine<C>,
+    val loaderEngine: RuntimeSvgaRequestEngine<C>,
     val engineContext: C,
     val audioEnvironment: SvgaAudioEnvironment,
     val slotState: SvgaSlotState,
@@ -158,11 +158,11 @@ private data class SvgaElement<C : EngineContext>(
 /**
  * Node that owns SVGA loading, decode, playback timing, and draw invalidation.
  */
-internal class SvgaNode<C : EngineContext>(
+internal class SvgaNode<C : RuntimeEngineContext>(
     private var source: BinarySource,
     private var state: SvgaPlayerState,
     private var dynamicEntity: SvgaDynamicEntity,
-    private var loaderEngine: SvgaAsyncRequestEngine<C>,
+    private var loaderEngine: RuntimeSvgaRequestEngine<C>,
     private var engineContext: C,
     private var audioEnvironment: SvgaAudioEnvironment,
     private var slotState: SvgaSlotState,
@@ -258,7 +258,7 @@ internal class SvgaNode<C : EngineContext>(
         source: BinarySource,
         state: SvgaPlayerState,
         dynamicEntity: SvgaDynamicEntity,
-        loaderEngine: SvgaAsyncRequestEngine<C>,
+        loaderEngine: RuntimeSvgaRequestEngine<C>,
         engineContext: C,
         audioEnvironment: SvgaAudioEnvironment,
         slotState: SvgaSlotState,

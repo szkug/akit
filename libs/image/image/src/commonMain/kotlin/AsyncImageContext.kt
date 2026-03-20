@@ -1,23 +1,37 @@
 package munchkin.image
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import munchkin.graph.renderscript.BlurConfig
-import munchkin.resources.loader.AsyncImageContext as LoaderAsyncImageContext
-import munchkin.resources.loader.AsyncImageLoadListener as LoaderAsyncImageLoadListener
-import munchkin.resources.loader.AsyncImageSizeLimit as LoaderAsyncImageSizeLimit
-import munchkin.resources.loader.DefaultPlatformMunchkinLogger
-import munchkin.resources.loader.LocalEngineContextRegister as LoaderLocalEngineContextRegister
-import munchkin.resources.loader.MunchkinLogger
+import munchkin.resources.runtime.DefaultPlatformMunchkinLogger
+import munchkin.resources.runtime.LocalRuntimeEngineContextRegister as RuntimeContextRegister
+import munchkin.resources.runtime.MunchkinLogger
+import munchkin.resources.runtime.RuntimeImageLoadListener
+import munchkin.resources.runtime.RuntimeImageRequestContext
+import munchkin.resources.runtime.RuntimeImageSizeLimit
 import kotlin.coroutines.CoroutineContext
 
 typealias AsyncImageLogger = MunchkinLogger
 typealias DefaultPlatformAsyncImageLogger = DefaultPlatformMunchkinLogger
-typealias AsyncImageLoadListener = LoaderAsyncImageLoadListener
-typealias AsyncImageSizeLimit = LoaderAsyncImageSizeLimit
-typealias AsyncImageContext = LoaderAsyncImageContext
-typealias EngineContextProvider<C> = munchkin.resources.loader.EngineContextProvider<C>
-typealias LocalEngineContextRegister = LoaderLocalEngineContextRegister
+typealias AsyncImageLoadListener = RuntimeImageLoadListener
+typealias AsyncImageSizeLimit = RuntimeImageSizeLimit
+typealias RuntimeEngineContextProvider<C> = munchkin.resources.runtime.RuntimeEngineContextProvider<C>
+typealias LocalRuntimeEngineContextRegister = RuntimeContextRegister
+
+class AsyncImageContext(
+    val coroutineContext: CoroutineContext,
+    override val logger: AsyncImageLogger = DefaultPlatformAsyncImageLogger,
+    override val listener: AsyncImageLoadListener? = null,
+    override val ignoreImagePadding: Boolean = false,
+    override val animationIterations: Int = -1,
+    override val blurConfig: BlurConfig? = null,
+    override val sizeLimit: AsyncImageSizeLimit? = null,
+    override val supportNinepatch: Boolean = false,
+    override val supportLottie: Boolean = false,
+) : RuntimeImageRequestContext {
+    companion object
+}
 
 @Composable
 fun rememberAsyncImageContext(
@@ -29,13 +43,17 @@ fun rememberAsyncImageContext(
     sizeLimit: AsyncImageSizeLimit? = null,
     supportNinepatch: Boolean = false,
     vararg keys: Any?,
-): AsyncImageContext = munchkin.resources.loader.rememberAsyncImageContext(
-    ignoreImagePadding = ignoreImagePadding,
-    logger = logger,
-    listener = listener,
-    animationContext = animationContext,
-    blurConfig = blurConfig,
-    sizeLimit = sizeLimit,
-    supportNinepatch = supportNinepatch,
-    *keys,
-)
+): AsyncImageContext {
+    return remember(ignoreImagePadding, supportNinepatch, animationContext, blurConfig, sizeLimit, *keys) {
+        AsyncImageContext(
+            ignoreImagePadding = ignoreImagePadding,
+            logger = logger,
+            listener = listener,
+            coroutineContext = animationContext,
+            blurConfig = blurConfig,
+            sizeLimit = sizeLimit,
+            supportNinepatch = supportNinepatch,
+            supportLottie = false,
+        )
+    }
+}

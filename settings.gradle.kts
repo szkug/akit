@@ -34,7 +34,6 @@ includeBuild("plugins")
 // libraries
 include(":libs:graph")
 include(":libs:image:image")
-include(":libs:resource:loader")
 include(":libs:resource:loader-engine-coil")
 include(":libs:resource:loader-engine-glide")
 include(":libs:resource:runtime")

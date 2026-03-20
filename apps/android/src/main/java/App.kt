@@ -1,8 +1,8 @@
 package munchkin.sample
 
 import android.app.Application
-import munchkin.resources.loader.DefaultPlatformMunchkinLogger
-import munchkin.resources.loader.MunchkinLogger
+import munchkin.resources.runtime.DefaultPlatformMunchkinLogger
+import munchkin.resources.runtime.MunchkinLogger
 
 
 class App : Application() {

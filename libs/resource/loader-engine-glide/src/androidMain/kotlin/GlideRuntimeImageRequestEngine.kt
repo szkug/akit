@@ -1,4 +1,4 @@
-package munchkin.resources.loader.glide
+package munchkin.resources.runtime.glide
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -14,22 +14,22 @@ import java.io.File
 import kotlinx.coroutines.flow.Flow
 import munchkin.graph.lottie.LottieResource
 import munchkin.graph.toPainter
-import munchkin.resources.loader.AsyncImageContext
-import munchkin.resources.loader.AsyncImageSizeLimit
-import munchkin.resources.loader.DrawableModel
-import munchkin.resources.loader.ImageAsyncLoadData
-import munchkin.resources.loader.ImageAsyncLoadResult
-import munchkin.resources.loader.ImageAsyncRequestEngine
-import munchkin.resources.loader.RequestModel
-import munchkin.resources.loader.ResIdModel
-import munchkin.resources.loader.ResolvableImageSize
-import munchkin.resources.loader.ResourceModel
-import munchkin.resources.loader.glide.extensions.lottie.LottieDecodeOptions
-import munchkin.resources.loader.glide.extensions.ninepatch.NinepatchEnableOption
-import munchkin.resources.loader.glide.transformation.BitmapTransformation
-import munchkin.resources.loader.glide.transformation.DrawableTransformation
-import munchkin.resources.loader.glide.transformation.GaussianBlurTransformation
-import munchkin.resources.loader.glide.transformation.setupTransforms
+import munchkin.resources.runtime.RuntimeImageRequestContext
+import munchkin.resources.runtime.RuntimeImageSizeLimit
+import munchkin.resources.runtime.DrawableModel
+import munchkin.resources.runtime.ImageAsyncLoadData
+import munchkin.resources.runtime.ImageAsyncLoadResult
+import munchkin.resources.runtime.RuntimeImageRequestEngine
+import munchkin.resources.runtime.RequestModel
+import munchkin.resources.runtime.ResIdModel
+import munchkin.resources.runtime.ResolvableImageSize
+import munchkin.resources.runtime.ResourceModel
+import munchkin.resources.runtime.glide.extensions.lottie.LottieDecodeOptions
+import munchkin.resources.runtime.glide.extensions.ninepatch.NinepatchEnableOption
+import munchkin.resources.runtime.glide.transformation.BitmapTransformation
+import munchkin.resources.runtime.glide.transformation.DrawableTransformation
+import munchkin.resources.runtime.glide.transformation.GaussianBlurTransformation
+import munchkin.resources.runtime.glide.transformation.setupTransforms
 
 abstract class GlideAsyncLoadData<T>(
     open val value: T,
@@ -41,21 +41,21 @@ class DrawableAsyncLoadData(
     override fun painter(): Painter = value.toPainter()
 }
 
-typealias GlideImageRequestBuilder = (GlideLoaderEngineContext, AsyncImageContext) -> RequestBuilder<Drawable>
+typealias GlideImageRequestBuilder = (GlideRuntimeEngineContext, RuntimeImageRequestContext) -> RequestBuilder<Drawable>
 
 private const val GlideSizeOriginal = Target.SIZE_ORIGINAL
 
-class GlideImageRequestEngine(
+class GlideRuntimeImageRequestEngine(
     val requestBuilder: GlideImageRequestBuilder = NormalGlideRequestBuilder,
     val bitmapTransformations: List<BitmapTransformation> = emptyList(),
     val drawableTransformations: List<DrawableTransformation> = emptyList(),
-) : ImageAsyncRequestEngine<GlideLoaderEngineContext, DrawableAsyncLoadData>, GlideContextRegisterEngine {
+) : RuntimeImageRequestEngine<GlideRuntimeEngineContext, DrawableAsyncLoadData>, GlideRuntimeContextRegisterEngine {
 
     override val engineSizeOriginal: Int = GlideSizeOriginal
 
     override suspend fun flowRequest(
-        engineContext: GlideLoaderEngineContext,
-        imageContext: AsyncImageContext,
+        engineContext: GlideRuntimeEngineContext,
+        imageContext: RuntimeImageRequestContext,
         size: ResolvableImageSize,
         contentScale: ContentScale,
         requestModel: RequestModel,
@@ -73,7 +73,7 @@ class GlideImageRequestEngine(
     }
 
     private fun <T> RequestBuilder<T>.setupContext(
-        context: AsyncImageContext,
+        context: RuntimeImageRequestContext,
         requestModel: RequestModel,
     ): RequestBuilder<T> {
         val enableLottie = context.supportLottie || requestModel.model is LottieResource
@@ -114,11 +114,11 @@ class GlideImageRequestEngine(
     }
 
     private fun RequestBuilder<Drawable>.flowOfRequest(
-        imageContext: AsyncImageContext,
+        imageContext: RuntimeImageRequestContext,
         context: android.content.Context,
         requestModel: RequestModel,
         size: ResolvableImageSize,
-        sizeLimit: AsyncImageSizeLimit?,
+        sizeLimit: RuntimeImageSizeLimit?,
     ): Flow<ImageAsyncLoadResult<DrawableAsyncLoadData>> {
         val model = requestModel.model
         if (model is Int) {
@@ -137,7 +137,7 @@ class GlideImageRequestEngine(
     }
 
     companion object {
-        val Normal = GlideImageRequestEngine()
+        val Normal = GlideRuntimeImageRequestEngine()
 
         val NormalGlideRequestBuilder: GlideImageRequestBuilder
             get() = { context, _ ->
@@ -145,7 +145,7 @@ class GlideImageRequestEngine(
             }
 
         init {
-            GlideContextRegisterEngine.register()
+            GlideRuntimeContextRegisterEngine.register()
         }
     }
 }

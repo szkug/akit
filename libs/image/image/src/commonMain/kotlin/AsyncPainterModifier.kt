@@ -36,7 +36,7 @@ import kotlin.math.roundToInt
 
 private const val TRACE_SECTION_NAME = "AsyncPainterModifier"
 
-internal fun <C : EngineContext, Data : AsyncLoadData> Modifier.asyncPainterNode(
+internal fun <C : RuntimeEngineContext, Data : AsyncLoadData> Modifier.asyncPainterNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResourceModel?,
@@ -67,7 +67,7 @@ internal fun <C : EngineContext, Data : AsyncLoadData> Modifier.asyncPainterNode
     engine = engine
 )
 
-private data class AsyncPainterElement<C : EngineContext, Data : AsyncLoadData>(
+private data class AsyncPainterElement<C : RuntimeEngineContext, Data : AsyncLoadData>(
     val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val failureModel: ResourceModel?,
@@ -115,7 +115,7 @@ private data class AsyncPainterElement<C : EngineContext, Data : AsyncLoadData>(
     }
 }
 
-internal class AsyncPainterNode<C : EngineContext, Data : AsyncLoadData>(
+internal class AsyncPainterNode<C : RuntimeEngineContext, Data : AsyncLoadData>(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResourceModel?,

@@ -1,3 +1,3 @@
 /** Documents the primary package prefix for this flat source set. */
 
-package munchkin.resources.loader.glide
+package munchkin.resources.runtime.glide

@@ -1,8 +1,8 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asComposeImageBitmap
-import munchkin.resources.loader.coil.GifCoilImage
+import munchkin.resources.runtime.coil.GifCoilImage
 import coil3.asImage
 import coil3.request.Options
 import org.jetbrains.skia.Bitmap

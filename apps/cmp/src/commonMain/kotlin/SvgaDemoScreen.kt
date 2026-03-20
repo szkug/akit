@@ -22,9 +22,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import munchkin.resources.loader.DefaultPlatformMunchkinLogger
-import munchkin.resources.loader.MunchkinLogger
-import munchkin.resources.loader.BinarySource
+import munchkin.resources.runtime.DefaultPlatformMunchkinLogger
+import munchkin.resources.runtime.MunchkinLogger
+import munchkin.resources.runtime.BinarySource
 import munchkin.svga.MunchkinSvga
 import munchkin.svga.SvgaDynamicEntity
 import munchkin.svga.rememberSvgaPlayerState

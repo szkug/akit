@@ -1,7 +1,7 @@
 package munchkin.svga
 
-import munchkin.resources.loader.DefaultPlatformMunchkinLogger
-import munchkin.resources.loader.BinarySource
+import munchkin.resources.runtime.DefaultPlatformMunchkinLogger
+import munchkin.resources.runtime.BinarySource
 
 internal object SvgaLogger {
     fun debug(tag: String, message: () -> String) {
@@ -30,10 +30,10 @@ internal object SvgaLogger {
 
 internal fun BinarySource.logLabel(): String {
     return when (this) {
-        is munchkin.resources.loader.BinarySource.Bytes -> "Bytes(cacheKey=$cacheKey, size=${value.size})"
-        is munchkin.resources.loader.BinarySource.FilePath -> "FilePath(path=$path)"
-        is munchkin.resources.loader.BinarySource.Raw -> "Raw(id=$id)"
-        is munchkin.resources.loader.BinarySource.UriPath -> "UriPath(value=$value)"
-        is munchkin.resources.loader.BinarySource.Url -> "Url(value=$value)"
+        is munchkin.resources.runtime.BinarySource.Bytes -> "Bytes(cacheKey=$cacheKey, size=${value.size})"
+        is munchkin.resources.runtime.BinarySource.FilePath -> "FilePath(path=$path)"
+        is munchkin.resources.runtime.BinarySource.Raw -> "Raw(id=$id)"
+        is munchkin.resources.runtime.BinarySource.UriPath -> "UriPath(value=$value)"
+        is munchkin.resources.runtime.BinarySource.Url -> "Url(value=$value)"
     }
 }

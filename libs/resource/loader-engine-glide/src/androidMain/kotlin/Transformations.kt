@@ -1,12 +1,12 @@
-package munchkin.resources.loader.glide.transformation
+package munchkin.resources.runtime.glide.transformation
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.ui.layout.ContentScale
-import munchkin.resources.loader.ImageTransformation
-import munchkin.resources.loader.glide.GlideLoaderEngineContext
+import munchkin.resources.runtime.ImageTransformation
+import munchkin.resources.runtime.glide.GlideRuntimeEngineContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.Key.CHARSET
@@ -47,7 +47,7 @@ abstract class BitmapTransformation : ImageTransformation<Bitmap>, Transformatio
         val toTransform = resource.get()
         val targetWidth = if (outWidth == Target.SIZE_ORIGINAL) toTransform.width else outWidth
         val targetHeight = if (outHeight == Target.SIZE_ORIGINAL) toTransform.height else outHeight
-        val transformed: Bitmap = transform(GlideLoaderEngineContext(context), toTransform, targetWidth, targetHeight)
+        val transformed: Bitmap = transform(GlideRuntimeEngineContext(context), toTransform, targetWidth, targetHeight)
         return if (toTransform == transformed) resource
         else BitmapResource(transformed, bitmapPool)
     }
@@ -80,7 +80,7 @@ abstract class DrawableTransformation : ImageTransformation<Drawable>, Transform
             if (outWidth == Target.SIZE_ORIGINAL) toTransform.intrinsicWidth else outWidth
         val targetHeight =
             if (outHeight == Target.SIZE_ORIGINAL) toTransform.intrinsicHeight else outHeight
-        val transformed = transform(GlideLoaderEngineContext(context), toTransform, targetWidth, targetHeight)
+        val transformed = transform(GlideRuntimeEngineContext(context), toTransform, targetWidth, targetHeight)
 
         return if ((toTransform == transformed)) resource
         else NonOwnedDrawableResource(transformed)

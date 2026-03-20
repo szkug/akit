@@ -1,11 +1,11 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import androidx.compose.ui.graphics.ImageBitmap
 import munchkin.graph.ninepatch.ImageBitmapNinePatchSource
 import munchkin.graph.ninepatch.NinePatchChunk
 import munchkin.graph.ninepatch.NinePatchType
 import munchkin.graph.ninepatch.parseNinePatch
-import munchkin.resources.loader.coil.NinePatchCoilImage
+import munchkin.resources.runtime.coil.NinePatchCoilImage
 import coil3.Bitmap
 import coil3.BitmapImage
 import coil3.Image

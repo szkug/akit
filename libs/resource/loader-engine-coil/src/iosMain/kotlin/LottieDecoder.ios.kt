@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import androidx.compose.runtime.DefaultMonotonicFrameClock
 import androidx.compose.runtime.MonotonicFrameClock
@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import munchkin.graph.AnimatablePainter
-import munchkin.resources.loader.coil.LottieCoilImage
+import munchkin.resources.runtime.coil.LottieCoilImage
 import coil3.asImage
 import coil3.getExtra
 import coil3.request.Options

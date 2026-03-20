@@ -1,9 +1,9 @@
 package munchkin.apps.cmp
 
 import androidx.compose.runtime.Composable
-import munchkin.resources.loader.EngineContext
-import munchkin.resources.loader.SvgaAsyncRequestEngine
-import munchkin.resources.loader.glide.GlideSvgaRequestEngine
+import munchkin.resources.runtime.RuntimeEngineContext
+import munchkin.resources.runtime.RuntimeSvgaRequestEngine
+import munchkin.resources.runtime.glide.GlideRuntimeSvgaRequestEngine
 
 @Composable
-actual fun rememberDemoBinaryEngine(): SvgaAsyncRequestEngine<out EngineContext> = GlideSvgaRequestEngine.Normal
+actual fun rememberDemoBinaryEngine(): RuntimeSvgaRequestEngine<out RuntimeEngineContext> = GlideRuntimeSvgaRequestEngine.Normal

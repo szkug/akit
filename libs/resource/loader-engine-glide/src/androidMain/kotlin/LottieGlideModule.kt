@@ -1,4 +1,4 @@
-package munchkin.resources.loader.glide.extensions.lottie
+package munchkin.resources.runtime.glide.extensions.lottie
 
 import android.content.Context
 import android.content.res.Resources

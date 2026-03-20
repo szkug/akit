@@ -1,4 +1,4 @@
-package munchkin.resources.loader.coil.support
+package munchkin.resources.runtime.coil.support
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import munchkin.graph.AnimatablePainter
-import munchkin.resources.loader.coil.GifCoilImage
+import munchkin.resources.runtime.coil.GifCoilImage
 import coil3.asImage
 import coil3.request.Options
 import kotlinx.coroutines.CoroutineScope

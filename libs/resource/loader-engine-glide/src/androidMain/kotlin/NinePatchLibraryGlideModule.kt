@@ -1,4 +1,4 @@
-package munchkin.resources.loader.glide.extensions.ninepatch
+package munchkin.resources.runtime.glide.extensions.ninepatch
 
 import android.content.Context
 import android.graphics.drawable.Drawable
