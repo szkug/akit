@@ -89,7 +89,7 @@ interface ImageAsyncLoadData {
     fun painter(): Painter
 }
 
-sealed interface ImageAsyncLoadResult<T : ImageAsyncLoadData> {
+sealed interface ImageAsyncLoadResult<out T : ImageAsyncLoadData> {
     @JvmInline
     value class Error<T : ImageAsyncLoadData>(val data: T?) : ImageAsyncLoadResult<T>
 
@@ -100,12 +100,12 @@ sealed interface ImageAsyncLoadResult<T : ImageAsyncLoadData> {
     value class Cleared<T : ImageAsyncLoadData>(val data: T?) : ImageAsyncLoadResult<T>
 }
 
-interface ImageAsyncRequestEngine<Data : ImageAsyncLoadData> {
+interface ImageAsyncRequestEngine<C : EngineContext, out Data : ImageAsyncLoadData> : RequestEngine<C> {
 
     val engineSizeOriginal: Int
 
     suspend fun flowRequest(
-        engineContext: EngineContext,
+        engineContext: C,
         imageContext: AsyncImageContext,
         size: ResolvableImageSize,
         contentScale: ContentScale,

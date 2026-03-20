@@ -37,22 +37,12 @@ kotlin {
 
 ```kotlin
 val state = rememberSvgaPlayerState(iterations = -1)
-
-MunchkinSvga(
-    source = BinarySource.Url("https://example.com/demo.svga"),
-    contentDescription = null,
-    state = state,
-)
-```
-
-If you want cached network/download behavior, pass a dedicated loader engine:
-
-```kotlin
 val loaderEngine = CoilSvgaRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
     contentDescription = null,
+    state = state,
     loaderEngine = loaderEngine,
 )
 ```
@@ -78,6 +68,7 @@ MunchkinSvga(
     source = BinarySource.Raw(Res.raw.demo_svga),
     contentDescription = null,
     dynamicEntity = dynamic,
+    loaderEngine = CoilSvgaRequestEngine.Normal,
 )
 ```
 

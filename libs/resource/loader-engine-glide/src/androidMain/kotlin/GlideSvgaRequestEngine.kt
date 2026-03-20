@@ -11,19 +11,17 @@ import kotlinx.coroutines.withContext
 import munchkin.resources.loader.BinaryAsyncLoadData
 import munchkin.resources.loader.BinaryPayload
 import munchkin.resources.loader.BinarySource
-import munchkin.resources.loader.EngineContext
-import munchkin.resources.loader.LocalEngineContextRegister
 import munchkin.resources.loader.SvgaAsyncRequestEngine
 import munchkin.resources.loader.cacheKey
 
-typealias DownloadGlideRequestBuilder = (EngineContext) -> RequestBuilder<File>
+typealias DownloadGlideRequestBuilder = (GlideLoaderEngineContext) -> RequestBuilder<File>
 
 class GlideSvgaRequestEngine(
     val downloadRequestBuilder: DownloadGlideRequestBuilder = DownloadOnlyGlideRequestBuilder,
-) : SvgaAsyncRequestEngine {
+) : SvgaAsyncRequestEngine<GlideLoaderEngineContext>, GlideContextRegisterEngine {
 
     override suspend fun requestSvga(
-        engineContext: EngineContext,
+        engineContext: GlideLoaderEngineContext,
         source: BinarySource,
     ): BinaryAsyncLoadData = withContext(Dispatchers.IO) {
         if (source is BinarySource.Bytes) {
@@ -49,10 +47,7 @@ class GlideSvgaRequestEngine(
             }
 
         init {
-            LocalEngineContextRegister.register(
-                GlideSvgaRequestEngine::class,
-                GlideEngineContextProvider,
-            )
+            GlideContextRegisterEngine.register()
         }
     }
 }

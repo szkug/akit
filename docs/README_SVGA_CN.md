@@ -37,22 +37,12 @@ kotlin {
 
 ```kotlin
 val state = rememberSvgaPlayerState(iterations = -1)
-
-MunchkinSvga(
-    source = BinarySource.Url("https://example.com/demo.svga"),
-    contentDescription = null,
-    state = state,
-)
-```
-
-如果你希望复用缓存和下载链路，需要传入独立的资源下载 engine：
-
-```kotlin
 val loaderEngine = CoilSvgaRequestEngine.Normal
 
 MunchkinSvga(
     source = BinarySource.Url("https://example.com/demo.svga"),
     contentDescription = null,
+    state = state,
     loaderEngine = loaderEngine,
 )
 ```
@@ -78,6 +68,7 @@ MunchkinSvga(
     source = BinarySource.Raw(Res.raw.demo_svga),
     contentDescription = null,
     dynamicEntity = dynamic,
+    loaderEngine = CoilSvgaRequestEngine.Normal,
 )
 ```
 

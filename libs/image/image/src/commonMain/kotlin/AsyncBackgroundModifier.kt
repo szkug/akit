@@ -31,7 +31,7 @@ import munchkin.graph.ImagePadding
 import kotlin.math.roundToInt
 
 
-internal fun Modifier.asyncBackgroundNode(
+internal fun <C : EngineContext, Data : AsyncLoadData> Modifier.asyncBackgroundNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     alignment: Alignment,
@@ -39,8 +39,8 @@ internal fun Modifier.asyncBackgroundNode(
     alpha: Float,
     colorFilter: ColorFilter?,
     imageContext: AsyncImageContext,
-    engineContext: EngineContext,
-    engine: AsyncRequestEngine<*>,
+    engineContext: C,
+    engine: AsyncRequestEngine<C, Data>,
 ): Modifier = this then AsyncBackgroundElement(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
@@ -50,10 +50,10 @@ internal fun Modifier.asyncBackgroundNode(
     colorFilter = colorFilter,
     imageContext = imageContext,
     engineContext = engineContext,
-    engine = engine.asAsyncLoadDataEngine(),
+    engine = engine,
 )
 
-private data class AsyncBackgroundElement(
+private data class AsyncBackgroundElement<C : EngineContext, Data : AsyncLoadData>(
     val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val alignment: Alignment,
@@ -61,11 +61,11 @@ private data class AsyncBackgroundElement(
     val alpha: Float,
     val colorFilter: ColorFilter?,
     val imageContext: AsyncImageContext,
-    val engineContext: EngineContext,
-    val engine: AsyncRequestEngine<AsyncLoadData>,
-) : ModifierNodeElement<AsyncBackgroundNode>() {
+    val engineContext: C,
+    val engine: AsyncRequestEngine<C, Data>,
+) : ModifierNodeElement<AsyncBackgroundNode<C, Data>>() {
 
-    override fun create(): AsyncBackgroundNode {
+    override fun create(): AsyncBackgroundNode<C, Data> {
         return AsyncBackgroundNode(
             requestModel = requestModel,
             placeholderModel = placeholderModel,
@@ -79,7 +79,7 @@ private data class AsyncBackgroundElement(
         )
     }
 
-    override fun update(node: AsyncBackgroundNode) {
+    override fun update(node: AsyncBackgroundNode<C, Data>) {
         node.alignment = alignment
         node.alpha = alpha
         node.colorFilter = colorFilter
@@ -99,7 +99,7 @@ private data class AsyncBackgroundElement(
 
 private const val TRACE_SECTION_NAME = "AsyncBackgroundNode"
 
-private class AsyncBackgroundNode(
+private class AsyncBackgroundNode<C : EngineContext, Data : AsyncLoadData>(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     contentScale: ContentScale,
@@ -107,9 +107,9 @@ private class AsyncBackgroundNode(
     var alpha: Float,
     var colorFilter: ColorFilter?,
     imageContext: AsyncImageContext,
-    engineContext: EngineContext,
-    engine: AsyncRequestEngine<AsyncLoadData>
-) : AsyncRequestNode(
+    engineContext: C,
+    engine: AsyncRequestEngine<C, Data>
+) : AsyncRequestNode<C, Data>(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
     failureModel = null,
@@ -220,7 +220,7 @@ private class AsyncBackgroundNode(
         failureModel: ResourceModel?,
         contentScale: ContentScale,
         imageContext: AsyncImageContext,
-        engineContext: EngineContext
+        engineContext: C
     ) {
         super.update(requestModel, placeholderModel, failureModel, contentScale, imageContext, engineContext)
         if (!drawPadding().isEmpty) invalidateMeasurement()

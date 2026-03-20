@@ -17,11 +17,9 @@ import munchkin.graph.toPainter
 import munchkin.resources.loader.AsyncImageContext
 import munchkin.resources.loader.AsyncImageSizeLimit
 import munchkin.resources.loader.DrawableModel
-import munchkin.resources.loader.EngineContext
 import munchkin.resources.loader.ImageAsyncLoadData
 import munchkin.resources.loader.ImageAsyncLoadResult
 import munchkin.resources.loader.ImageAsyncRequestEngine
-import munchkin.resources.loader.LocalEngineContextRegister
 import munchkin.resources.loader.RequestModel
 import munchkin.resources.loader.ResIdModel
 import munchkin.resources.loader.ResolvableImageSize
@@ -43,7 +41,7 @@ class DrawableAsyncLoadData(
     override fun painter(): Painter = value.toPainter()
 }
 
-typealias GlideImageRequestBuilder = (EngineContext, AsyncImageContext) -> RequestBuilder<Drawable>
+typealias GlideImageRequestBuilder = (GlideLoaderEngineContext, AsyncImageContext) -> RequestBuilder<Drawable>
 
 private const val GlideSizeOriginal = Target.SIZE_ORIGINAL
 
@@ -51,12 +49,12 @@ class GlideImageRequestEngine(
     val requestBuilder: GlideImageRequestBuilder = NormalGlideRequestBuilder,
     val bitmapTransformations: List<BitmapTransformation> = emptyList(),
     val drawableTransformations: List<DrawableTransformation> = emptyList(),
-) : ImageAsyncRequestEngine<DrawableAsyncLoadData> {
+) : ImageAsyncRequestEngine<GlideLoaderEngineContext, DrawableAsyncLoadData>, GlideContextRegisterEngine {
 
     override val engineSizeOriginal: Int = GlideSizeOriginal
 
     override suspend fun flowRequest(
-        engineContext: EngineContext,
+        engineContext: GlideLoaderEngineContext,
         imageContext: AsyncImageContext,
         size: ResolvableImageSize,
         contentScale: ContentScale,
@@ -147,10 +145,7 @@ class GlideImageRequestEngine(
             }
 
         init {
-            LocalEngineContextRegister.register(
-                GlideImageRequestEngine::class,
-                GlideEngineContextProvider,
-            )
+            GlideContextRegisterEngine.register()
         }
     }
 }

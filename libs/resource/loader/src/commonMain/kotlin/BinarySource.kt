@@ -1,7 +1,4 @@
 package munchkin.resources.loader
-
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import munchkin.resources.runtime.RawResourceId
 
 sealed interface BinarySource {
@@ -33,19 +30,6 @@ data class BinaryPayload(
     val cacheKey: String,
     val source: BinarySource,
 )
-
-internal interface PlatformBinarySourceLoader {
-    suspend fun load(source: BinarySource): BinaryPayload
-}
-
-@Composable
-internal expect fun rememberPlatformBinarySourceLoader(): PlatformBinarySourceLoader
-
-@Composable
-fun rememberFallbackBinaryPayloadLoader(): suspend (BinarySource) -> BinaryPayload {
-    val loader = rememberPlatformBinarySourceLoader()
-    return remember(loader) { { source -> loader.load(source) } }
-}
 
 fun BinarySource.cacheKey(): String {
     return when (this) {

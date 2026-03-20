@@ -7,7 +7,6 @@ import munchkin.resources.loader.AsyncImageContext as LoaderAsyncImageContext
 import munchkin.resources.loader.AsyncImageLoadListener as LoaderAsyncImageLoadListener
 import munchkin.resources.loader.AsyncImageSizeLimit as LoaderAsyncImageSizeLimit
 import munchkin.resources.loader.DefaultPlatformMunchkinLogger
-import munchkin.resources.loader.EngineContextProvider as LoaderEngineContextProvider
 import munchkin.resources.loader.LocalEngineContextRegister as LoaderLocalEngineContextRegister
 import munchkin.resources.loader.MunchkinLogger
 import kotlin.coroutines.CoroutineContext
@@ -17,7 +16,7 @@ typealias DefaultPlatformAsyncImageLogger = DefaultPlatformMunchkinLogger
 typealias AsyncImageLoadListener = LoaderAsyncImageLoadListener
 typealias AsyncImageSizeLimit = LoaderAsyncImageSizeLimit
 typealias AsyncImageContext = LoaderAsyncImageContext
-typealias EngineContextProvider = LoaderEngineContextProvider
+typealias EngineContextProvider<C> = munchkin.resources.loader.EngineContextProvider<C>
 typealias LocalEngineContextRegister = LoaderLocalEngineContextRegister
 
 @Composable

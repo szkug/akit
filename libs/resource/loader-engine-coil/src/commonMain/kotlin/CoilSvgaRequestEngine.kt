@@ -23,22 +23,12 @@ import kotlinx.coroutines.withContext
 import munchkin.resources.loader.BinaryAsyncLoadData
 import munchkin.resources.loader.BinaryPayload
 import munchkin.resources.loader.BinarySource
-import munchkin.resources.loader.EngineContext
-import munchkin.resources.loader.EngineContextProvider
-import munchkin.resources.loader.LocalEngineContextRegister
 import munchkin.resources.loader.SvgaAsyncRequestEngine
 import munchkin.resources.loader.cacheKey
 import okio.use
 import kotlin.jvm.JvmInline
 
-@JvmInline
-private value class CoilSvgaEngineContext(val context: PlatformContext) : EngineContext
 
-private val CoilSvgaEngineContextProvider: EngineContextProvider =
-    { CoilSvgaEngineContext(LocalPlatformContext.current) }
-
-private val EngineContext.platformContext: PlatformContext
-    get() = (this as CoilSvgaEngineContext).context
 
 interface CoilImageLoaderFactory {
     fun get(context: PlatformContext): ImageLoader
@@ -73,23 +63,20 @@ private val NormalCoilBinaryImageLoaderFactory = object : CoilImageLoaderSinglet
 
 class CoilSvgaRequestEngine(
     val factory: CoilImageLoaderFactory = NormalCoilBinaryImageLoaderFactory,
-) : SvgaAsyncRequestEngine {
+) : SvgaAsyncRequestEngine<CoilEngineContext>, CoilContextRegisterEngine {
 
     override suspend fun requestSvga(
-        engineContext: EngineContext,
+        engineContext: CoilEngineContext,
         source: BinarySource,
     ): BinaryAsyncLoadData {
-        return CoilBinarySourceRequester(engineContext.platformContext, factory).request(source)
+        return CoilBinarySourceRequester(engineContext.context, factory).request(source)
     }
 
     companion object {
         val Normal = CoilSvgaRequestEngine()
 
         init {
-            LocalEngineContextRegister.register(
-                CoilSvgaRequestEngine::class,
-                CoilSvgaEngineContextProvider,
-            )
+            CoilContextRegisterEngine.register()
         }
     }
 }

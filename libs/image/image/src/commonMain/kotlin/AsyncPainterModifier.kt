@@ -36,7 +36,7 @@ import kotlin.math.roundToInt
 
 private const val TRACE_SECTION_NAME = "AsyncPainterModifier"
 
-internal fun Modifier.asyncPainterNode(
+internal fun <C : EngineContext, Data : AsyncLoadData> Modifier.asyncPainterNode(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResourceModel?,
@@ -46,8 +46,8 @@ internal fun Modifier.asyncPainterNode(
     alpha: Float,
     colorFilter: ColorFilter?,
     imageContext: AsyncImageContext,
-    engineContext: EngineContext,
-    engine: AsyncRequestEngine<*>
+    engineContext: C,
+    engine: AsyncRequestEngine<C, Data>,
 ): Modifier = clipToBounds()
     .semantics {
         if (contentDescription != null) {
@@ -64,10 +64,10 @@ internal fun Modifier.asyncPainterNode(
     colorFilter = colorFilter,
     imageContext = imageContext,
     engineContext = engineContext,
-    engine = engine.asAsyncLoadDataEngine()
+    engine = engine
 )
 
-private data class AsyncPainterElement(
+private data class AsyncPainterElement<C : EngineContext, Data : AsyncLoadData>(
     val requestModel: RequestModel,
     val placeholderModel: PainterModel?,
     val failureModel: ResourceModel?,
@@ -76,11 +76,11 @@ private data class AsyncPainterElement(
     val alpha: Float,
     val colorFilter: ColorFilter?,
     val imageContext: AsyncImageContext,
-    val engineContext: EngineContext,
-    val engine: AsyncRequestEngine<AsyncLoadData>
-) : ModifierNodeElement<AsyncPainterNode>() {
+    val engineContext: C,
+    val engine: AsyncRequestEngine<C, Data>
+) : ModifierNodeElement<AsyncPainterNode<C, Data>>() {
 
-    override fun create(): AsyncPainterNode {
+    override fun create(): AsyncPainterNode<C, Data> {
         return AsyncPainterNode(
             requestModel = requestModel,
             placeholderModel = placeholderModel,
@@ -95,7 +95,7 @@ private data class AsyncPainterElement(
         )
     }
 
-    override fun update(node: AsyncPainterNode) {
+    override fun update(node: AsyncPainterNode<C, Data>) {
         node.alignment = alignment
         node.alpha = alpha
         node.colorFilter = colorFilter
@@ -115,7 +115,7 @@ private data class AsyncPainterElement(
     }
 }
 
-internal class AsyncPainterNode(
+internal class AsyncPainterNode<C : EngineContext, Data : AsyncLoadData>(
     requestModel: RequestModel,
     placeholderModel: PainterModel?,
     failureModel: ResourceModel?,
@@ -124,9 +124,9 @@ internal class AsyncPainterNode(
     var alpha: Float,
     var colorFilter: ColorFilter?,
     imageContext: AsyncImageContext,
-    engineContext: EngineContext,
-    engine: AsyncRequestEngine<AsyncLoadData>
-) : AsyncRequestNode(
+    engineContext: C,
+    engine: AsyncRequestEngine<C, Data>
+) : AsyncRequestNode<C, Data>(
     requestModel = requestModel,
     placeholderModel = placeholderModel,
     failureModel = failureModel,
@@ -356,7 +356,7 @@ internal class AsyncPainterNode(
         failureModel: ResourceModel?,
         contentScale: ContentScale,
         imageContext: AsyncImageContext,
-        engineContext: EngineContext,
+        engineContext: C,
     ) {
         super.update(requestModel, placeholderModel, failureModel, contentScale, imageContext, engineContext)
         invalidateMeasurement()

@@ -8,9 +8,9 @@ data class BinaryAsyncLoadData(
     override val payload: BinaryPayload,
 ) : SvgaAsyncLoadData
 
-interface SvgaAsyncRequestEngine {
+interface SvgaAsyncRequestEngine<C: EngineContext> : RequestEngine<C> {
     suspend fun requestSvga(
-        engineContext: EngineContext,
+        engineContext: C,
         source: BinarySource,
     ): BinaryAsyncLoadData
 }

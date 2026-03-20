@@ -28,20 +28,33 @@ expect object DefaultPlatformMunchkinLogger : MunchkinLogger {
 
 interface EngineContext
 
-typealias EngineContextProvider = @Composable () -> EngineContext
+typealias EngineContextProvider<C> = @Composable () -> C
+
+interface RequestEngine<C : EngineContext> {
+    val contextType: KClass<C>
+}
 
 object LocalEngineContextRegister {
 
-    private val registration = mutableMapOf<KClass<*>, EngineContextProvider>()
+    private data class Registration<C : EngineContext>(
+        val provider: EngineContextProvider<C>,
+    )
 
-    fun register(type: KClass<*>, provider: EngineContextProvider) {
-        registration[type] = provider
+    private val registration =
+        mutableMapOf<KClass<out EngineContext>, Registration<out EngineContext>>()
+
+    fun <C : EngineContext> register(
+        type: KClass<C>,
+        provider: EngineContextProvider<C>,
+    ) {
+        registration[type] = Registration(provider)
     }
 
     @Composable
-    fun resolve(engine: Any): EngineContext {
-        val provider = registration[engine::class]
-            ?: error("No EngineContext provider found, it must register first.")
-        return provider.invoke()
+    fun <C : EngineContext> resolve(engine: RequestEngine<C>): C {
+        @Suppress("UNCHECKED_CAST")
+        val resolved = registration[engine.contextType] as? Registration<C>
+        return resolved?.provider?.invoke()
+            ?: error("No EngineContext type ${engine.contextType.simpleName} provider found, it must register first.")
     }
 }

@@ -21,7 +21,7 @@ import munchkin.resources.runtime.painterResource
  * Async image load node base on platform-specific image loader.
  */
 @Composable
-fun MunchkinAsyncImage(
+fun <C : EngineContext, Data : AsyncLoadData> MunchkinAsyncImage(
     model: Any?,
     placeholder: Any? = null,
     failureRes: Any? = null,
@@ -32,7 +32,7 @@ fun MunchkinAsyncImage(
     alpha: Float = AsyncImageDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = AsyncImageDefaults.DefaultColorFilter,
     context: AsyncImageContext = rememberAsyncImageContext(),
-    engine: ImageAsyncRequestEngine<*>,
+    engine: AsyncRequestEngine<C, Data>,
 ) {
     Layout(
         modifier = modifier
@@ -59,7 +59,7 @@ fun MunchkinAsyncImage(
  * Use platform-specific image loader to draw background image.
  */
 @Composable
-fun Modifier.munchkinAsyncBackground(
+fun <C : EngineContext, Data : AsyncLoadData> Modifier.munchkinAsyncBackground(
     model: Any?,
     placeholder: Any? = model,
     alignment: Alignment = AsyncImageDefaults.DefaultAlignment,
@@ -67,7 +67,7 @@ fun Modifier.munchkinAsyncBackground(
     alpha: Float = AsyncImageDefaults.DefaultAlpha,
     colorFilter: ColorFilter? = AsyncImageDefaults.DefaultColorFilter,
     context: AsyncImageContext = rememberAsyncImageContext(supportNinepatch = true),
-    engine: ImageAsyncRequestEngine<*>,
+    engine: AsyncRequestEngine<C, Data>,
 ): Modifier = composed {
 
     asyncBackgroundNode(

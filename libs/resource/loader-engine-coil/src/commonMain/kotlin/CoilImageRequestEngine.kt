@@ -15,12 +15,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import munchkin.resources.loader.AsyncImageContext
-import munchkin.resources.loader.EngineContext
-import munchkin.resources.loader.EngineContextProvider
 import munchkin.resources.loader.ImageAsyncLoadData
 import munchkin.resources.loader.ImageAsyncLoadResult
 import munchkin.resources.loader.ImageAsyncRequestEngine
-import munchkin.resources.loader.LocalEngineContextRegister
 import munchkin.resources.loader.RequestModel
 import munchkin.resources.loader.ResolvableImageSize
 import munchkin.resources.loader.ResourceModel
@@ -33,16 +30,7 @@ import munchkin.resources.loader.coil.support.LottieIterationsKey
 import munchkin.resources.loader.coil.support.NinePatchDecodeEnabled
 import munchkin.resources.loader.coil.support.NinePatchDecoder
 import munchkin.resources.loader.coil.support.platformDecoderFactories
-import kotlin.jvm.JvmInline
 
-@JvmInline
-private value class CoilImageEngineContext(val context: coil3.PlatformContext) : EngineContext
-
-private val CoilImageEngineContextProvider: EngineContextProvider =
-    { CoilImageEngineContext(coil3.compose.LocalPlatformContext.current) }
-
-private val EngineContext.platformContext: coil3.PlatformContext
-    get() = (this as CoilImageEngineContext).context
 
 abstract class CoilAsyncLoadData<T>(
     open val value: T,
@@ -63,12 +51,12 @@ private val NormalCoilImageLoaderFactory = object : CoilImageLoaderSingletonFact
 
 class CoilImageRequestEngine(
     val factory: CoilImageLoaderFactory = NormalCoilImageLoaderFactory,
-) : ImageAsyncRequestEngine<PainterAsyncLoadData> {
+) : ImageAsyncRequestEngine<CoilEngineContext, PainterAsyncLoadData>, CoilContextRegisterEngine {
 
     override val engineSizeOriginal: Int = -1
 
     override suspend fun flowRequest(
-        engineContext: EngineContext,
+        engineContext: CoilEngineContext,
         imageContext: AsyncImageContext,
         size: ResolvableImageSize,
         contentScale: ContentScale,
@@ -86,8 +74,8 @@ class CoilImageRequestEngine(
 
         val rawModel = requestModel.model
         val builder = when (val resolvedModel = rawModel.resolveCoilImageData()) {
-            is ImageRequest -> resolvedModel.newBuilder(engineContext.platformContext)
-            else -> ImageRequest.Builder(engineContext.platformContext).data(resolvedModel)
+            is ImageRequest -> resolvedModel.newBuilder(engineContext.context)
+            else -> ImageRequest.Builder(engineContext.context).data(resolvedModel)
         }
 
         if (imageContext.supportNinepatch) {
@@ -108,7 +96,7 @@ class CoilImageRequestEngine(
             .target(target)
             .build()
 
-        val disposable = factory.get(engineContext.platformContext).enqueue(request)
+        val disposable = factory.get(engineContext.context).enqueue(request)
         awaitClose { disposable.dispose() }
     }
 
@@ -116,10 +104,7 @@ class CoilImageRequestEngine(
         val Normal = CoilImageRequestEngine()
 
         init {
-            LocalEngineContextRegister.register(
-                CoilImageRequestEngine::class,
-                CoilImageEngineContextProvider,
-            )
+            CoilContextRegisterEngine.register()
         }
     }
 }
@@ -128,7 +113,7 @@ internal expect fun Any?.resolveCoilImageData(): Any?
 
 private class CoilFlowTarget(
     private val imageContext: AsyncImageContext,
-    private val engineContext: EngineContext,
+    private val engineContext: CoilEngineContext,
     private val scope: ProducerScope<ImageAsyncLoadResult<PainterAsyncLoadData>>,
 ) : Target, ImageRequest.Listener {
 
@@ -172,11 +157,11 @@ private class CoilFlowTarget(
 
 private fun Painter.toPainterAsyncLoadData() = PainterAsyncLoadData(this)
 
-private fun Image.toMunchkinPainter(context: EngineContext): Painter {
+private fun Image.toMunchkinPainter(context: CoilEngineContext): Painter {
     return when (this) {
         is LottieCoilImage -> toPainter()
         is NinePatchCoilImage -> toPainter()
         is GifCoilImage -> toPainter()
-        else -> asPainter(context.platformContext)
+        else -> asPainter(context.context)
     }
 }

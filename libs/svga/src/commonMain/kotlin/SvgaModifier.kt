@@ -32,14 +32,14 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.trace
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import munchkin.resources.loader.BinarySource
 import munchkin.resources.loader.EngineContext
 import munchkin.resources.loader.SvgaAsyncRequestEngine
-import munchkin.resources.loader.BinarySource
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -62,13 +62,12 @@ internal sealed interface SvgaOverlay {
     data class Error(val throwable: Throwable) : SvgaOverlay
 }
 
-internal fun Modifier.svgaNode(
+internal fun <C : EngineContext> Modifier.svgaNode(
     source: BinarySource,
     state: SvgaPlayerState,
     dynamicEntity: SvgaDynamicEntity,
-    loaderEngine: SvgaAsyncRequestEngine?,
-    engineContext: EngineContext?,
-    fallbackLoader: suspend (BinarySource) -> munchkin.resources.loader.BinaryPayload,
+    loaderEngine: SvgaAsyncRequestEngine<C>,
+    engineContext: C,
     audioEnvironment: SvgaAudioEnvironment,
     slotState: SvgaSlotState,
     contentDescription: String?,
@@ -89,7 +88,6 @@ internal fun Modifier.svgaNode(
     dynamicEntity = dynamicEntity,
     loaderEngine = loaderEngine,
     engineContext = engineContext,
-    fallbackLoader = fallbackLoader,
     audioEnvironment = audioEnvironment,
     slotState = slotState,
     alignment = alignment,
@@ -99,13 +97,12 @@ internal fun Modifier.svgaNode(
     onError = onError,
 )
 
-private data class SvgaElement(
+private data class SvgaElement<C : EngineContext>(
     val source: BinarySource,
     val state: SvgaPlayerState,
     val dynamicEntity: SvgaDynamicEntity,
-    val loaderEngine: SvgaAsyncRequestEngine?,
-    val engineContext: EngineContext?,
-    val fallbackLoader: suspend (BinarySource) -> munchkin.resources.loader.BinaryPayload,
+    val loaderEngine: SvgaAsyncRequestEngine<C>,
+    val engineContext: C,
     val audioEnvironment: SvgaAudioEnvironment,
     val slotState: SvgaSlotState,
     val alignment: Alignment,
@@ -113,16 +110,15 @@ private data class SvgaElement(
     val textMeasurer: TextMeasurer,
     val onLoaded: (SvgaMovie) -> Unit,
     val onError: (Throwable) -> Unit,
-) : ModifierNodeElement<SvgaNode>() {
+) : ModifierNodeElement<SvgaNode<C>>() {
 
-    override fun create(): SvgaNode {
+    override fun create(): SvgaNode<C> {
         return SvgaNode(
             source = source,
             state = state,
             dynamicEntity = dynamicEntity,
             loaderEngine = loaderEngine,
             engineContext = engineContext,
-            fallbackLoader = fallbackLoader,
             audioEnvironment = audioEnvironment,
             slotState = slotState,
             alignment = alignment,
@@ -133,14 +129,13 @@ private data class SvgaElement(
         )
     }
 
-    override fun update(node: SvgaNode) {
+    override fun update(node: SvgaNode<C>) {
         node.update(
             source = source,
             state = state,
             dynamicEntity = dynamicEntity,
             loaderEngine = loaderEngine,
             engineContext = engineContext,
-            fallbackLoader = fallbackLoader,
             audioEnvironment = audioEnvironment,
             slotState = slotState,
             alignment = alignment,
@@ -163,13 +158,12 @@ private data class SvgaElement(
 /**
  * Node that owns SVGA loading, decode, playback timing, and draw invalidation.
  */
-internal class SvgaNode(
+internal class SvgaNode<C : EngineContext>(
     private var source: BinarySource,
     private var state: SvgaPlayerState,
     private var dynamicEntity: SvgaDynamicEntity,
-    private var loaderEngine: SvgaAsyncRequestEngine?,
-    private var engineContext: EngineContext?,
-    private var fallbackLoader: suspend (BinarySource) -> munchkin.resources.loader.BinaryPayload,
+    private var loaderEngine: SvgaAsyncRequestEngine<C>,
+    private var engineContext: C,
     private var audioEnvironment: SvgaAudioEnvironment,
     private var slotState: SvgaSlotState,
     private var alignment: Alignment,
@@ -264,9 +258,8 @@ internal class SvgaNode(
         source: BinarySource,
         state: SvgaPlayerState,
         dynamicEntity: SvgaDynamicEntity,
-        loaderEngine: SvgaAsyncRequestEngine?,
-        engineContext: EngineContext?,
-        fallbackLoader: suspend (BinarySource) -> munchkin.resources.loader.BinaryPayload,
+        loaderEngine: SvgaAsyncRequestEngine<C>,
+        engineContext: C,
         audioEnvironment: SvgaAudioEnvironment,
         slotState: SvgaSlotState,
         alignment: Alignment,
@@ -301,10 +294,6 @@ internal class SvgaNode(
         }
         if (engineContext != this.engineContext) {
             this.engineContext = engineContext
-            needsReload = true
-        }
-        if (fallbackLoader !== this.fallbackLoader) {
-            this.fallbackLoader = fallbackLoader
             needsReload = true
         }
         if (audioEnvironment !== this.audioEnvironment) {
@@ -422,14 +411,11 @@ internal class SvgaNode(
         val activeSource = source
         slotState.overlay = SvgaOverlay.Loading
         SvgaLogger.info("SvgaLoad") {
-            "start source=${activeSource.logLabel()} engine=${loaderEngine?.let { it::class.simpleName } ?: "fallback"}"
+            "start source=${activeSource.logLabel()} engine=${loaderEngine::class.simpleName}"
         }
         loadJob = coroutineScope.launch {
             val result = try {
-                val payload = when {
-                    loaderEngine != null && engineContext != null -> loaderEngine!!.requestSvga(engineContext!!, source).payload
-                    else -> fallbackLoader(source)
-                }
+                val payload = loaderEngine.requestSvga(engineContext, source).payload
                 Result.success(prepareSvgaMovie(SvgaDecoder.decode(payload.bytes)))
             } catch (throwable: Throwable) {
                 if (throwable is CancellationException) {

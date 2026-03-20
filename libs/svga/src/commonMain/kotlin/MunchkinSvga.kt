@@ -11,10 +11,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.rememberTextMeasurer
-import munchkin.resources.loader.SvgaAsyncRequestEngine
 import munchkin.resources.loader.BinarySource
+import munchkin.resources.loader.EngineContext
 import munchkin.resources.loader.LocalEngineContextRegister
-import munchkin.resources.loader.rememberFallbackBinaryPayloadLoader
+import munchkin.resources.loader.SvgaAsyncRequestEngine
 
 /**
  * Renders one SVGA animation through a dedicated modifier node.
@@ -26,15 +26,18 @@ import munchkin.resources.loader.rememberFallbackBinaryPayloadLoader
  *
  * Placeholder and failure slots are still supported. They are only composed when the coarse load
  * state changes, so frame progression stays outside composition.
+ *
+ * Callers must provide a loader engine explicitly. Unlike the internal decoder, source acquisition
+ * is never resolved through an implicit fallback path.
  */
 @Composable
-fun MunchkinSvga(
+fun <C : EngineContext> MunchkinSvga(
     source: BinarySource,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     state: SvgaPlayerState = rememberSvgaPlayerState(),
     dynamicEntity: SvgaDynamicEntity = SvgaDynamicEntity.EMPTY,
-    loaderEngine: SvgaAsyncRequestEngine? = null,
+    loaderEngine: SvgaAsyncRequestEngine<C>,
     placeholder: (@Composable BoxScope.() -> Unit)? = null,
     failure: (@Composable BoxScope.(Throwable) -> Unit)? = null,
     contentScale: ContentScale = ContentScale.Fit,
@@ -42,8 +45,7 @@ fun MunchkinSvga(
     onLoaded: (SvgaMovie) -> Unit = {},
     onError: (Throwable) -> Unit = {},
 ) {
-    val fallbackLoader = rememberFallbackBinaryPayloadLoader()
-    val engineContext = loaderEngine?.let { LocalEngineContextRegister.resolve(it) }
+    val engineContext = LocalEngineContextRegister.resolve(loaderEngine)
     val audioEnvironment = rememberSvgaAudioEnvironment()
     val textMeasurer = rememberTextMeasurer()
     val slotState = remember(source, loaderEngine) { SvgaSlotState() }
@@ -62,7 +64,6 @@ fun MunchkinSvga(
                     dynamicEntity = dynamicEntity,
                     loaderEngine = loaderEngine,
                     engineContext = engineContext,
-                    fallbackLoader = fallbackLoader,
                     audioEnvironment = audioEnvironment,
                     slotState = slotState,
                     contentDescription = contentDescription,

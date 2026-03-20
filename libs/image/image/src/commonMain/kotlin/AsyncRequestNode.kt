@@ -15,18 +15,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 
-internal fun AsyncRequestEngine<*>.asAsyncLoadDataEngine(): AsyncRequestEngine<AsyncLoadData> {
-    @Suppress("UNCHECKED_CAST")
-    return this as AsyncRequestEngine<AsyncLoadData>
-}
-
-internal abstract class AsyncRequestNode(
-    private val engine: AsyncRequestEngine<AsyncLoadData>,
+internal abstract class AsyncRequestNode<C : EngineContext, Data : AsyncLoadData>(
+    private val engine: AsyncRequestEngine<C, Data>,
     protected var requestModel: RequestModel,
     private var placeholderModel: PainterModel?,
     private var failureModel: ResourceModel?,
     imageContext: AsyncImageContext,
-    engineContext: EngineContext,
+    engineContext: C,
     contentScale: ContentScale,
 ) : Modifier.Node() {
 
@@ -44,7 +39,7 @@ internal abstract class AsyncRequestNode(
 
     var imageContext: AsyncImageContext = imageContext
         private set
-    var engineContext: EngineContext = engineContext
+    var engineContext: C = engineContext
         private set
 
     var contentScale: ContentScale = contentScale
@@ -76,7 +71,7 @@ internal abstract class AsyncRequestNode(
     }
 
     protected fun resolvePainter(
-        result: AsyncLoadResult<AsyncLoadData>,
+        result: AsyncLoadResult<Data>,
         failurePainter: Painter?,
         placeholderPainter: Painter,
     ): Painter {
@@ -167,7 +162,7 @@ internal abstract class AsyncRequestNode(
         failureModel: ResourceModel?,
         contentScale: ContentScale,
         imageContext: AsyncImageContext,
-        engineContext: EngineContext
+        engineContext: C,
     ) {
         var hasModify = false
         if (requestModel != this.requestModel) {
